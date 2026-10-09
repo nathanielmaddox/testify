@@ -381,6 +381,9 @@ body {
   letter-spacing: -0.005em;
   color: var(--ink);
   background-color: var(--canvas);
+  /* Native controls (DS Checkbox/Radio render real inputs): ink, never the browser's blue,
+     and never violet, which is reserved for the hero and closing CTA. */
+  accent-color: var(--ink);
 }
 
 /* Visible focus on anything the brand renders. :where() keeps specificity at 0,

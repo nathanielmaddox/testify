@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Icon } from '@otesse/design-system'
+import { Icon } from '@otesse/design-system'
 import type { ReactNode } from 'react'
 
 export interface HonestyBlockProps {
@@ -15,14 +15,16 @@ export interface HonestyBlockProps {
 }
 
 /**
- * "What we do not do": a plain list of limits, inside a DS Card (bordered, no
- * shadow: never border + shadow on one element). DS Icon marks each line;
- * the icon is decorative, the sentence carries the meaning.
+ * "What we do not do": a plain list of limits on the brand surface (white,
+ * rounded-card, shadow-raised, no border), the same lifted card as every other
+ * contained block. The DS Card stops at 12px corners and pairs border with
+ * shadow, so it is not used here. DS Icon marks each line; the icon is
+ * decorative, the sentence carries the meaning.
  */
 export function HonestyBlock({ title, items, note, headingLevel = 3 }: HonestyBlockProps) {
   const Heading = `h${headingLevel}` as const
   return (
-    <Card variant="bordered" radius="xl" padding="lg">
+    <div className="rounded-card bg-brand-surface p-6 shadow-raised md:p-8">
       <div className="flex flex-col gap-5">
         <Heading className="font-display text-brand-h4 text-brand-ink">{title}</Heading>
         <ul className="flex flex-col gap-3">
@@ -40,6 +42,6 @@ export function HonestyBlock({ title, items, note, headingLevel = 3 }: HonestyBl
         </ul>
         {note ? <p className="font-text text-brand-small text-brand-ink-subtle">{note}</p> : null}
       </div>
-    </Card>
+    </div>
   )
 }

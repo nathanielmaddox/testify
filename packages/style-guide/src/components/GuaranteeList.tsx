@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Icon } from '@otesse/design-system'
+import { Icon } from '@otesse/design-system'
 import type { ReactNode } from 'react'
 
 export interface Guarantee {
@@ -15,8 +15,9 @@ export interface GuaranteeListProps {
 }
 
 /**
- * Guarantees as a grid of DS Cards (bordered, no shadow). The check uses done-fg:
- * a guarantee is a promise about finished work. Icons are decorative.
+ * Guarantees as a grid of brand surfaces (white, rounded-card, shadow-raised, no
+ * border), matching ProcessSteps. The check uses done-fg: a guarantee is a
+ * promise about finished work. Icons are decorative.
  */
 export function GuaranteeList({ guarantees, headingLevel = 3 }: GuaranteeListProps) {
   const Heading = `h${headingLevel}` as const
@@ -24,7 +25,7 @@ export function GuaranteeList({ guarantees, headingLevel = 3 }: GuaranteeListPro
     <ul className="grid gap-brand-grid md:grid-cols-2">
       {guarantees.map((guarantee) => (
         <li key={guarantee.title} className="grid">
-          <Card variant="bordered" radius="xl" padding="lg">
+          <div className="rounded-card bg-brand-surface p-6 shadow-raised md:p-8">
             <div className="flex items-start gap-4">
               <span className="mt-1 text-brand-done-fg">
                 <Icon lucide="Check" decorative size="lg" color="inherit" />
@@ -38,7 +39,7 @@ export function GuaranteeList({ guarantees, headingLevel = 3 }: GuaranteeListPro
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </li>
       ))}
     </ul>

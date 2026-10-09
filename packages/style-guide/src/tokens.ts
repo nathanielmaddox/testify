@@ -67,7 +67,8 @@ export const colorRoles: readonly ColorRole[] = [
   {
     name: 'action',
     hex: '#7a40de',
-    usage: 'Primary CTA fill, selected controls, the one "board" tile. One hero CTA per view.',
+    usage:
+      'The action colour: hero CTA, closing CTA and the focus ring only. Mid-page and nav CTAs use action-quiet; selected controls use ink.',
   },
   { name: 'action-hover', hex: '#6832c8', usage: 'CTA hover fill.' },
   { name: 'action-pressed', hex: '#5a2ab0', usage: 'CTA active fill.' },
