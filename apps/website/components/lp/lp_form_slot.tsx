@@ -1,42 +1,21 @@
-'use client'
-
-import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { SectionSlot } from '@/components/skeleton/page_skeleton'
 import { routes } from '@/lib/site.config'
-import { withAttribution } from '@/lib/tracking'
 
 /**
- * LP form/checkout slot. Empty for now; it already carries the onward href
- * (`data-success-href`) to the conversion page with the visitor's UTM and
- * click-id params preserved, so the form wired in later redirects there.
+ * LP form/checkout slot. Empty for now. `data-success-path` is the conversion
+ * page; the form wired in later sends the visitor there with ONLY the
+ * conversion id (`leadConfirmationHref(token)` or Stripe's
+ * `stripeSuccessUrl()`, both in lib/conversion.ts). UTM and click ids are not
+ * carried in that URL: they are in first-party storage (`getAttribution()` in
+ * lib/attribution.ts), to attach to the lead or Stripe session metadata.
  */
-function LpFormSlotWithParams() {
-  const searchParams = useSearchParams()
+export function LpFormSlot() {
   return (
     <SectionSlot
       routeKey="lp"
       slot="form"
       label="Form and checkout"
-      data-success-href={withAttribution(routes.lpConfirmation.path, searchParams)}
+      data-success-path={routes.lpConfirmation.path}
     />
-  )
-}
-
-export function LpFormSlot() {
-  // Suspense keeps /lp statically rendered; params resolve on the client.
-  return (
-    <Suspense
-      fallback={
-        <SectionSlot
-          routeKey="lp"
-          slot="form"
-          label="Form and checkout"
-          data-success-href={routes.lpConfirmation.path}
-        />
-      }
-    >
-      <LpFormSlotWithParams />
-    </Suspense>
   )
 }

@@ -77,7 +77,7 @@ importers:
         version: 10.6.1(postcss@8.5.29)
       eslint:
         specifier: ^9.39.1
-        version: 9.39.5(jiti@2.6.1)
+        version: 9.39.5(jiti@1.21.7)
       postcss:
         specifier: ^8.4.33
         version: 8.5.29
@@ -127,6 +127,9 @@ importers:
       '@otesse/design-system':
         specifier: github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f
         version: git+https://github.com/nathanielmaddox/storybook.git#e7d37602c89615c3403f8a68a27b56675bb6902f(@babel/core@7.29.7)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(antd@5.29.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(next@16.4.0(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-is@18.3.1)(react@19.3.0)(redux@5.0.1)
+      lucide-react:
+        specifier: ^0.554.0
+        version: 0.554.0(react@19.3.0)
     devDependencies:
       '@testify/config':
         specifier: workspace:*
@@ -142,7 +145,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       eslint:
         specifier: ^9.39.1
-        version: 9.39.5(jiti@1.21.7)
+        version: 9.39.5(jiti@2.6.1)
       next:
         specifier: ^16.2.4
         version: 16.4.0(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

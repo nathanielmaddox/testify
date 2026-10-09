@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { Providers } from '@/components/providers'
-import { siteConfig } from '@/lib/site.config'
+import { rootMetadata } from '@/lib/metadata'
+import { jsonLdScriptProps, organizationJsonLd, websiteJsonLd } from '@/lib/structured_data'
 import { fontVariables } from '@testify/style-guide/fonts'
 // Order is the contract: DS styles first (Tailwind layers + DS defaults), then the
 // Testify brand tokens (unlayered, so they win over the DS defaults), then page-frame rules.
@@ -20,29 +21,12 @@ import './globals.css'
  * tokens.css builds the stacks and sets the body face and size.
  */
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
-  title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  applicationName: siteConfig.name,
-  alternates: { canonical: '/' },
-  openGraph: {
-    type: 'website',
-    siteName: siteConfig.name,
-    title: siteConfig.name,
-    description: siteConfig.description,
-    url: '/',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: siteConfig.name,
-    description: siteConfig.description,
-  },
-  robots: siteConfig.indexable ? { index: true, follow: true } : { index: false, follow: false },
-}
+/**
+ * Root metadata (lib/metadata.ts): title template, description, icons and the
+ * shared Open Graph / Twitter base. No canonical and no og:url here, so a page
+ * without `pageMetadata` never claims to be the home page.
+ */
+export const metadata: Metadata = rootMetadata()
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -53,6 +37,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={fontVariables} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
+        {/* Site-wide JSON-LD: Organization + WebSite, from lib/site.config.ts. */}
+        <script {...jsonLdScriptProps([organizationJsonLd(), websiteJsonLd()])} />
         {/* Header, <main> and footer come from the (site) and (lp) group layouts. */}
         <Providers>{children}</Providers>
       </body>

@@ -2,11 +2,15 @@
  * Page and funnel tracking contract. Server-safe (no DS, no browser globals at
  * import time), so server pages can spread `pageTrackingAttrs` onto <main>.
  *
- * The analytics provider (Meta Pixel / GA) is wired in later behind `track`;
- * pages and components already call the names below, so wiring it is a change
- * to this file only.
+ * `track(event, props)` is the ONE call site for analytics. `EVENT_MAP` maps
+ * each site event to its provider events (GA4, Google Ads, Meta Pixel); each
+ * provider no-ops until its id is set (lib/analytics.config.ts) and its script
+ * is loaded (`AnalyticsScripts` in components/providers.tsx).
+ *
+ * Attribution (UTM + click ids) lives in lib/attribution.ts.
  */
-import { getRoute, type FunnelStep, type PageType, type RouteKey } from './site.config'
+import { analyticsConfig, gtagId } from './analytics.config'
+import { getRoute, siteConfig, type FunnelStep, type PageType, type RouteKey } from './site.config'
 
 export const PAGE_TYPES = [
   'site',
@@ -24,6 +28,40 @@ export type TrackEvent = (typeof TRACK_EVENTS)[number]
 
 export type TrackProps = Record<string, string | number | boolean | null | undefined>
 
+interface ProviderEvents {
+  /** GA4 event name (recommended events where one exists). */
+  ga4: string
+  /** Meta Pixel event name. */
+  meta: string
+  /** Standard Meta event (`fbq('track')`) or custom (`fbq('trackCustom')`). */
+  metaStandard: boolean
+  /** Sent as a Google Ads conversion (label from analyticsConfig). */
+  googleAdsConversion: boolean
+}
+
+/** Site event -> provider events. The single mapping table. */
+export const EVENT_MAP = {
+  page_view: { ga4: 'page_view', meta: 'PageView', metaStandard: true, googleAdsConversion: false },
+  lp_view: {
+    ga4: 'view_item',
+    meta: 'ViewContent',
+    metaStandard: true,
+    googleAdsConversion: false,
+  },
+  lead_submit: {
+    ga4: 'generate_lead',
+    meta: 'Lead',
+    metaStandard: true,
+    googleAdsConversion: true,
+  },
+  purchase_complete: {
+    ga4: 'purchase',
+    meta: 'Purchase',
+    metaStandard: true,
+    googleAdsConversion: true,
+  },
+} as const satisfies Record<TrackEvent, ProviderEvents>
+
 export interface PageTrackingAttrs {
   'data-page-key': RouteKey
   'data-page-type': PageType
@@ -40,51 +78,145 @@ export function pageTrackingAttrs(routeKey: RouteKey): PageTrackingAttrs {
   }
 }
 
-/**
- * Emit an analytics event. Intentionally a no-op: the provider (Meta Pixel /
- * GA, server-side conversions) is wired in later behind this one function.
- */
-export function track(_event: TrackEvent, _props?: TrackProps): void {}
+type QueueFn = ((...args: unknown[]) => void) & Record<string, unknown>
 
-/** Query params that carry ad attribution and must survive every LP hop. */
-export const ATTRIBUTION_PARAMS = [
-  'utm_source',
-  'utm_medium',
-  'utm_campaign',
-  'utm_term',
-  'utm_content',
-  'utm_id',
-  'gclid',
-  'gbraid',
-  'wbraid',
-  'fbclid',
-  'msclkid',
-  'ttclid',
-] as const
-
-type SearchParamsLike =
-  Pick<URLSearchParams, 'get'> | Record<string, string | string[] | undefined> | null | undefined
-
-function readParam(searchParams: SearchParamsLike, name: string): string | undefined {
-  if (!searchParams) return undefined
-  if (typeof (searchParams as Pick<URLSearchParams, 'get'>).get === 'function') {
-    return (searchParams as Pick<URLSearchParams, 'get'>).get(name) ?? undefined
-  }
-  const value = (searchParams as Record<string, string | string[] | undefined>)[name]
-  return Array.isArray(value) ? value[0] : value
+interface AnalyticsWindow {
+  dataLayer?: unknown[]
+  gtag?: QueueFn
+  fbq?: QueueFn
+  _fbq?: QueueFn
+  __testifyAnalyticsInit?: boolean
 }
 
 /**
- * Copy the attribution params (UTM + click ids) from the current request onto
- * an onward href, without overwriting params the href already sets. Relative
- * hrefs stay relative.
+ * Install the providers' standard command queues and send their init calls,
+ * once per page load. Events queue until gtag.js / fbevents.js (loaded by
+ * `AnalyticsScripts`) arrive and drain them, so the first page_view is never
+ * lost to script timing. No-op on the server and when nothing is configured.
  */
-export function withAttribution(href: string, searchParams: SearchParamsLike): string {
-  const isAbsolute = /^[a-z][a-z\d+.-]*:\/\//i.test(href)
-  const target = new URL(href, 'http://relative.invalid')
-  for (const name of ATTRIBUTION_PARAMS) {
-    const value = readParam(searchParams, name)
-    if (value && !target.searchParams.has(name)) target.searchParams.set(name, value)
+export function initAnalytics(): void {
+  if (typeof window === 'undefined') return
+  const w = window as unknown as AnalyticsWindow
+  if (w.__testifyAnalyticsInit) return
+  w.__testifyAnalyticsInit = true
+
+  if (gtagId()) {
+    w.dataLayer = w.dataLayer ?? []
+    if (!w.gtag) {
+      const dataLayer = w.dataLayer
+      // gtag.js only reads real `arguments` objects from the dataLayer.
+      w.gtag = function gtag() {
+        // eslint-disable-next-line prefer-rest-params
+        dataLayer.push(arguments)
+      } as QueueFn
+    }
+    w.gtag('js', new Date())
+    // page_view is sent by the route listener, so turn off the automatic one.
+    if (analyticsConfig.ga4Id) w.gtag('config', analyticsConfig.ga4Id, { send_page_view: false })
+    if (analyticsConfig.googleAdsId) w.gtag('config', analyticsConfig.googleAdsId)
   }
-  return isAbsolute ? target.toString() : `${target.pathname}${target.search}${target.hash}`
+
+  if (analyticsConfig.metaPixelId) {
+    if (!w.fbq) {
+      // Meta's documented stub: queue calls until fbevents.js replaces callMethod.
+      const fbq: QueueFn = function (...args: unknown[]) {
+        const callMethod = fbq['callMethod'] as ((...a: unknown[]) => void) | undefined
+        if (callMethod) callMethod.apply(fbq, args)
+        else (fbq['queue'] as unknown[]).push(args)
+      } as QueueFn
+      fbq['push'] = fbq
+      fbq['loaded'] = true
+      fbq['version'] = '2.0'
+      fbq['queue'] = []
+      w.fbq = fbq
+      if (!w._fbq) w._fbq = fbq
+    }
+    // No automatic PageView: the route listener sends it.
+    w.fbq('init', analyticsConfig.metaPixelId)
+  }
+}
+
+/** The offer as a GA4 item / Meta content, from siteConfig. */
+function offerItem() {
+  const { offer } = siteConfig
+  return { item_id: offer.id, item_name: offer.name, price: offer.price, quantity: 1 }
+}
+
+function compact(input: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined))
+}
+
+/**
+ * Emit an analytics event to every configured provider. No-op on the server
+ * and for any provider whose id is unset. Before a provider script loads,
+ * calls queue (see initAnalytics).
+ *
+ * Props understood: `event_id` (dedupe id, sent as Meta `eventID` and GA4
+ * `transaction_id` for purchases), `value`, `currency`, plus any extra
+ * key/values (sent to GA4 only). Never pass PII.
+ */
+export function track(event: TrackEvent, props: TrackProps = {}): void {
+  if (typeof window === 'undefined') return
+  initAnalytics()
+  const map: ProviderEvents = EVENT_MAP[event]
+  const w = window as unknown as AnalyticsWindow
+  const { event_id: eventId, value, currency, ...rest } = props
+  const isCommerce = event !== 'page_view'
+  const money = isCommerce
+    ? {
+        value: value ?? siteConfig.offer.price,
+        currency: currency ?? siteConfig.offer.currency,
+      }
+    : {}
+
+  // Debug/test hook: listen for 'testify:track' on window.
+  window.dispatchEvent(new CustomEvent('testify:track', { detail: { event, props } }))
+
+  if (w.gtag && analyticsConfig.ga4Id) {
+    w.gtag(
+      'event',
+      map.ga4,
+      compact({
+        ...rest,
+        ...money,
+        ...(isCommerce ? { items: [offerItem()] } : {}),
+        ...(event === 'purchase_complete' && eventId ? { transaction_id: eventId } : {}),
+        ...(eventId ? { event_id: eventId } : {}),
+        send_to: analyticsConfig.ga4Id,
+      })
+    )
+  }
+
+  const adsLabel =
+    event === 'lead_submit' || event === 'purchase_complete'
+      ? analyticsConfig.googleAdsLabels[event]
+      : null
+  if (w.gtag && map.googleAdsConversion && analyticsConfig.googleAdsId && adsLabel) {
+    w.gtag(
+      'event',
+      'conversion',
+      compact({
+        send_to: `${analyticsConfig.googleAdsId}/${adsLabel}`,
+        ...money,
+        ...(eventId ? { transaction_id: eventId } : {}),
+      })
+    )
+  }
+
+  if (w.fbq && analyticsConfig.metaPixelId) {
+    const metaProps = isCommerce
+      ? compact({
+          ...money,
+          content_ids: [siteConfig.offer.id],
+          content_type: 'product',
+          content_name: siteConfig.offer.name,
+        })
+      : {}
+    w.fbq(
+      map.metaStandard ? 'track' : 'trackCustom',
+      map.meta,
+      metaProps,
+      ...(eventId ? [{ eventID: String(eventId) }] : [])
+    )
+  }
 }

@@ -25,7 +25,8 @@
     "check:keys": "node scripts/check-keys.mjs"
   },
   "dependencies": {
-    "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f"
+    "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f",
+    "lucide-react": "^0.554.0"
   },
   "peerDependencies": {
     "next": "^16.2.4",

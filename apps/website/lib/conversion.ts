@@ -1,0 +1,102 @@
+/**
+ * Conversion page contract (/lp/confirmation). Server-safe.
+ *
+ * The page only renders for a request that names WHAT converted:
+ * - `session_id`: a Stripe Checkout session id (`cs_test_...` / `cs_live_...`),
+ *   put there by Stripe from `stripeSuccessUrl()` -> purchase_complete
+ * - `lead`: an opaque lead token issued by the lead store -> lead_submit
+ *
+ * Nothing else belongs in that URL: no email, name, phone or UTM params
+ * (attribution lives in first-party storage, lib/attribution.ts).
+ */
+import { routes, siteConfig } from './site.config'
+import type { TrackEvent } from './tracking'
+
+/** Conversion value sent with lead_submit / purchase_complete. From the offer. */
+export const CONVERSION_VALUE = siteConfig.offer.price
+export const CONVERSION_CURRENCY = siteConfig.offer.currency
+
+export const CONVERSION_PARAMS = { stripe: 'session_id', lead: 'lead' } as const
+
+/** Stripe Checkout session ids: cs_test_ / cs_live_ then an opaque token. */
+const STRIPE_SESSION_RE = /^cs_(?:test|live)_[A-Za-z0-9]{10,250}$/
+/** Lead tokens: URL-safe opaque id (uuid, nanoid, ulid all fit). No '@', no spaces. */
+const LEAD_TOKEN_RE = /^[A-Za-z0-9_-]{16,128}$/
+
+export type ConversionKind = 'purchase' | 'lead'
+
+export type ConversionResult =
+  | {
+      ok: true
+      kind: ConversionKind
+      /** The id, reused as analytics eventID / transaction_id for dedupe. */
+      id: string
+      event: Extract<TrackEvent, 'purchase_complete' | 'lead_submit'>
+      /** The query param the id came from. */
+      param: (typeof CONVERSION_PARAMS)[keyof typeof CONVERSION_PARAMS]
+      /** false while only the shape is checked. */
+      verified: boolean
+    }
+  | { ok: false; reason: 'missing' | 'invalid' }
+
+type ParamsLike = Record<string, string | string[] | undefined>
+
+function single(value: string | string[] | undefined): string | undefined | null {
+  if (value === undefined) return undefined
+  // A repeated param is ambiguous: treat it as invalid, never pick one.
+  if (Array.isArray(value)) return value.length === 1 ? (value[0] ?? null) : null
+  return value
+}
+
+/**
+ * Decide whether this confirmation request is a real conversion.
+ *
+ * Today this validates SHAPE only (`verified: false`). When checkout exists,
+ * this function also confirms the id against its source of truth: Stripe
+ * `checkout.sessions.retrieve(id)` with `payment_status === 'paid'`, or the
+ * lead store for a lead token. It is async now so that change touches no
+ * caller.
+ */
+export async function verifyConversion(params: ParamsLike): Promise<ConversionResult> {
+  const sessionId = single(params[CONVERSION_PARAMS.stripe])
+  const lead = single(params[CONVERSION_PARAMS.lead])
+
+  if (sessionId === undefined && lead === undefined) return { ok: false, reason: 'missing' }
+  // Both at once is not a shape any flow produces.
+  if (sessionId !== undefined && lead !== undefined) return { ok: false, reason: 'invalid' }
+
+  if (sessionId !== undefined) {
+    if (!sessionId || !STRIPE_SESSION_RE.test(sessionId)) return { ok: false, reason: 'invalid' }
+    return {
+      ok: true,
+      kind: 'purchase',
+      id: sessionId,
+      event: 'purchase_complete',
+      param: CONVERSION_PARAMS.stripe,
+      verified: false,
+    }
+  }
+
+  if (!lead || !LEAD_TOKEN_RE.test(lead)) return { ok: false, reason: 'invalid' }
+  return {
+    ok: true,
+    kind: 'lead',
+    id: lead,
+    event: 'lead_submit',
+    param: CONVERSION_PARAMS.lead,
+    verified: false,
+  }
+}
+
+/** Relative confirmation href for a lead token (the LP form redirects here). */
+export function leadConfirmationHref(leadToken: string): string {
+  return `${routes.lpConfirmation.path}?${CONVERSION_PARAMS.lead}=${encodeURIComponent(leadToken)}`
+}
+
+/**
+ * Absolute Stripe Checkout `success_url`. Stripe substitutes the literal
+ * `{CHECKOUT_SESSION_ID}` placeholder, so it must stay unencoded.
+ */
+export function stripeSuccessUrl(): string {
+  return `${siteConfig.url}${routes.lpConfirmation.path}?${CONVERSION_PARAMS.stripe}={CHECKOUT_SESSION_ID}`
+}

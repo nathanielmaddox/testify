@@ -34,7 +34,7 @@ learn a rule while working here, add it HERE in the same commit, never only in a
 5. **Never deploy from the root.** Each app deploys from its own folder (`DO-NOT-DEPLOY-FROM-HERE.md`,
    `scripts/vercel/README.md`). Remote Vercel build only. Delete any root `.vercel/` that holds more than
    `repo.json`.
-6. **Git:** follow the lanes in "Branches and worktrees" below. Never commit to `main` or a `_staging`
+6. **Git:** follow the lanes in "Branches and worktrees" below. Never commit to `main` or `staging`
    branch directly. Conventional commits (`feat:`, `fix:`, `chore:` ...), enforced by commitlint. Do not
    commit into a checkout another agent is editing; isolate work in a worktree. Author must be
    `cocoking <hello@otesse.com>` (set repo-local; Vercel blocks any other author).
@@ -43,36 +43,35 @@ learn a rule while working here, add it HERE in the same commit, never only in a
 
 ## Branches and worktrees
 
-Same model as `vs_code/itibg`. Every app owns a branch pair named after its folder, plus one
-repo-wide pair for work that belongs to no single app. The lanes never merge into each other; they
-meet only on `main`.
+Same model as every other vs_code monorepo (rank_and_rent, otesse): work lanes merge into ONE `staging`,
+and `main` exists only to deploy.
 
 ```
-website_migrate ---> website_staging ---+--> main ---> cd apps/<app> && remote Vercel build
-testify_migrate ---> testify_staging ---+
+testify_migrate ---+
+website_migrate ---+--> staging (integrated, the final result) --> main --> cd apps/<app> && Vercel CLI
+<app>_migrate   ---+
 ```
 
-| Branch            | What it is                                                        |
-| ----------------- | ----------------------------------------------------------------- |
-| `<app>_migrate`   | Daily work for that app. Named after the app folder               |
-| `<app>_staging`   | That app's review branch. **Never deployed**                      |
-| `testify_migrate` | Root toolchain, `packages/` (config, style-guide), cross-app work |
-| `testify_staging` | Review branch for the same                                        |
-| `main`            | Production. The only branch anything deploys from                 |
+| Branch            | What it is                                                            |
+| ----------------- | --------------------------------------------------------------------- |
+| `<app>_migrate`   | Daily work for that app, named after the app folder                   |
+| `testify_migrate` | Root toolchain, `packages/` (config, style-guide), work spanning apps |
+| `staging`         | Where every lane merges. The integrated, reviewed result              |
+| `main`            | Deploy-only: updated from `staging` right before a Vercel CLI deploy  |
 
-- A new app gets **both** `<app>_migrate` and `<app>_staging`, matching its folder name.
-- Daily work happens in `_migrate`. When it feels real, merge it into its `_staging`.
-- `_staging` is a quarantine for review, not a deploy target.
-- Ship by merging `_staging` -> `main` through a pull request; `pre-push` refuses a push to `main`.
-- **Never merge one lane into another.** Never auto-promote: both steps wait for a decision.
-- After a promotion, bring every lane back up to `main` (`git merge main`) so shared root files and
-  `packages/` do not drift.
+- A new app gets an `<app>_migrate` lane, matching its folder name. There are no per-app staging branches.
+- Daily work happens in a `_migrate` lane. Merge a lane into `staging` when it is ready; never commit
+  directly to `staging` or `main`.
+- After anything lands on `staging`, bring every lane up to it (`git merge staging`) so shared root files
+  and `packages/` do not drift.
+- `main` moves only from `staging`, only to deploy, and only when the owner says so (pull request
+  `staging` -> `main`; `pre-push` refuses a direct push to `main`). Then deploy from `apps/<app>`.
 
 **Worktrees:** the root checkout (`vs_code/testify`) sits on `testify_migrate`. Each app lane has a
 worktree at `agent_workspace/<app>_migrate` (git-ignored); run `pnpm install
---config.confirmModulesPurge=false` inside a fresh one. Review or release checkouts
-(`_staging`, `main`) are created as worktrees under `agent_workspace/` when needed and removed after.
-Never leave the only copy of anything (a backup, an export) inside a worktree.
+--config.confirmModulesPurge=false` inside a fresh one. `staging` and `main` checkouts are created as
+worktrees under `agent_workspace/` when needed and removed after. Never leave the only copy of anything (a
+backup, an export) inside a worktree.
 
 ## Commands (from the root)
 

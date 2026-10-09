@@ -29,9 +29,21 @@ The preset also carries rank_and_rent's collision guard: it throws at load when 
 or `fontSize` key shares a name with a colour (`shadow-{name}` / `text-{name}` resolve against
 both scales and the colour wins).
 
-Never style a DS component with `className` / `styles` / `styleOverrides` to get the brand look;
-theme it through the tokens in `tokens.css`. Where a token does not exist, the gap is listed at
-the end of this file.
+Theme DS components through the tokens in `tokens.css` first. Where no token reaches a part
+(control height, Button radius, field message size, alert fills), the look is set ONCE, through
+the DS component's own props (`size`, `radius`, `className`, `classNames`, `styles`,
+`styleOverrides`), inside a brand wrapper in `src/components` (TextField, ActionButton,
+Notice...). Apps never pass those props to a DS component; they use the wrapper. Remaining gaps
+are listed at the end of this file.
+
+Two DS merge facts every wrapper respects (the DS joins classes with tailwind-merge 3):
+
+- tailwind-merge reads any unknown `text-<name>` as a COLOUR. A brand font-size key
+  (`text-brand-body`) passed into a DS class list deletes the DS text colour, and vice versa.
+  Wrappers pass plain Tailwind sizes (`text-base`, `text-sm`) next to brand colours.
+- It does not recognise `rounded-control` / `rounded-card` as radii, so the DS `rounded-md`
+  stays in the list and the winner depends on CSS emit order. Wrappers set radius through a DS
+  prop (`radius`, `styleOverrides.borderRadius`) or an inline `var(--radius-*)` style.
 
 ## Exports
 
@@ -112,8 +124,10 @@ Deliberate choices:
 ## Components
 
 DS-free and server-safe: `PageSection`, `Kicker`, `DisplayHeading`, `PricingLine`, `ProofRow`,
-`CalendarTile`, `EmphasisPanel`, `Annotation`, `MediaFrame`, `ProcessSteps`.
-`'use client'`: `CtaRow`, `HonestyBlock`, `GuaranteeList` (import the DS barrel) and
+`CalendarTile`, `EmphasisPanel`, `Annotation`, `MediaFrame`, `ProcessSteps`, `HonestyBlock`,
+`GuaranteeList`.
+`'use client'` (import the DS barrel): `CtaRow`, `ActionButton`, `SubmitButton`, `TextLink`,
+`Notice`, `TextField`, `TextAreaField`, `SelectField`, `CheckboxField`, `RadioGroupField`; and
 `ProgressCalendar` (IntersectionObserver).
 
 | Component        | Notes                                                                                      |
@@ -128,24 +142,56 @@ DS-free and server-safe: `PageSection`, `Kicker`, `DisplayHeading`, `PricingLine
 | CalendarTile     | states past / today / milestone / waiting / first / done; milestone is white + 2px ink     |
 | EmphasisPanel    | the inverse gradient block; focus rings inside switch to white                             |
 | Annotation       | circle / underline / arrow / note; marks are aria-hidden; `enabled={false}` turns it off   |
-| HonestyBlock     | "what we do not do" list in a DS Card                                                      |
-| GuaranteeList    | guarantees in DS Cards with a done-fg check                                                |
+| HonestyBlock     | "what we do not do" list on a brand surface; ink-subtle list bullets                       |
+| GuaranteeList    | guarantees on brand surfaces; title and body share one left edge                           |
 | MediaFrame       | 9:16 slot, radius-card; video never autoplays (poster is the still)                        |
 | ProcessSteps     | exactly four steps (tuple type)                                                            |
+| TextField        | DS FormField + Input: 48px, 16px text, radius-md, border-strong, white fill, 14px messages |
+| TextAreaField    | DS FormField + Textarea: same anatomy, at least 128px tall                                 |
+| SelectField      | DS FormField + native DS Select: same anatomy as TextField                                 |
+| CheckboxField    | DS Checkbox: border-strong box, radius-xs, 16px label, 48px row                            |
+| RadioGroupField  | DS RadioGroup: border-strong rings, 14px/500 group label, 16px options, 48px rows          |
+| ActionButton     | DS Button: pill, 48px, `tone` action / quiet, loading, `disabledReason` shown beside it    |
+| SubmitButton     | ActionButton with `type="submit"`; keep it enabled and validate on submit                  |
+| TextLink         | DS Link, inline: action-text, always underlined, 2px underline on hover, inherits size     |
+| Notice           | DS InlineAlert with the `-bg` fill, `-border` edge and `-fg` icon per state                |
+
+Field messages: the DS prints helper and error text at 12px with no icon and offers no slot for it
+on Input / Textarea, so the field wrappers keep `helperText` / `error` out of the DS control,
+wire `aria-invalid` + `aria-describedby` themselves and render the error with DS
+`ValidationMessage` (14px, icon + words, danger-fg).
 
 ## Gaps (not themeable through DS tokens at e7d37602)
 
-Recorded instead of patched with className overrides:
+Closed by a brand wrapper (DS props, set once in this package):
 
-- DS `Button` sizes top out at 40px tall (`xl`) and its radius is a prop, not a token, so a
-  `Button` cannot match the 44px+ pill CTA. Use DS `Link variant="button"` for CTAs.
+- DS `Button` tops out at 40px and defaults to `rounded-md`: use `ActionButton` /
+  `SubmitButton` (`radius="full"`, 48px, brand focus ring via `styleOverrides`).
+- DS `Input` / `Select` / `Textarea` default to 24-36px with 12-14px text (iOS zooms on focus
+  below 16px): use the field wrappers.
+- DS `Checkbox` and `Radio` outline with `border-border` (1.28:1): use `CheckboxField` /
+  `RadioGroupField` (border-strong, 3.64:1 on surface).
+- DS `Link` default is ink with a hover-only underline: inline links use `TextLink`.
+- DS `InlineAlert` fills are `bg-<state>/10` over the ground, grey on canvas with the text-safe
+  `-fg` bases: use `Notice`.
+
+Still open:
+
+- DS `Icon` resolves `lucide="Name"` only through a `registry` prop at e7d37602 and the DS
+  exports no registry. This package cannot import `lucide-react` (not a dependency), so a named
+  icon renders nothing. Adding `lucide-react` here (pnpm install, lockfile change) plus a small
+  registry module would restore icons; until then compositions do not depend on them. The site
+  header menu icon has the same problem.
+- DS `SkipLink` takes no style prop where it is rendered; `tokens.css` section G restyles it
+  through its `href="#main-content"` (inset 12px, ink pill, one 2px outline at 3px offset).
+- DS `Accordion variant="card"` puts a `ring-offset-2` keyboard ring inside an
+  `overflow-hidden` item, so the outer edge of the ring is clipped at the card edge.
 - DS `Button` writes `--button-ring-width` / `--button-ring-offset` inline (2px/2px), so the
-  root values do not reach it; its offset colour is `ring-offset-background` (canvas).
+  root values do not reach it; `ActionButton` sets them through `styleOverrides`.
 - DS `Link` button has no hover-shadow token, so `elevation-cta` + the 2px lift on the violet
   CTA is not applied.
 - DS `Card` radius options stop at 12px (`xl`) and `variant="default"` pairs a border with
   `shadow-sm`; there is no token for card radius or elevation, so DS Cards cannot take
-  `rounded-card` / `shadow-raised`. Brand compositions use `variant="bordered"`.
-- DS `Checkbox` outlines with `border-border` (the decorative hairline, 1.28:1 on white);
-  there is no checkbox-border token, and retuning `--color-border` would darken every hairline.
+  `rounded-card` / `shadow-raised`. Only `variant="bordered"` (elevation-0) is used; default
+  and elevated pair the border with a shadow and look alike.
 - DS `Skeleton` writes `--skeleton-background` inline per tone, so only `--muted` steers it.

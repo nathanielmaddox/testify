@@ -3,27 +3,33 @@
 import NextLink from 'next/link'
 import {
   Accordion,
-  Button,
   Card,
-  Checkbox,
-  InlineAlert,
-  Input,
   Link,
-  RadioGroup,
-  Select,
   Skeleton,
   Spinner,
   Stepper,
-  Textarea,
   type AccordionItem,
   type SelectOption,
   type StepItem,
 } from '@otesse/design-system'
+import {
+  ActionButton,
+  CheckboxField,
+  Notice,
+  RadioGroupField,
+  SelectField,
+  SubmitButton,
+  TextAreaField,
+  TextField,
+  TextLink,
+} from '@testify/style-guide/components'
 import type { ReactNode } from 'react'
 
 /**
- * /design specimen, part 2: DS primitives rendered with NO className or style
- * overrides, so what shows is exactly what the brand tokens produce. All copy is
+ * /design specimen, part 2: DS primitives under the brand layer. Form controls,
+ * buttons, inline links and alerts go through the @testify/style-guide wrappers
+ * (the only place DS style props are set); everything else is the DS component
+ * with no className or style, exactly as the tokens leave it. All copy is
  * PLACEHOLDER.
  */
 
@@ -59,10 +65,13 @@ const CHECKOUT_STEPS: StepItem[] = [
   { id: 'done', label: 'Done' },
 ]
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+function Group({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-4">
       <h3 className="font-display text-brand-h4 text-brand-ink">{title}</h3>
+      {note ? (
+        <p className="max-w-measure font-text text-brand-small text-brand-ink-subtle">{note}</p>
+      ) : null}
       {children}
     </div>
   )
@@ -71,7 +80,10 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 export function DsSpecimen() {
   return (
     <div className="flex flex-col gap-12">
-      <Group title="Link variant=button">
+      <Group
+        title="Link variant=button (navigation CTAs)"
+        note="Pills from the --link-button-* tokens. Violet is the hero and closing CTA only."
+      >
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/design" linkComponent={NextLink} variant="button" color="cta" size="large">
             Action: hero and close only
@@ -106,94 +118,103 @@ export function DsSpecimen() {
           <Link href="/design" linkComponent={NextLink} variant="pill">
             Pill chip
           </Link>
-          <Link href="/design" linkComponent={NextLink}>
-            Inline text link
-          </Link>
         </div>
       </Group>
 
-      <Group title="Button">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button variant="primary" size="xl">
-            Primary
-          </Button>
-          <Button variant="secondary" size="xl">
-            Secondary
-          </Button>
-          <Button variant="outline" size="xl">
-            Outline
-          </Button>
-          <Button variant="ghost" size="xl">
-            Ghost
-          </Button>
-          <Button variant="destructive" size="xl">
-            Destructive
-          </Button>
-          <Button
-            variant="primary"
-            size="xl"
-            disabled
-            disabledReason="Placeholder: add an email first"
-          >
-            Disabled
-          </Button>
-          <Button variant="primary" size="xl" loading loadingLabel="Saving">
-            Loading
-          </Button>
-        </div>
-        <p className="font-text text-brand-small text-brand-ink-subtle">
-          The disabled button carries a reason (nothing silent). Loading keeps its label for screen
-          readers.
+      <Group
+        title="TextLink (inline, in running text)"
+        note="action-text, always underlined, thicker on hover. Takes the size of its sentence."
+      >
+        <p className="max-w-measure font-text text-brand-body text-brand-ink-muted">
+          Placeholder sentence with an <TextLink href="/design">inline text link</TextLink> in the
+          middle, so the underline, colour and wrapping read in context.
         </p>
       </Group>
 
-      <Group title="Form fields (helper, error)">
+      <Group
+        title="ActionButton and SubmitButton"
+        note="DS Button through brand props: pill, 48px, 16px/600. A disabled button always says why, beside it."
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <ActionButton tone="action">Action: the one pay button</ActionButton>
+          <ActionButton>Quiet</ActionButton>
+          <SubmitButton>Submit (quiet)</SubmitButton>
+          <ActionButton loading loadingLabel="Saving">
+            Loading
+          </ActionButton>
+        </div>
+        <ActionButton disabled disabledReason="Placeholder: add an email first">
+          Disabled
+        </ActionButton>
+      </Group>
+
+      <Group title="Form fields (helper, error)" note="48px controls, 16px text, 14px messages.">
         <div className="grid gap-5 md:grid-cols-2">
-          <Input
+          <TextField
             label="Business email"
             type="email"
             placeholder="you@business.com"
             helperText="Placeholder helper: we only use this to send your topics."
           />
-          <Input
+          <TextField
             label="Business email"
             type="email"
             defaultValue="not-an-email"
             error="Placeholder error: enter an email like name@business.com"
           />
-          <Textarea
+          <TextAreaField
             label="What does your business do?"
             placeholder="Placeholder"
             helperText="Placeholder helper: two or three sentences is plenty."
           />
-          <Textarea
+          <TextAreaField
             label="What does your business do?"
             error="Placeholder error: tell us a little more (at least 20 characters)"
           />
-          <Select
+          <SelectField
             label="Plan"
             options={PLAN_OPTIONS}
             placeholder="Choose a plan"
             helperText="Placeholder helper: you can change this later."
           />
-          <Select
+          <SelectField
             label="Plan"
             options={PLAN_OPTIONS}
             placeholder="Choose a plan"
             error="Placeholder error: choose a plan to continue"
           />
+          <TextField
+            label="Business name"
+            required
+            helperText="Placeholder helper: required fields carry the mark."
+          />
+          <TextField
+            label="Promo code"
+            disabled
+            helperText="Placeholder: codes open after launch."
+          />
         </div>
       </Group>
 
-      <Group title="Checkbox and RadioGroup">
+      <Group
+        title="CheckboxField and RadioGroupField"
+        note="Unselected outlines are border-strong (3.64:1). Every row is 48px tall."
+      >
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="flex flex-col gap-3">
-            <Checkbox label="Placeholder: send me a reminder" defaultChecked />
-            <Checkbox label="Placeholder: unchecked" />
-            <Checkbox label="Placeholder: with error" error="Placeholder error: tick to continue" />
-            <Checkbox label="Placeholder: disabled" disabled disabledReason="Placeholder reason" />
+          <div className="flex flex-col">
+            <CheckboxField label="Placeholder: send me a reminder" defaultChecked />
+            <CheckboxField label="Placeholder: unchecked" />
+            <CheckboxField
+              label="Placeholder: with error"
+              error="Placeholder error: tick to continue"
+            />
+            <CheckboxField
+              label="Placeholder: disabled"
+              disabled
+              helperText="Placeholder reason: shown while this is unavailable."
+            />
           </div>
-          <RadioGroup
+          <RadioGroupField
             name="cadence"
             label="How often?"
             defaultValue="daily"
@@ -207,7 +228,10 @@ export function DsSpecimen() {
         </div>
       </Group>
 
-      <Group title="Accordion variant=card">
+      <Group
+        title="Accordion variant=card"
+        note="Hairline card at elevation-0 (border, no shadow): --accordion-card-* tokens."
+      >
         <Accordion items={FAQ_ITEMS} variant="card" defaultOpen={['faq-1']} headingLevel={4} />
       </Group>
 
@@ -215,36 +239,24 @@ export function DsSpecimen() {
         <Stepper steps={CHECKOUT_STEPS} currentStep={1} ariaLabel="Placeholder checkout steps" />
       </Group>
 
-      <Group title="InlineAlert">
+      <Group
+        title="Notice (DS InlineAlert)"
+        note="Fills are the -bg roles, edges the -border roles, text ink, icon the state -fg."
+      >
         <div className="flex flex-col gap-3">
-          <InlineAlert
-            variant="info"
-            title="Placeholder info"
-            description="Placeholder body copy."
-          />
-          <InlineAlert
-            variant="success"
-            title="Placeholder success"
-            description="Placeholder body copy."
-          />
-          <InlineAlert
-            variant="warning"
-            title="Placeholder warning"
-            description="Placeholder body copy."
-          />
-          <InlineAlert
-            variant="error"
-            title="Placeholder error"
-            description="Placeholder body copy."
-          />
+          <Notice tone="info" title="Placeholder info" description="Placeholder body copy." />
+          <Notice tone="success" title="Placeholder success" description="Placeholder body copy." />
+          <Notice tone="warning" title="Placeholder warning" description="Placeholder body copy." />
+          <Notice tone="error" title="Placeholder error" description="Placeholder body copy." />
         </div>
       </Group>
 
-      <Group title="Card">
-        <div className="grid gap-5 md:grid-cols-3">
-          <Card variant="default" padding="lg" title="Default" description="Placeholder copy." />
+      <Group
+        title="Card"
+        note="Only variant=bordered is used: border, no shadow. DS default and elevated pair the border with a shadow (and look alike), so the brand never uses them; lifted white surfaces are the brand compositions above (HonestyBlock, GuaranteeList, ProcessSteps)."
+      >
+        <div className="grid gap-5 md:grid-cols-2">
           <Card variant="bordered" padding="lg" title="Bordered" description="Placeholder copy." />
-          <Card variant="elevated" padding="lg" title="Elevated" description="Placeholder copy." />
         </div>
       </Group>
 

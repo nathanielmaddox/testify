@@ -155,6 +155,9 @@
   --color-info: var(--info-fg-rgb);
   --color-info-foreground: var(--surface-rgb);
   --color-info-strong: var(--info-fg-rgb);
+  /* Known cost: DS InlineAlert fills are `bg-<state>/10` over the ground, so with
+     -fg bases they read grey on canvas (info ~#dfe3e8, not info-bg #edf3fb). Use
+     the brand Notice, which sets the -bg / -border roles through DS classNames. */
 
   /* -------------------------------------------------- C. DS component tokens */
   /* Link variant="button": every size is a pill and every tier is >=44px tall. */
@@ -196,7 +199,11 @@
   --link-pill-hover-fg: var(--action-quiet-ink-rgb);
   --link-pill-active-bg: var(--ink-rgb);
   --link-pill-active-fg: var(--action-quiet-ink-rgb);
-  /* Accordion variant="card" (FAQ). open-bg / icon-open are RGB triplets. */
+  /* Accordion variant="card" (FAQ). open-bg / icon-open are RGB triplets.
+     Verified in the e7d37602 dist: card items are `border border-border
+     shadow-none`, i.e. a hairline card at elevation-0 (the bordered-is-flat rule
+     holds). Use variant="card" only: `separated` pairs that border with
+     shadow-sm and has no token to remove it. */
   --accordion-card-gap: var(--space-3);
   --accordion-card-radius: var(--radius-md);
   --accordion-card-padding-x: var(--space-6);
@@ -389,6 +396,37 @@ body {
 /* Visible focus on anything the brand renders. :where() keeps specificity at 0,
    so a DS component's own ring utilities still win on DS components. */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Skip link. The DS SkipLink (rendered by the site and LP headers) takes no
+   style props here: it pins to 0,0 with a bottom-right corner only, uses an
+   unprefixed `outline-none` that the focus rule above out-orders (same 0,1,0
+   specificity, later file), and adds its own ring + offset box-shadow, so it drew
+   two rings with the outer one clipped by the viewport edge. Scoped to the one
+   href the DS writes (`#main-content`, the id every page's <main> carries):
+   inset 12px from both edges, the quiet ink pill at 44px, one ring only (the
+   brand 2px outline at 3px offset). Top/left change only while focused: at rest
+   the DS -translate-y-full keeps it fully off-screen from top 0. */
+a[href='#main-content'] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-text-stack);
+  font-size: var(--text-label);
+  font-weight: 600;
+}
+
+a[href='#main-content']:focus {
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+a[href='#main-content']:focus-visible {
+  box-shadow: none;
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }

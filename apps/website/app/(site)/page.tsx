@@ -1,9 +1,13 @@
 import { PageSkeleton, type SlotSpec } from '@/components/skeleton/page_skeleton'
 import { pageMetadata } from '@/lib/metadata'
+import { jsonLdScriptProps, serviceJsonLd } from '@/lib/structured_data'
 
 export const metadata = pageMetadata('home')
 
-/** Home skeleton. Sections in order; content comes later. */
+/**
+ * Home skeleton. Sections in order; content comes later. Carries the offer as
+ * Service + Offer JSON-LD (lib/structured_data.ts).
+ */
 const SLOTS: readonly SlotSpec[] = [
   { slot: 'hero', label: 'Hero' },
   { slot: 'proof', label: 'Proof' },
@@ -16,5 +20,10 @@ const SLOTS: readonly SlotSpec[] = [
 ]
 
 export default function HomePage() {
-  return <PageSkeleton routeKey="home" slots={SLOTS} />
+  return (
+    <>
+      <script {...jsonLdScriptProps(serviceJsonLd())} />
+      <PageSkeleton routeKey="home" slots={SLOTS} />
+    </>
+  )
 }

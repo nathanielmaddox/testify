@@ -2,6 +2,17 @@ import type { Metadata } from 'next'
 import { getRoute, siteConfig, type RouteEntry, type RouteKey } from './site.config'
 
 /**
+ * Metadata builders. Next merges metadata SHALLOWLY: a page's `openGraph` or
+ * `twitter` object replaces the root one wholesale. So every page object is
+ * built from the same base here (type, siteName, locale, image slot), never
+ * from a bare `{ url }`.
+ */
+
+type OpenGraph = NonNullable<Metadata['openGraph']>
+type Twitter = NonNullable<Metadata['twitter']>
+type Robots = NonNullable<Metadata['robots']>
+
+/**
  * Whether a route may be indexed right now: the launch flag AND the route's
  * own flag. The conversion page is never indexable, whatever its flags say.
  */
@@ -10,14 +21,98 @@ export function isRouteIndexable(route: RouteEntry): boolean {
   return siteConfig.indexable && route.indexable
 }
 
-/** Per-page metadata from the routes registry: title, canonical, robots. */
+/** Full document title as the template renders it (og/twitter skip the template). */
+function fullTitle(route: RouteEntry | null): string {
+  if (!route || route.path === '/') return siteConfig.name
+  return `${route.title} | ${siteConfig.name}`
+}
+
+function shareImages() {
+  const image = siteConfig.shareImage
+  return image ? [{ ...image }] : undefined
+}
+
+/** Shared Open Graph fields every page carries. `url` only when given. */
+export function baseOpenGraph(input: {
+  title: string
+  description: string
+  url?: string
+}): OpenGraph {
+  const images = shareImages()
+  return {
+    type: 'website',
+    siteName: siteConfig.name,
+    locale: siteConfig.locale,
+    title: input.title,
+    description: input.description,
+    ...(input.url ? { url: input.url } : {}),
+    ...(images ? { images } : {}),
+  }
+}
+
+/** Shared Twitter card fields. Large card only once a share image exists. */
+export function baseTwitter(input: { title: string; description: string }): Twitter {
+  const images = shareImages()
+  return {
+    card: images ? 'summary_large_image' : 'summary',
+    title: input.title,
+    description: input.description,
+    ...(images ? { images: images.map((image) => image.url) } : {}),
+  }
+}
+
+/**
+ * Robots per route:
+ * - indexable (launch flag on + route flag on): index, follow
+ * - the paid LP when not indexable: noindex, FOLLOW (its links stay crawlable)
+ * - everything else when not indexable, and the conversion page always:
+ *   noindex, nofollow
+ */
+export function routeRobots(route: RouteEntry): Robots {
+  if (isRouteIndexable(route)) return { index: true, follow: true }
+  if (route.pageType === 'lp') return { index: false, follow: true }
+  return { index: false, follow: false }
+}
+
+/**
+ * Root layout metadata. Deliberately has NO canonical and NO og:url, so a
+ * route that forgets `pageMetadata` never claims to be the home page.
+ */
+export function rootMetadata(): Metadata {
+  return {
+    metadataBase: new URL(siteConfig.url),
+    title: {
+      default: siteConfig.name,
+      template: `%s | ${siteConfig.name}`,
+    },
+    description: siteConfig.description,
+    applicationName: siteConfig.name,
+    icons: {
+      icon: [{ url: siteConfig.icon, type: 'image/svg+xml' }],
+    },
+    openGraph: baseOpenGraph({ title: siteConfig.name, description: siteConfig.description }),
+    twitter: baseTwitter({ title: siteConfig.name, description: siteConfig.description }),
+    robots: siteConfig.indexable ? { index: true, follow: true } : { index: false, follow: false },
+  }
+}
+
+/**
+ * Per-page metadata from the routes registry: title, description, robots,
+ * Open Graph and Twitter (merged over the shared base), and a canonical only
+ * when the route is indexable (a noindex page names no canonical).
+ */
 export function pageMetadata(routeKey: RouteKey): Metadata {
   const route = getRoute(routeKey)
   const indexable = isRouteIndexable(route)
+  const title = fullTitle(route)
+  const social = { title, description: route.description }
   return {
-    title: route.title,
-    alternates: { canonical: route.path },
-    openGraph: { url: route.path },
-    robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
+    // Home uses the bare brand name; other routes go through the template.
+    title: route.path === '/' ? { absolute: siteConfig.name } : route.title,
+    description: route.description,
+    ...(indexable ? { alternates: { canonical: route.path } } : {}),
+    openGraph: baseOpenGraph({ ...social, url: route.path }),
+    twitter: baseTwitter(social),
+    robots: routeRobots(route),
   }
 }

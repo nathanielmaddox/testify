@@ -1,18 +1,21 @@
 import type { MetadataRoute } from 'next'
+import { isRouteIndexable } from '@/lib/metadata'
 import { routeList, siteConfig } from '@/lib/site.config'
 
 /**
- * Generated from the routes registry (`lib/site.config.ts`): every route with
- * `inSitemap` and its own `indexable` flag set. The launch flag gates
- * robots.txt, not this list. The conversion page is never listed.
+ * Generated from the routes registry (`lib/site.config.ts`). Empty while the
+ * launch flag is off; after launch, every route with `inSitemap` that is
+ * indexable right now (`isRouteIndexable`, which also always excludes the
+ * conversion page). `lastModified` is the route's static `updated` date in
+ * the registry, never request time.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
+  if (!siteConfig.indexable) return []
   return routeList
-    .filter((route) => route.inSitemap && route.indexable && route.pageType !== 'conversion')
+    .filter((route) => route.inSitemap && isRouteIndexable(route))
     .map((route) => ({
       url: `${siteConfig.url}${route.path === '/' ? '' : route.path}`,
-      lastModified,
+      lastModified: route.updated,
       changeFrequency: 'monthly',
       priority: route.path === '/' ? 1 : route.pageType === 'legal' ? 0.3 : 0.7,
     }))

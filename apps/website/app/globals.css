@@ -20,6 +20,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* The sticky site header is 64px tall: jump targets (#main-content, #section ids) land below it. */
+  scroll-padding-top: 80px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -4,32 +4,33 @@ import { pageTrackingAttrs } from '@/lib/tracking'
 
 /**
  * Page SKELETON primitives. Server-safe on purpose (no DS import, no
- * 'use client'): they draw no UI, only the landmarks and empty, labelled
- * section slots that real DS compositions will fill later.
+ * 'use client'): they draw no UI, only the landmarks and empty section slots
+ * that real DS compositions will fill later.
+ *
+ * Slots carry NO accessible name: a plain <section> with an id and data-slot
+ * is not a region landmark, so no placeholder name can reach a screen reader
+ * or ship. When a slot gets real content with a heading, name it with
+ * aria-labelledby pointing at that heading.
  */
 
 export interface SlotSpec {
   /** Stable slot id, also the `data-slot` value. */
   slot: string
-  /** Accessible placeholder name for the empty region. */
-  label: string
+  /**
+   * Human name of the slot, for authors only. Never rendered (no aria-label),
+   * so it can never ship as a placeholder accessible name.
+   */
+  label?: string
 }
 
-/** One empty, labelled section slot. Its id is `<routeKey>-<slot>`. */
+/** One empty section slot. Its id is `<routeKey>-<slot>` (stable, e.g. `home-hero`). */
 export function SectionSlot({
   routeKey,
   slot,
-  label,
+  label: _label,
   ...rest
 }: SlotSpec & { routeKey: RouteKey } & Record<`data-${string}`, string | undefined>) {
-  return (
-    <section
-      id={`${routeKey}-${slot}`}
-      data-slot={slot}
-      aria-label={`${label} (placeholder)`}
-      {...rest}
-    />
-  )
+  return <section id={`${routeKey}-${slot}`} data-slot={slot} {...rest} />
 }
 
 /**
