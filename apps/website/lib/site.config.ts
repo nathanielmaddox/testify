@@ -7,7 +7,13 @@
  *
  * Imported by client components too, so env is read with DOT access
  * (`process.env.NEXT_PUBLIC_X`, typed in lib/env.d.ts), the form Next inlines.
+ *
+ * Paid landing pages are NOT listed one by one here: `lp` and
+ * `lpConfirmation` are route TEMPLATES (`/lp/[slug]`, `/lp/[slug]/confirmation`)
+ * that hold the shared page type, funnel step and confirmation copy. Each LP
+ * (slug, ad, layout, sections, title, indexing) lives in lib/landing_pages.ts.
  */
+import { DEFAULT_LP_SLUG, lpPath } from './landing_pages'
 
 /** What a route is for. Drives chrome, indexing defaults and tracking. */
 export type PageType = 'site' | 'lp' | 'conversion' | 'legal'
@@ -18,7 +24,11 @@ export type FunnelStep = 'landing' | 'conversion'
 export interface RouteEntry {
   /** Stable id used by pages, tracking attributes and analytics. Never rename. */
   key: RouteKey
-  /** URL path, leading slash, no trailing slash. */
+  /**
+   * URL path, leading slash, no trailing slash. For the `lp` / `lpConfirmation`
+   * templates this is the route PATTERN (`/lp/[slug]`), never linked directly:
+   * build real hrefs with `lpPath(slug)` / `lpConfirmationPath(slug)`.
+   */
   path: string
   /** Placeholder metadata title (fed through the "%s | Testify" template). */
   title: string
@@ -43,12 +53,6 @@ export interface RouteEntry {
 
 export type RouteKey =
   'home' | 'work' | 'about' | 'contact' | 'privacy' | 'terms' | 'lp' | 'lpConfirmation'
-
-/**
- * Paid landing page indexing. Off by default: /lp is for paid traffic and
- * should not compete with the site pages in search. Flip to true to index it.
- */
-const LP_INDEXABLE = false
 
 /**
  * Every route the app serves, in display order. The (site) and (lp) route
@@ -128,25 +132,30 @@ export const routes = {
     inSitemap: true,
     inNav: false,
   },
+  // TEMPLATE for every paid landing page (/lp/<slug>). Per-LP title,
+  // description and indexing come from lib/landing_pages.ts; this entry only
+  // carries the shared page type and funnel step. Never in the sitemap as a
+  // route: app/sitemap.ts lists indexable live LPs from the LP registry.
   lp: {
     key: 'lp',
-    path: '/lp',
+    path: '/lp/[slug]',
     title: 'Landing page',
     description: 'Placeholder landing page description for the Testify offer.',
     updated: '2026-10-09',
     navLabel: 'Get started',
     pageType: 'lp',
-    indexable: LP_INDEXABLE,
-    inSitemap: LP_INDEXABLE,
+    indexable: false,
+    inSitemap: false,
     inNav: false,
     funnelStep: 'landing',
   },
-  // The conversion page: where the LP form/checkout lands after a successful
-  // submit. Always noindex and never in the sitemap (enforced in lib/metadata.ts
-  // and app/sitemap.ts as well, not only by these flags).
+  // TEMPLATE for every LP's conversion page (/lp/<slug>/confirmation): where
+  // that LP's form/checkout lands after a successful submit. Title and
+  // description here are shared by all LPs. Always noindex and never in the
+  // sitemap (enforced in lib/metadata.ts and app/sitemap.ts too).
   lpConfirmation: {
     key: 'lpConfirmation',
-    path: '/lp/confirmation',
+    path: '/lp/[slug]/confirmation',
     title: 'Confirmation',
     description: 'Placeholder confirmation page description.',
     updated: '2026-10-09',
@@ -259,6 +268,6 @@ export const siteConfig = {
   nav: routeList.filter((route) => route.inNav).map(toNavLink),
   /** Legal links for both footers, generated from the registry. */
   legal: routeList.filter((route) => route.pageType === 'legal').map(toNavLink),
-  /** Site header call to action: always the paid landing page. */
-  cta: toNavLink(routes.lp),
+  /** Site header call to action: the default paid landing page (lib/landing_pages.ts). */
+  cta: { label: routes.lp.navLabel, href: lpPath(DEFAULT_LP_SLUG) } satisfies NavLink,
 }

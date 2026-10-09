@@ -10,6 +10,7 @@
  * Attribution (UTM + click ids) lives in lib/attribution.ts.
  */
 import { analyticsConfig, gtagId } from './analytics.config'
+import { lpPageKey } from './landing_pages'
 import { getRoute, siteConfig, type FunnelStep, type PageType, type RouteKey } from './site.config'
 
 export const PAGE_TYPES = [
@@ -63,9 +64,12 @@ export const EVENT_MAP = {
 } as const satisfies Record<TrackEvent, ProviderEvents>
 
 export interface PageTrackingAttrs {
-  'data-page-key': RouteKey
+  /** Route key for site pages; `lp:<slug>` for a landing page and its confirmation. */
+  'data-page-key': RouteKey | `lp:${string}`
   'data-page-type': PageType
   'data-funnel-step'?: FunnelStep
+  /** The LP slug (= the ad it serves), on LP and LP confirmation pages only. */
+  'data-lp-slug'?: string
 }
 
 /** data-* attributes for a page's <main>, so tags and tests can key off them. */
@@ -75,6 +79,23 @@ export function pageTrackingAttrs(routeKey: RouteKey): PageTrackingAttrs {
     'data-page-key': route.key,
     'data-page-type': route.pageType,
     ...(route.funnelStep ? { 'data-funnel-step': route.funnelStep } : {}),
+  }
+}
+
+/**
+ * data-* attributes for an LP page (`template: 'lp'`) or its confirmation
+ * page (`'lpConfirmation'`): page type and funnel step from the route
+ * template, page key `lp:<slug>`, plus `data-lp-slug`. The route tracker
+ * reads `data-lp-slug` into the `lp_slug` event param.
+ */
+export function lpTrackingAttrs(
+  slug: string,
+  template: Extract<RouteKey, 'lp' | 'lpConfirmation'>
+): PageTrackingAttrs {
+  return {
+    ...pageTrackingAttrs(template),
+    'data-page-key': lpPageKey(slug),
+    'data-lp-slug': slug,
   }
 }
 
@@ -152,8 +173,9 @@ function compact(input: Record<string, unknown>): Record<string, unknown> {
  * calls queue (see initAnalytics).
  *
  * Props understood: `event_id` (dedupe id, sent as Meta `eventID` and GA4
- * `transaction_id` for purchases), `value`, `currency`, plus any extra
- * key/values (sent to GA4 only). Never pass PII.
+ * `transaction_id` for purchases), `value`, `currency`, `lp_slug` (the LP the
+ * event belongs to; GA4 and Meta custom data), plus any extra key/values
+ * (sent to GA4 only). Never pass PII.
  */
 export function track(event: TrackEvent, props: TrackProps = {}): void {
   if (typeof window === 'undefined') return
@@ -210,6 +232,7 @@ export function track(event: TrackEvent, props: TrackProps = {}): void {
           content_ids: [siteConfig.offer.id],
           content_type: 'product',
           content_name: siteConfig.offer.name,
+          lp_slug: rest['lp_slug'] ?? undefined,
         })
       : {}
     w.fbq(

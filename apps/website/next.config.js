@@ -93,9 +93,9 @@ const nextConfig = {
         has: [{ type: 'host', value: '(?<h>.*\\.vercel\\.app)' }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
-      // The conversion page is per visitor: never cache it anywhere.
+      // Every LP's conversion page is per visitor: never cache it anywhere.
       {
-        source: '/lp/confirmation',
+        source: '/lp/:slug/confirmation',
         headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
       },
       {

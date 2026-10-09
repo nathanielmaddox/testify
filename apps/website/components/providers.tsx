@@ -43,7 +43,8 @@ function AnalyticsScripts() {
 /**
  * Captures attribution once per full page load, then sends `page_view` on
  * every route change, plus `lp_view` on the landing step. Page identity comes
- * from the data-* attributes `pageTrackingAttrs` puts on <main>.
+ * from the data-* attributes `pageTrackingAttrs` / `lpTrackingAttrs` put on
+ * <main> (`data-lp-slug` becomes the `lp_slug` param on LP pages).
  */
 function RouteTracker() {
   const pathname = usePathname()
@@ -61,7 +62,13 @@ function RouteTracker() {
     const pageKey = main?.dataset['pageKey'] ?? 'unknown'
     const pageType = main?.dataset['pageType'] ?? 'unknown'
     const funnelStep = main?.dataset['funnelStep']
-    const props = { page_key: pageKey, page_type: pageType, funnel_step: funnelStep }
+    const lpSlug = main?.dataset['lpSlug']
+    const props = {
+      page_key: pageKey,
+      page_type: pageType,
+      funnel_step: funnelStep,
+      lp_slug: lpSlug,
+    }
     track('page_view', props)
     if (funnelStep === 'landing') track('lp_view', props)
   }, [pathname])

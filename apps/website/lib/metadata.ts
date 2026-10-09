@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getRoute, siteConfig, type RouteEntry, type RouteKey } from './site.config'
+import { lpConfirmationPath, lpPath, type LandingPage } from './landing_pages'
+import { getRoute, routes, siteConfig, type RouteEntry, type RouteKey } from './site.config'
 
 /**
  * Metadata builders. Next merges metadata SHALLOWLY: a page's `openGraph` or
@@ -19,6 +20,14 @@ type Robots = NonNullable<Metadata['robots']>
 export function isRouteIndexable(route: RouteEntry): boolean {
   if (route.pageType === 'conversion') return false
   return siteConfig.indexable && route.indexable
+}
+
+/**
+ * Whether an LP may be indexed right now: the launch flag AND the LP's own
+ * `indexable` AND `status: 'live'` (a draft LP is never indexed).
+ */
+export function isLpIndexable(lp: LandingPage): boolean {
+  return siteConfig.indexable && lp.indexable && lp.status === 'live'
 }
 
 /** Full document title as the template renders it (og/twitter skip the template). */
@@ -112,6 +121,42 @@ export function pageMetadata(routeKey: RouteKey): Metadata {
     description: route.description,
     ...(indexable ? { alternates: { canonical: route.path } } : {}),
     openGraph: baseOpenGraph({ ...social, url: route.path }),
+    twitter: baseTwitter(social),
+    robots: routeRobots(route),
+  }
+}
+
+/**
+ * Metadata for one paid landing page (`/lp/<slug>`), from the LP registry
+ * (lib/landing_pages.ts). `noindex, follow` unless `isLpIndexable`; a
+ * canonical only when indexable.
+ */
+export function lpMetadata(lp: LandingPage): Metadata {
+  const indexable = isLpIndexable(lp)
+  const path = lpPath(lp.slug)
+  const social = { title: `${lp.title} | ${siteConfig.name}`, description: lp.description }
+  return {
+    title: lp.title,
+    description: lp.description,
+    ...(indexable ? { alternates: { canonical: path } } : {}),
+    openGraph: baseOpenGraph({ ...social, url: path }),
+    twitter: baseTwitter(social),
+    robots: indexable ? { index: true, follow: true } : { index: false, follow: true },
+  }
+}
+
+/**
+ * Metadata for an LP's conversion page (`/lp/<slug>/confirmation`). Copy is
+ * shared by every LP (the `lpConfirmation` route template); always
+ * `noindex, nofollow`, never a canonical.
+ */
+export function lpConfirmationMetadata(lp: LandingPage): Metadata {
+  const route = routes.lpConfirmation
+  const social = { title: fullTitle(route), description: route.description }
+  return {
+    title: route.title,
+    description: route.description,
+    openGraph: baseOpenGraph({ ...social, url: lpConfirmationPath(lp.slug) }),
     twitter: baseTwitter(social),
     robots: routeRobots(route),
   }

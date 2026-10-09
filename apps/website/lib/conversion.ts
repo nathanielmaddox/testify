@@ -1,5 +1,5 @@
 /**
- * Conversion page contract (/lp/confirmation). Server-safe.
+ * Conversion page contract (`/lp/<slug>/confirmation`, one per LP). Server-safe.
  *
  * The page only renders for a request that names WHAT converted:
  * - `session_id`: a Stripe Checkout session id (`cs_test_...` / `cs_live_...`),
@@ -9,7 +9,8 @@
  * Nothing else belongs in that URL: no email, name, phone or UTM params
  * (attribution lives in first-party storage, lib/attribution.ts).
  */
-import { routes, siteConfig } from './site.config'
+import { lpConfirmationPath } from './landing_pages'
+import { siteConfig } from './site.config'
 import type { TrackEvent } from './tracking'
 
 /** Conversion value sent with lead_submit / purchase_complete. From the offer. */
@@ -88,15 +89,15 @@ export async function verifyConversion(params: ParamsLike): Promise<ConversionRe
   }
 }
 
-/** Relative confirmation href for a lead token (the LP form redirects here). */
-export function leadConfirmationHref(leadToken: string): string {
-  return `${routes.lpConfirmation.path}?${CONVERSION_PARAMS.lead}=${encodeURIComponent(leadToken)}`
+/** Relative confirmation href of LP `lpSlug` for a lead token (that LP's form redirects here). */
+export function leadConfirmationHref(lpSlug: string, leadToken: string): string {
+  return `${lpConfirmationPath(lpSlug)}?${CONVERSION_PARAMS.lead}=${encodeURIComponent(leadToken)}`
 }
 
 /**
- * Absolute Stripe Checkout `success_url`. Stripe substitutes the literal
- * `{CHECKOUT_SESSION_ID}` placeholder, so it must stay unencoded.
+ * Absolute Stripe Checkout `success_url` for LP `lpSlug`. Stripe substitutes
+ * the literal `{CHECKOUT_SESSION_ID}` placeholder, so it must stay unencoded.
  */
-export function stripeSuccessUrl(): string {
-  return `${siteConfig.url}${routes.lpConfirmation.path}?${CONVERSION_PARAMS.stripe}={CHECKOUT_SESSION_ID}`
+export function stripeSuccessUrl(lpSlug: string): string {
+  return `${siteConfig.url}${lpConfirmationPath(lpSlug)}?${CONVERSION_PARAMS.stripe}={CHECKOUT_SESSION_ID}`
 }

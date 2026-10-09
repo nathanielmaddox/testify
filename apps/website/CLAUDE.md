@@ -45,34 +45,40 @@ Two route groups give the funnel its own chrome. The root `app/layout.tsx` holds
 and providers; each group layout draws its header and footer, and each page draws its own `<main
 id="main-content">` via `components/skeleton/page_skeleton.tsx`.
 
-| Group        | Routes                                          | Chrome                                                                |
-| ------------ | ----------------------------------------------- | --------------------------------------------------------------------- |
-| `app/(site)` | `/`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to `/lp`), `SiteFooter` (nav + legal)         |
-| `app/(lp)`   | `/lp`, `/lp/confirmation`                       | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only) |
+| Group        | Routes                                          | Chrome                                                                 |
+| ------------ | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| `app/(site)` | `/`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to the default LP), `SiteFooter` (nav + legal) |
+| `app/(lp)`   | `/lp/<slug>`, `/lp/<slug>/confirmation`         | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only)  |
 
 - **Registry:** `routes` in `lib/site.config.ts` is the single list (`key`, `path`, `title`,
   `description`, `updated` (static ISO date for the sitemap), `pageType`
   `site|lp|conversion|legal`, `indexable`, `inSitemap`, `inNav`, `funnelStep`). Header and footer
   links, metadata and `app/sitemap.ts` are generated from it. Pages export
-  `metadata = pageMetadata('<key>')`.
+  `metadata = pageMetadata('<key>')`. `lp` and `lpConfirmation` are route TEMPLATES (path
+  patterns `/lp/[slug]`, `/lp/[slug]/confirmation`, never linked directly, `inSitemap: false`):
+  they hold the shared page type, funnel step and confirmation copy; each LP itself lives in
+  `lib/landing_pages.ts` (see "Landing pages" below).
 - **Metadata** (`lib/metadata.ts`): Next merges metadata shallowly, so `pageMetadata` always
   builds `openGraph`/`twitter` from the shared base (`baseOpenGraph`, `baseTwitter`: type,
   siteName, locale, image slot `siteConfig.shareImage`). The root layout uses `rootMetadata()`,
   which has NO canonical and NO og:url, so a page without `pageMetadata` never claims to be home.
   Canonical is emitted only for indexable routes. Icon: `/icon.svg` in `public/`.
 - **Indexing:** a route is indexed only when `NEXT_PUBLIC_SITE_INDEXABLE=true` AND its own
-  `indexable` is true. `/lp` is `noindex, follow` by default (`LP_INDEXABLE` in the registry);
-  other non-indexable routes are `noindex, nofollow`.
-- **`/lp/confirmation` is the conversion page** (page type and funnel step both `conversion`):
-  always noindex, never in the sitemap (enforced in code), rendered per request
-  (`force-dynamic`) with `Cache-Control: private, no-store`. It renders only for a valid
-  conversion id, else redirects to `/lp`: `session_id` (Stripe, via `stripeSuccessUrl()`) or
-  `lead` (lead token, via `leadConfirmationHref()`). `verifyConversion(params)` in
+  `indexable` is true. An LP is indexed only when the launch flag is on AND its registry entry has
+  `indexable: true` AND `status: 'live'` (`isLpIndexable`); otherwise it is `noindex, follow`.
+  Other non-indexable routes are `noindex, nofollow`.
+- **`/lp/<slug>/confirmation` is that LP's conversion page** (page type and funnel step both
+  `conversion`): always noindex, never in the sitemap (enforced in code), rendered per request
+  (`force-dynamic`) with `Cache-Control: private, no-store` (`next.config.js` source
+  `/lp/:slug/confirmation`). Unknown slug is a 404. It renders only for a valid conversion id,
+  else redirects to `/lp/<slug>`: `session_id` (Stripe, via `stripeSuccessUrl(slug)`) or
+  `lead` (lead token, via `leadConfirmationHref(slug, token)`). `verifyConversion(params)` in
   `lib/conversion.ts` decides; today it checks shape only, the real Stripe / lead-store lookup
   goes inside it. Never put PII or UTM params in that URL; `ConversionTracker`
   (`components/lp/`) trims it to the id param.
 - **Tracking:** `lib/tracking.ts` holds the event names, `pageTrackingAttrs(key)` (puts
-  `data-page-key`, `data-page-type`, `data-funnel-step` on every `<main>`) and `track()`, the
+  `data-page-key`, `data-page-type`, `data-funnel-step` on every `<main>`; LPs use
+  `lpTrackingAttrs(slug, 'lp' | 'lpConfirmation')`, which adds `data-lp-slug`) and `track()`, the
   only analytics call site. `EVENT_MAP` is the one table mapping site events to provider events
   (`page_view` -> GA4 `page_view` / Meta `PageView`; `lp_view` -> `view_item` / `ViewContent`;
   `lead_submit` -> `generate_lead` / `Lead`; `purchase_complete` -> `purchase` / `Purchase`;
@@ -88,13 +94,50 @@ id="main-content">` via `components/skeleton/page_skeleton.tsx`.
 - **Attribution** (`lib/attribution.ts`): UTM + click ids (`ATTRIBUTION_PARAMS`, matched
   case-insensitively) are stored on first landing (any route) in a 90-day first-party cookie
   `tfy_attr` plus sessionStorage, as first touch and last touch. `getAttribution()` returns
-  them for the lead / Stripe session metadata. Internal links to `/lp` (header and home CTA)
+  them for the lead / Stripe session metadata. Each touch also stores `lpSlug`, the LP it landed
+  on ('' when not an LP); `landingLpSlugs()` returns the first/last-touch slugs. Internal links
+  to the default LP (header and home CTA, `siteConfig.cta`)
   use `useAttributedHref(href)` (`components/lp/use_attributed_href.ts`) or
   `withStoredAttribution(href)` after mount, never during render.
 - **Structured data** (`lib/structured_data.ts`): Organization + WebSite JSON-LD in the root
-  layout, Service + Offer on `/` and `/lp`, all from `siteConfig`. Render with
+  layout, Service + Offer on `/` and every LP (`serviceJsonLd(lpHref)`), all from `siteConfig`. Render with
   `<script {...jsonLdScriptProps(data)} />`.
 - Never add site nav links to the `(lp)` chrome: paid visitors must not be sent away.
+
+## Landing pages
+
+Every paid landing page is built for ONE ad, and every LP can have a different layout. The slug
+names the ad it serves, and the page lives at `/lp/<slug>`.
+
+- **Naming rule:** URL `/lp/<slug>` == Paper frame name `lp/<slug>` (`lpFrameName(slug)`) ==
+  analytics page key `lp:<slug>` == event param `lp_slug`. Slugs are lowercase kebab-case, named
+  after the ad / campaign (e.g. `spring-meta-before-after`), and never renamed once traffic has
+  run on them (retire and add a new one instead). `confirmation` is reserved.
+- **Registry:** `lib/landing_pages.ts` (`landingPages`, `getLandingPage(slug)`). Each entry:
+  `slug`, `name` (internal), `campaign` (the ad it serves, `[CONFIRM]` until known),
+  `channel` (`meta | google | tiktok | other`), `offerAngle`, `layout` (layout key),
+  `sections` (ordered slot ids from `LP_SECTION_IDS`), `title`, `description`, `indexable`
+  (default false), `status` (`draft | live`), `updated`. The module validates slugs, duplicates
+  and `DEFAULT_LP_SLUG` at load, so a bad entry fails the build.
+- **Add an LP:** add one entry (slug = the ad). Reuse a layout, or add a layout: put its key in
+  `LP_LAYOUT_KEYS`, write `components/lp/layouts/<key>_layout.tsx` exporting an `LpLayout`
+  (`component` + supported `sections`), register it in `LP_LAYOUTS`
+  (`components/lp/layouts/index.ts`). The build fails if an LP lists a section its layout cannot
+  render. Nothing else changes: `generateStaticParams` prerenders it, metadata, sitemap and
+  tracking follow the entry. Layouts are server components; DS UI goes in client modules.
+- **Routes:** `app/(lp)/lp/[slug]/page.tsx` (static, `dynamicParams = false`, unknown slug -> 404) and `app/(lp)/lp/[slug]/confirmation/page.tsx` (dynamic, see above). Bare `/lp` and the
+  old `/lp/confirmation` are route handlers that 307 to `DEFAULT_LP_SLUG` (and its confirmation),
+  keeping the query string, so old ad links and success URLs keep working.
+- **Layout contract:** a layout renders the page's `<main>` through `PageSkeleton` with
+  `tracking={lpTrackingAttrs(slug, 'lp')}` and `idPrefix="lp-<slug>"` (slot ids
+  `lp-<slug>-<section>`), and the `form` section through `LpFormSlot`, whose
+  `data-success-path` is that LP's confirmation page.
+- **Tracking fields:** `<main>` carries `data-page-key="lp:<slug>"`, `data-page-type="lp"` (or
+  `conversion`), `data-funnel-step` and `data-lp-slug`. `page_view` and `lp_view` carry
+  `page_key`, `page_type`, `funnel_step`, `lp_slug`; `lead_submit` / `purchase_complete`
+  carry `lp_slug` plus `first_lp_slug` / `last_lp_slug` from stored attribution.
+- **Metadata / sitemap:** `lpMetadata(lp)` and `lpConfirmationMetadata(lp)` in `lib/metadata.ts`;
+  the sitemap lists an LP only when `isLpIndexable(lp)` (launch flag + `indexable` + `live`).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

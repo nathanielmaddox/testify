@@ -1,4 +1,5 @@
-import { routes, siteConfig } from './site.config'
+import { DEFAULT_LP_SLUG, lpPath } from './landing_pages'
+import { siteConfig } from './site.config'
 
 /**
  * JSON-LD builders, all from `siteConfig`. Server-safe. Entities link by `@id`
@@ -47,8 +48,12 @@ export function websiteJsonLd(): JsonLd {
   }
 }
 
-/** The one offer as Service + Offer. Price and currency come from `siteConfig.offer`. */
-export function serviceJsonLd(): JsonLd {
+/**
+ * The one offer as Service + Offer. Price and currency come from
+ * `siteConfig.offer`. `lpHref` is the landing page the offer points at: the
+ * LP being rendered, or the default LP (lib/landing_pages.ts) on site pages.
+ */
+export function serviceJsonLd(lpHref: string = lpPath(DEFAULT_LP_SLUG)): JsonLd {
   const { offer } = siteConfig
   return {
     '@context': 'https://schema.org',
@@ -57,13 +62,13 @@ export function serviceJsonLd(): JsonLd {
     name: offer.name,
     description: offer.description,
     provider: { '@id': ids.organization },
-    url: absolute(routes.lp.path),
+    url: absolute(lpHref),
     offers: {
       '@type': 'Offer',
       price: offer.price.toFixed(2),
       priceCurrency: offer.currency,
       availability: 'https://schema.org/InStock',
-      url: absolute(routes.lp.path),
+      url: absolute(lpHref),
     },
   }
 }

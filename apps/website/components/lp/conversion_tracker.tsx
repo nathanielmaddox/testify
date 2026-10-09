@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { getAttribution } from '@/lib/attribution'
+import { getAttribution, landingLpSlugs } from '@/lib/attribution'
 import { CONVERSION_CURRENCY, CONVERSION_VALUE } from '@/lib/conversion'
 import { track } from '@/lib/tracking'
 
@@ -38,6 +38,9 @@ function markFired(key: string): void {
  * and GA4/Google Ads `transaction_id`. The server Conversions API sends the
  * same id later so Meta dedupes browser + server.
  *
+ * Every conversion carries `lp_slug` (the LP whose confirmation page this
+ * is) plus the LP slugs of the first and last stored touch.
+ *
  * Also trims the address bar to the id param only, so nothing else (stray
  * params) is kept in history or shared by copy-paste.
  */
@@ -45,10 +48,13 @@ export function ConversionTracker({
   event,
   id,
   param,
+  lpSlug,
 }: {
   event: 'purchase_complete' | 'lead_submit'
   id: string
   param: string
+  /** The LP this conversion belongs to (`/lp/<slug>/confirmation`). */
+  lpSlug: string
 }) {
   useEffect(() => {
     const clean = `${window.location.pathname}?${param}=${encodeURIComponent(id)}`
@@ -61,6 +67,7 @@ export function ConversionTracker({
     markFired(key)
 
     const attribution = getAttribution()
+    const landing = landingLpSlugs(attribution)
     track(event, {
       event_id: id,
       value: CONVERSION_VALUE,
@@ -69,8 +76,11 @@ export function ConversionTracker({
       utm_source: attribution?.last.params.utm_source,
       utm_medium: attribution?.last.params.utm_medium,
       utm_campaign: attribution?.last.params.utm_campaign,
+      lp_slug: lpSlug,
+      first_lp_slug: landing.first || undefined,
+      last_lp_slug: landing.last || undefined,
     })
-  }, [event, id, param])
+  }, [event, id, param, lpSlug])
 
   return null
 }

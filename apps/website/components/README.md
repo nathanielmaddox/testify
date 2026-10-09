@@ -30,4 +30,5 @@ tokens and compositions), never in this app; never fork or restyle a DS componen
 | `site/lp_footer.tsx`         | DS `Footer` minimal, legal + copyright, `(lp)` footer |
 | `site/not_found_panel.tsx`   | DS `Layout` + `EmptyState` for `app/not-found.tsx`    |
 | `skeleton/page_skeleton.tsx` | Server-safe `<main>` + empty labelled section slots   |
-| `lp/lp_form_slot.tsx`        | LP form slot carrying the attributed onward href      |
+| `lp/lp_form_slot.tsx`        | LP form slot naming its LP confirmation page          |
+| `lp/layouts/`                | LP layout map (`LP_LAYOUTS`) + one file per layout    |
