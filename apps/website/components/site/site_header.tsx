@@ -6,9 +6,10 @@ import { Link, Navbar, SkipLink, type NavbarItem } from '@otesse/design-system'
 import { siteConfig } from '@/lib/site.config'
 
 /**
- * Site header shell: DS SkipLink + DS Navbar. Nav items, wordmark and CTA all
- * come from lib/site.config.ts. Layout and look belong to the DS; this file
- * only wires data in.
+ * Site header: DS SkipLink + DS Navbar (built-in mobile menu). Nav items
+ * (Home, About, Contact) and the CTA (the paid landing page) are generated
+ * from the routes registry in lib/site.config.ts. The wordmark is plain text
+ * until the brand logo exists.
  */
 export function SiteHeader() {
   const pathname = usePathname()
@@ -17,6 +18,17 @@ export function SiteHeader() {
     label: link.label,
     href: link.href,
   }))
+  const cta = (
+    <Link
+      href={siteConfig.cta.href}
+      linkComponent={NextLink}
+      variant="button"
+      color="primary"
+      size="medium"
+    >
+      {siteConfig.cta.label}
+    </Link>
+  )
 
   return (
     <>
@@ -31,17 +43,8 @@ export function SiteHeader() {
             {siteConfig.name}
           </Link>
         }
-        actions={
-          <Link
-            href={siteConfig.cta.href}
-            linkComponent={NextLink}
-            variant="button"
-            color="primary"
-            size="medium"
-          >
-            {siteConfig.cta.label}
-          </Link>
-        }
+        actions={cta}
+        mobileActions={cta}
       />
     </>
   )

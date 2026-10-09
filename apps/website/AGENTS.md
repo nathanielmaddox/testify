@@ -5,8 +5,8 @@ The root `CLAUDE.md` rules apply here too; read it first.
 
 ## What this app is
 
-The testify public website (Next.js App Router, React 19, Tailwind v3). Structure only for now:
-the home page is a placeholder and no other pages exist yet. Dev port **3200**
+The testify public website (Next.js App Router, React 19, Tailwind v3). Skeleton only for now:
+every page is a `<main>` of empty, labelled section slots; content comes later. Dev port **3200**
 (`pnpm --filter @testify/website dev`, or `pnpm dev` from the root).
 
 ## Rules
@@ -33,3 +33,30 @@ the home page is a placeholder and no other pages exist yet. Dev port **3200**
    `*.vercel.app` host gets `X-Robots-Tag: noindex` from `next.config.js`.
 8. **Deploy** from `apps/website` only, remote Vercel build; `vercel.json` installs via
    `node ../../scripts/vercel/install.mjs`. Never deploy from the monorepo root.
+
+## Routes and funnel
+
+Two route groups give the funnel its own chrome. The root `app/layout.tsx` holds only html, body
+and providers; each group layout draws its header and footer, and each page draws its own `<main
+id="main-content">` via `components/skeleton/page_skeleton.tsx`.
+
+| Group        | Routes                                          | Chrome                                                                |
+| ------------ | ----------------------------------------------- | --------------------------------------------------------------------- |
+| `app/(site)` | `/`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to `/lp`), `SiteFooter` (nav + legal)         |
+| `app/(lp)`   | `/lp`, `/lp/confirmation`                       | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only) |
+
+- **Registry:** `routes` in `lib/site.config.ts` is the single list (`key`, `path`, `title`,
+  `pageType` `site|lp|conversion|legal`, `indexable`, `inSitemap`, `inNav`, `funnelStep`). Header
+  and footer links, `lib/metadata.ts` (`pageMetadata(key)`: title, canonical, robots) and
+  `app/sitemap.ts` are generated from it. Pages export `metadata = pageMetadata('<key>')`.
+- **Indexing:** a route is indexed only when `NEXT_PUBLIC_SITE_INDEXABLE=true` AND its own
+  `indexable` is true. `/lp` is noindex by default (`LP_INDEXABLE` in the registry).
+- **`/lp/confirmation` is the conversion page** (page type and funnel step both `conversion`):
+  where the LP form/checkout lands after a successful submit. It is always noindex and never in
+  the sitemap, enforced in code, not only by its flags.
+- **Tracking:** `lib/tracking.ts` holds the event names (`page_view`, `lp_view`, `lead_submit`,
+  `purchase_complete`), a no-op `track()` the provider is wired behind later, and
+  `pageTrackingAttrs(key)`, which puts `data-page-key`, `data-page-type` and `data-funnel-step` on
+  every `<main>`. Anything the LP links onward to goes through
+  `withAttribution(href, searchParams)` so UTM and click-id params survive to the conversion page.
+- Never add site nav links to the `(lp)` chrome: paid visitors must not be sent away.
