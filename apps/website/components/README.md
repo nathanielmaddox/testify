@@ -3,8 +3,8 @@
 **No hand-rolled UI primitives.** Buttons, links, inputs, cards, dialogs, tables, navigation,
 headers, footers, empty states and icons all come from `@otesse/design-system`
 (source: `vs_code/otesse_ds`). Files here only _compose_ DS components and wire site data into
-them. If the DS lacks something, add it in `otesse_ds`, bump the pin in `package.json`, and use
-it from here; never fork or restyle a DS component in this app.
+them. Never edit `otesse_ds`. If the DS lacks something, it belongs in `@testify/style-guide` (brand
+tokens and compositions), never in this app; never fork or restyle a DS component here.
 
 ## Rules
 
@@ -13,7 +13,7 @@ it from here; never fork or restyle a DS component in this app.
   whole barrel, hits its optional peers (`reactflow`, `@mapbox/mapbox-gl-draw`) and the page
   500s. Put DS usage in a small client module here and render it from the server page.
 - Restyle with Tailwind utilities passed through a DS `className`/`classNames` prop for
-  placement only (width, margin, alignment). A look the DS cannot express is a DS change.
+  placement only (width, margin, alignment). A look the DS cannot express belongs in `@testify/style-guide`.
 - Links: use the DS `Link` with `linkComponent={NextLink}` so Next client navigation and
   prefetch are kept. Button-looking links are `Link variant="button"`.
 - Site data (name, nav, CTA, legal links) comes from the routes registry in

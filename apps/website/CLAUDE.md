@@ -12,8 +12,9 @@ every page is a `<main>` of empty, labelled section slots; content comes later. 
 ## Rules
 
 1. **All UI comes from `@otesse/design-system`** (`vs_code/otesse_ds`, pinned by full sha in
-   `package.json`). No hand-rolled buttons, inputs, cards, nav, footers or icons. Missing
-   something? Add it to the DS, bump the pin everywhere, re-pack the vendored tarball.
+   `package.json`). No hand-rolled buttons, inputs, cards, nav, footers or icons. Never edit
+   or file changes against `otesse_ds`. A look or composition the DS lacks lives in
+   `@testify/style-guide` (brand tokens, brand-prefixed Tailwind keys, brand compositions).
 2. **DS imports only in `'use client'` files.** A server component importing the DS barrel 500s
    the page (optional peers). Wrap DS usage in a client module under `components/`.
 3. **Styles:** `app/layout.tsx` imports `@otesse/design-system/styles` (it carries the Tailwind
