@@ -4,8 +4,11 @@ import { Providers } from '@/components/providers'
 import { SiteFooter } from '@/components/site/site_footer'
 import { SiteHeader } from '@/components/site/site_header'
 import { siteConfig } from '@/lib/site.config'
-// DS styles first: they carry the Tailwind layers and the DS CSS variables.
+import { fontVariables } from '@testify/style-guide/fonts'
+// Order is the contract: DS styles first (Tailwind layers + DS defaults), then the
+// Testify brand tokens (unlayered, so they win over the DS defaults), then page-frame rules.
 import '@otesse/design-system/styles'
+import '@testify/style-guide/tokens.css'
 import './globals.css'
 
 /**
@@ -14,8 +17,9 @@ import './globals.css'
  * peers and 500s the page). Everything drawn with DS components lives in a
  * small `'use client'` module under components/ and is rendered from here.
  *
- * Fonts: the DS type stack is the system sans stack (its Tailwind preset and
- * globals.css), so no next/font face is loaded.
+ * Fonts: Inter Tight / Inter / Caveat through next/font (@testify/style-guide/fonts).
+ * The className on <html> defines --font-display / --font-text / --font-hand;
+ * tokens.css builds the stacks and sets the body face and size.
  */
 
 export const metadata: Metadata = {
@@ -49,7 +53,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
         <Providers>
           <SiteHeader />

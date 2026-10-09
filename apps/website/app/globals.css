@@ -11,9 +11,11 @@
  * Do NOT add the three @tailwind directives here: that would emit preflight
  * and every utility a second time. For the same reason this file cannot use
  * `@layer` (Tailwind v3 rejects @layer in a file with no matching @tailwind
- * directive). Keep this file to plain CSS: tokens the DS exposes for
- * overriding (set on :root), and page-frame rules. Never restyle a DS
- * component here; a missing look is a DS change in vs_code/otesse_ds.
+ * directive). Keep this file to page-frame rules only. Every token (role
+ * colours, the DS --color-* mapping, DS component tokens, body face and size)
+ * lives in @testify/style-guide/tokens.css, imported between the DS styles and
+ * this file. Never restyle a DS component here, and never edit otesse_ds: a
+ * missing look is a token or a brand composition in packages/style-guide.
  */
 
 html {

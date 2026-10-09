@@ -15,7 +15,7 @@ const nextConfig = {
   },
   // Workspace packages ship source, so Next compiles them. Add each new
   // @testify/* runtime package here when an app starts importing it.
-  transpilePackages: ['@testify/config'],
+  transpilePackages: ['@testify/config', '@testify/style-guide'],
   experimental: {
     externalDir: true,
   },
