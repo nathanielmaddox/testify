@@ -12,6 +12,7 @@
 import { analyticsConfig, gtagId } from './analytics.config'
 import { lpPageKey } from './landing_pages'
 import { getRoute, siteConfig, type FunnelStep, type PageType, type RouteKey } from './site.config'
+import { workPageKey } from './work'
 
 export const PAGE_TYPES = [
   'site',
@@ -65,11 +66,13 @@ export const EVENT_MAP = {
 
 export interface PageTrackingAttrs {
   /** Route key for site pages; `lp:<slug>` for a landing page and its confirmation. */
-  'data-page-key': RouteKey | `lp:${string}`
+  'data-page-key': RouteKey | `lp:${string}` | `work:${string}`
   'data-page-type': PageType
   'data-funnel-step'?: FunnelStep
   /** The LP slug (= the ad it serves), on LP and LP confirmation pages only. */
   'data-lp-slug'?: string
+  /** The story slug, on /work/<slug> pages only. */
+  'data-work-slug'?: string
 }
 
 /** data-* attributes for a page's <main>, so tags and tests can key off them. */
@@ -96,6 +99,19 @@ export function lpTrackingAttrs(
     ...pageTrackingAttrs(template),
     'data-page-key': lpPageKey(slug),
     'data-lp-slug': slug,
+  }
+}
+
+/**
+ * data-* attributes for a client story page (`/work/<slug>`): page type from
+ * the `workStory` route template (`site`), page key `work:<slug>`, plus
+ * `data-work-slug`.
+ */
+export function workTrackingAttrs(slug: string): PageTrackingAttrs {
+  return {
+    ...pageTrackingAttrs('workStory'),
+    'data-page-key': workPageKey(slug),
+    'data-work-slug': slug,
   }
 }
 

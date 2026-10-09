@@ -52,7 +52,15 @@ export interface RouteEntry {
 }
 
 export type RouteKey =
-  'home' | 'work' | 'about' | 'contact' | 'privacy' | 'terms' | 'lp' | 'lpConfirmation'
+  | 'home'
+  | 'work'
+  | 'workStory'
+  | 'about'
+  | 'contact'
+  | 'privacy'
+  | 'terms'
+  | 'lp'
+  | 'lpConfirmation'
 
 /**
  * Every route the app serves, in display order. The (site) and (lp) route
@@ -83,6 +91,22 @@ export const routes = {
     indexable: true,
     inSitemap: true,
     inNav: true,
+  },
+  // TEMPLATE for every client story (/work/<slug>, the case-study page).
+  // Per-story title, description and indexing come from lib/work.ts; this
+  // entry only carries the shared page type. Never in the sitemap as a route:
+  // app/sitemap.ts lists indexable stories from the work registry.
+  workStory: {
+    key: 'workStory',
+    path: '/work/[slug]',
+    title: 'Client story',
+    description: 'Placeholder description of a Testify client story.',
+    updated: '2026-10-09',
+    navLabel: 'Client story',
+    pageType: 'site',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
   },
   about: {
     key: 'about',

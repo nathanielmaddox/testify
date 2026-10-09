@@ -73,6 +73,26 @@ export function serviceJsonLd(lpHref: string = lpPath(DEFAULT_LP_SLUG)): JsonLd 
   }
 }
 
+/** One crumb: display name + site path (`/`, `/work`, `/work/<slug>`). */
+export interface Breadcrumb {
+  name: string
+  path: string
+}
+
+/** BreadcrumbList, e.g. Home > Our work > story. Positions start at 1. */
+export function breadcrumbJsonLd(items: readonly Breadcrumb[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absolute(item.path),
+    })),
+  }
+}
+
 /**
  * Props for a JSON-LD <script>. `<` is escaped so a value containing
  * `</script>` can never break out of the tag.

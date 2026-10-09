@@ -9,6 +9,8 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_SITE_URL?: string
     /** Launch flag: 'true' allows indexing. */
     readonly NEXT_PUBLIC_SITE_INDEXABLE?: string
+    /** 'true' renders draft / unconsented work stories in a build (never with indexable). */
+    readonly NEXT_PUBLIC_WORK_PREVIEW?: string
     /** GA4 measurement id (G-XXXXXXXXXX). Unset = GA4 off. */
     readonly NEXT_PUBLIC_GA4_ID?: string
     /** Google Ads tag id (AW-XXXXXXXXX). Unset = Google Ads off. */

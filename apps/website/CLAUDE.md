@@ -45,10 +45,10 @@ Two route groups give the funnel its own chrome. The root `app/layout.tsx` holds
 and providers; each group layout draws its header and footer, and each page draws its own `<main
 id="main-content">` via `components/skeleton/page_skeleton.tsx`.
 
-| Group        | Routes                                          | Chrome                                                                 |
-| ------------ | ----------------------------------------------- | ---------------------------------------------------------------------- |
-| `app/(site)` | `/`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to the default LP), `SiteFooter` (nav + legal) |
-| `app/(lp)`   | `/lp/<slug>`, `/lp/<slug>/confirmation`         | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only)  |
+| Group        | Routes                                                                   | Chrome                                                                 |
+| ------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `app/(site)` | `/`, `/work`, `/work/<slug>`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to the default LP), `SiteFooter` (nav + legal) |
+| `app/(lp)`   | `/lp/<slug>`, `/lp/<slug>/confirmation`                                  | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only)  |
 
 - **Registry:** `routes` in `lib/site.config.ts` is the single list (`key`, `path`, `title`,
   `description`, `updated` (static ISO date for the sitemap), `pageType`
@@ -100,7 +100,8 @@ id="main-content">` via `components/skeleton/page_skeleton.tsx`.
   use `useAttributedHref(href)` (`components/lp/use_attributed_href.ts`) or
   `withStoredAttribution(href)` after mount, never during render.
 - **Structured data** (`lib/structured_data.ts`): Organization + WebSite JSON-LD in the root
-  layout, Service + Offer on `/` and every LP (`serviceJsonLd(lpHref)`), all from `siteConfig`. Render with
+  layout, Service + Offer on `/` and every LP (`serviceJsonLd(lpHref)`), BreadcrumbList on every
+  work story (`breadcrumbJsonLd(items)`: Home > Our work > story), all from `siteConfig`. Render with
   `<script {...jsonLdScriptProps(data)} />`.
 - Never add site nav links to the `(lp)` chrome: paid visitors must not be sent away.
 
@@ -138,6 +139,51 @@ names the ad it serves, and the page lives at `/lp/<slug>`.
   carry `lp_slug` plus `first_lp_slug` / `last_lp_slug` from stored attribution.
 - **Metadata / sitemap:** `lpMetadata(lp)` and `lpConfirmationMetadata(lp)` in `lib/metadata.ts`;
   the sitemap lists an LP only when `isLpIndexable(lp)` (launch flag + `indexable` + `live`).
+
+## Our work
+
+Two pages, one registry (`lib/work.ts`), mirroring the landing-page pattern. Direction:
+`docs/work-page-direction.md` in the main checkout. Both are skeletons (empty labelled slots).
+
+- **Listing `/work`** (`app/(site)/work/page.tsx`, static, route key `work`, Paper frame
+  "Testify Web - Our work"): slots `hero` (holds the `trade-filter` sub-slot), `featured`,
+  `grid`, `process`, `questions`, `samples`, `wont-show`, `cta`. `featured` holds the first
+  viewable `featured: true` story, `grid` the other viewable stories, each as an empty
+  `<article data-story-slug data-story-href data-trade>` placeholder.
+- **Trade filter:** `?trade=<trade>` (`trades-home-services | clinics-med-spas | salons-beauty |
+local-pros`, anything else = `all`, `parseWorkTrade`). `WorkTradeFilter`
+  (`components/work/work_trade_filter.tsx`, client, inside Suspense) reads it after hydration
+  and sets `data-active-trade` on `#work-hero-trade-filter`; the prerendered HTML says `all`, so
+  `/work` stays static. No visible UI yet.
+- **Detail `/work/<slug>`** (`app/(site)/work/[slug]/page.tsx`, the case-study TEMPLATE, Paper
+  frame "Testify Web - Our work / Case study"): static, `generateStaticParams` from
+  `viewableWorkStories`, `dynamicParams = false` plus `notFound()`, so an unknown OR
+  not-viewable slug is a 404. Slots from the entry's `sections` (ids `work-<slug>-<section>`,
+  from `WORK_SECTION_IDS`): `story-hero`, `stats`, `snapshot`, `before-after`, `what-broken`,
+  `timeline` (90-day swimlane), `what-changed`, `can-show-cant-claim`, `in-their-words`,
+  `differently-next`, `next-story`, `cta`. `<main>` carries `data-page-key="work:<slug>"`,
+  `data-page-type="site"`, `data-work-slug` (`workTrackingAttrs`; the `workStory` route
+  template in `site.config.ts` holds the shared page type, `inSitemap: false`).
+- **Registry entry:** `slug`, `clientName`, `trade`, `town`, `outcomeHeadline`, `timeframe`,
+  `servicesUsed`, `featured`, `status` (`draft | published`), `consent` (`pending | approved`),
+  `stats` (`{ label, value, source }`, every stat needs a source), `sections`, `title`,
+  `description`, `updated`. Client facts stay `[CONFIRM]` placeholders until signed off. The
+  module validates slugs, duplicates, sourceless stats and more than one featured public story
+  at load, so a bad entry fails the build.
+- **Add a story:** add one entry (`status: 'draft'`, `consent: 'pending'`), review it in
+  `next dev` or a preview build, then flip to `published` + `approved` only once the client's
+  written consent is on file. Nothing else changes: params, listing, metadata, sitemap,
+  breadcrumb and tracking follow the entry.
+- **Consent rule:** a story is PUBLIC only when `status: 'published'` AND `consent:
+'approved'` (`isWorkPublic`). Only public stories are listed, served in a production build,
+  and (with the launch flag on) indexed + in the sitemap (`isWorkIndexable`). Every other story
+  is a PREVIEW: it renders only in `next dev` or a build with `NEXT_PUBLIC_WORK_PREVIEW=true`,
+  always `noindex, nofollow`, never in the sitemap; with previews off it is a 404 and not
+  listed. The build fails if `NEXT_PUBLIC_WORK_PREVIEW=true` and `NEXT_PUBLIC_SITE_INDEXABLE=true`
+  are set together.
+- **Metadata:** `workStoryMetadata(story)` in `lib/metadata.ts` (canonical only when
+  indexable). `/work` itself uses `pageMetadata('work')` and is in the sitemap via the routes
+  registry.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { landingPages, lpPath } from '@/lib/landing_pages'
-import { isLpIndexable, isRouteIndexable } from '@/lib/metadata'
+import { isLpIndexable, isRouteIndexable, isWorkIndexable } from '@/lib/metadata'
 import { routeList, siteConfig } from '@/lib/site.config'
+import { workPath, workStories } from '@/lib/work'
 
 /**
  * Generated from the routes registry (`lib/site.config.ts`) and the LP
@@ -11,6 +12,8 @@ import { routeList, siteConfig } from '@/lib/site.config'
  *   (`isRouteIndexable`, which also always excludes the conversion page; the
  *   `lp` / `lpConfirmation` templates have `inSitemap: false`)
  * - every LP that `isLpIndexable` (its own `indexable` + `status: 'live'`)
+ * - every client story that `isWorkIndexable` (`status: 'published'` +
+ *   `consent: 'approved'`; `/work` itself comes from the routes registry)
  * `lastModified` is the entry's static `updated` date, never request time.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -29,5 +32,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly',
     priority: 0.5,
   }))
-  return [...siteRoutes, ...lps]
+  const stories: MetadataRoute.Sitemap = workStories.filter(isWorkIndexable).map((story) => ({
+    url: `${siteConfig.url}${workPath(story.slug)}`,
+    lastModified: story.updated,
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }))
+  return [...siteRoutes, ...stories, ...lps]
 }

@@ -24,16 +24,25 @@ export interface SlotSpec {
 }
 
 /**
- * One empty section slot. Its id is `<idPrefix>-<slot>` (stable, e.g.
- * `home-hero`, or `lp-sample-ad-hero` on a landing page).
+ * One section slot. Its id is `<idPrefix>-<slot>` (stable, e.g.
+ * `home-hero`, or `lp-sample-ad-hero` on a landing page). Empty unless
+ * `children` are given (nested sub-slots, such as the /work trade filter).
  */
 export function SectionSlot({
   idPrefix,
   slot,
   label: _label,
+  children,
   ...rest
-}: SlotSpec & { idPrefix: string } & Record<`data-${string}`, string | undefined>) {
-  return <section id={`${idPrefix}-${slot}`} data-slot={slot} {...rest} />
+}: SlotSpec & { idPrefix: string; children?: ReactNode } & Record<
+    `data-${string}`,
+    string | undefined
+  >) {
+  return (
+    <section id={`${idPrefix}-${slot}`} data-slot={slot} {...rest}>
+      {children}
+    </section>
+  )
 }
 
 /**

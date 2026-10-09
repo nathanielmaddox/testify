@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { lpConfirmationPath, lpPath, type LandingPage } from './landing_pages'
 import { getRoute, routes, siteConfig, type RouteEntry, type RouteKey } from './site.config'
+import { isWorkPublic, workPath, type WorkStory } from './work'
 
 /**
  * Metadata builders. Next merges metadata SHALLOWLY: a page's `openGraph` or
@@ -28,6 +29,15 @@ export function isRouteIndexable(route: RouteEntry): boolean {
  */
 export function isLpIndexable(lp: LandingPage): boolean {
   return siteConfig.indexable && lp.indexable && lp.status === 'live'
+}
+
+/**
+ * Whether a client story may be indexed right now: the launch flag AND
+ * `status: 'published'` AND `consent: 'approved'` (`isWorkPublic`). Preview
+ * stories (drafts, pending consent) are never indexed.
+ */
+export function isWorkIndexable(story: WorkStory): boolean {
+  return siteConfig.indexable && isWorkPublic(story)
 }
 
 /** Full document title as the template renders it (og/twitter skip the template). */
@@ -159,5 +169,24 @@ export function lpConfirmationMetadata(lp: LandingPage): Metadata {
     openGraph: baseOpenGraph({ ...social, url: lpConfirmationPath(lp.slug) }),
     twitter: baseTwitter(social),
     robots: routeRobots(route),
+  }
+}
+
+/**
+ * Metadata for one client story (`/work/<slug>`), from the work registry
+ * (lib/work.ts). `index, follow` + canonical only when `isWorkIndexable`;
+ * otherwise `noindex, nofollow` and no canonical.
+ */
+export function workStoryMetadata(story: WorkStory): Metadata {
+  const indexable = isWorkIndexable(story)
+  const path = workPath(story.slug)
+  const social = { title: `${story.title} | ${siteConfig.name}`, description: story.description }
+  return {
+    title: story.title,
+    description: story.description,
+    ...(indexable ? { alternates: { canonical: path } } : {}),
+    openGraph: baseOpenGraph({ ...social, url: path }),
+    twitter: baseTwitter(social),
+    robots: indexable ? { index: true, follow: true } : { index: false, follow: false },
   }
 }
