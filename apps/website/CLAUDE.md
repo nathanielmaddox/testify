@@ -48,14 +48,15 @@ id="main-content">` via `components/skeleton/page_skeleton.tsx`.
 | Group        | Routes                                                                   | Chrome                                                                 |
 | ------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | `app/(site)` | `/`, `/work`, `/work/<slug>`, `/about`, `/contact`, `/privacy`, `/terms` | `SiteHeader` (nav + CTA to the default LP), `SiteFooter` (nav + legal) |
-| `app/(lp)`   | `/lp/<slug>`, `/lp/<slug>/confirmation`                                  | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only)  |
+| `app/(lp)`   | `/lp/<slug>`, `/lp/<slug>/checkout`, `/lp/<slug>/confirmation`           | `LpHeader` (name only, no links), `LpFooter` (legal + copyright only)  |
 
 - **Registry:** `routes` in `lib/site.config.ts` is the single list (`key`, `path`, `title`,
   `description`, `updated` (static ISO date for the sitemap), `pageType`
-  `site|lp|conversion|legal`, `indexable`, `inSitemap`, `inNav`, `funnelStep`). Header and footer
-  links, metadata and `app/sitemap.ts` are generated from it. Pages export
-  `metadata = pageMetadata('<key>')`. `lp` and `lpConfirmation` are route TEMPLATES (path
-  patterns `/lp/[slug]`, `/lp/[slug]/confirmation`, never linked directly, `inSitemap: false`):
+  `site|lp|checkout|conversion|legal`, `indexable`, `inSitemap`, `inNav`, `funnelStep`
+  `landing|checkout|conversion`). Header and footer links, metadata and `app/sitemap.ts` are
+  generated from it. Pages export `metadata = pageMetadata('<key>')`. `lp`, `lpCheckout` and
+  `lpConfirmation` are route TEMPLATES (path patterns `/lp/[slug]`, `/lp/[slug]/checkout`,
+  `/lp/[slug]/confirmation`, never linked directly, `inSitemap: false`):
   they hold the shared page type, funnel step and confirmation copy; each LP itself lives in
   `lib/landing_pages.ts` (see "Landing pages" below).
 - **Metadata** (`lib/metadata.ts`): Next merges metadata shallowly, so `pageMetadata` always
@@ -78,10 +79,13 @@ id="main-content">` via `components/skeleton/page_skeleton.tsx`.
   (`components/lp/`) trims it to the id param.
 - **Tracking:** `lib/tracking.ts` holds the event names, `pageTrackingAttrs(key)` (puts
   `data-page-key`, `data-page-type`, `data-funnel-step` on every `<main>`; LPs use
-  `lpTrackingAttrs(slug, 'lp' | 'lpConfirmation')`, which adds `data-lp-slug`) and `track()`, the
-  only analytics call site. `EVENT_MAP` is the one table mapping site events to provider events
-  (`page_view` -> GA4 `page_view` / Meta `PageView`; `lp_view` -> `view_item` / `ViewContent`;
-  `lead_submit` -> `generate_lead` / `Lead`; `purchase_complete` -> `purchase` / `Purchase`;
+  `lpTrackingAttrs(slug, 'lp' | 'lpCheckout' | 'lpConfirmation')`, which adds `data-lp-slug`) and
+  `track()`, the only analytics call site. `EVENT_MAP` is the one table mapping site events to
+  provider events (`page_view` -> GA4 `page_view` / Meta `PageView`; `lp_view` -> `view_item` /
+  `ViewContent`; `checkout_view` -> GA4 `checkout_view` / Meta custom `CheckoutView`;
+  `begin_checkout` -> `begin_checkout` / `InitiateCheckout`; `add_payment_info` ->
+  `add_payment_info` / `AddPaymentInfo` (stub until the Stripe element exists); `lead_submit`
+  -> `generate_lead` / `Lead`; `purchase_complete` -> `purchase` / `Purchase`;
   the last two also send a Google Ads conversion when its label is set). Providers are off until
   their env id is set (`lib/analytics.config.ts`, `.env.example`); `initAnalytics()` installs
   the gtag/fbq queues so nothing is lost before the scripts load. `components/providers.tsx`
@@ -113,31 +117,71 @@ names the ad it serves, and the page lives at `/lp/<slug>`.
 - **Naming rule:** URL `/lp/<slug>` == Paper frame name `lp/<slug>` (`lpFrameName(slug)`) ==
   analytics page key `lp:<slug>` == event param `lp_slug`. Slugs are lowercase kebab-case, named
   after the ad / campaign (e.g. `spring-meta-before-after`), and never renamed once traffic has
-  run on them (retire and add a new one instead). `confirmation` is reserved.
+  run on them (retire and add a new one instead). `confirmation` and `checkout` are reserved.
 - **Registry:** `lib/landing_pages.ts` (`landingPages`, `getLandingPage(slug)`). Each entry:
   `slug`, `name` (internal), `campaign` (the ad it serves, `[CONFIRM]` until known),
   `channel` (`meta | google | tiktok | other`), `offerAngle`, `layout` (layout key),
   `sections` (ordered slot ids from `LP_SECTION_IDS`), `title`, `description`, `indexable`
-  (default false), `status` (`draft | live`), `updated`. The module validates slugs, duplicates
-  and `DEFAULT_LP_SLUG` at load, so a bad entry fails the build.
+  (default false), `status` (`draft | live`), `updated`, and optional `offer`. The module
+  validates slugs, duplicates, `DEFAULT_LP_SLUG` and every `offer.checkoutSlug` at load, so a bad
+  entry fails the build. `draft` LPs are SERVED (200, `noindex, follow`) for review; only
+  indexing and the sitemap are gated.
+- **Offer field:** an LP that sells directly has an `offer` (`LpOffer`: `name`, `price`,
+  `currency`, `interval`, `checkoutSlug`). Its buy CTAs go to `/lp/<offer.checkoutSlug>/checkout`
+  (`lpCheckoutHref(lp)`), with stored attribution added after mount (`LpCheckoutCta`,
+  `components/lp/lp_checkout_cta.tsx`, via `useAttributedHref`). Several LPs share one checkout
+  by naming the same `checkoutSlug`, which must be an LP whose offer names itself. The Stripe
+  price is not in the registry: `stripePriceId(checkoutSlug)` in `lib/checkout_server.ts` maps it
+  to an env var. Current offer: `done-for-you-99` (cold, layout `offer-99-cold`: hero, proof,
+  problem, mechanism, offer-stack, guarantee, objections-faq, final-cta) and
+  `done-for-you-99-back` (retargeting, layout `offer-99-retarget`: hero, objections, proof,
+  offer-stack, guarantee, final-cta), both `draft`, both checking out on
+  `/lp/done-for-you-99/checkout`. The offer is content CREATION delivered ready to post
+  (placeholder name "Ready-to-Post Content, monthly"), never account management: no placeholder
+  says we post or manage accounts.
+- **Checkout page** `app/(lp)/lp/[slug]/checkout/page.tsx` (the PURCHASE page, route template
+  `lpCheckout`, page type and funnel step `checkout`): `force-dynamic`, no-store cache header
+  (`next.config.js`, `/lp/:slug/checkout`), always `noindex, nofollow` (`lpCheckoutMetadata`),
+  never in the sitemap. Served only for an LP with an `offer`; other slugs 404; an LP sharing another LP's
+  offer 307s to `/lp/<checkoutSlug>/checkout` keeping the query. Same focused (lp) chrome. Slots
+  (ids `lp-<slug>-checkout-<slot>`): `order-summary` (offer data-* attrs), `included-recap`,
+  `guarantee`, `form` (contact + business name; `data-checkout-api`, `data-success-path`),
+  `payment` (Stripe element mount, `data-stripe-ui-mode`), `trust-row`, `after-you-pay`.
+  `CheckoutTracker` fires `checkout_view` on mount and `begin_checkout` on the first interaction
+  in the form slot; `trackAddPaymentInfo` is the stub for the payment element.
+- **Stripe** (`lib/checkout.ts` client contract + `startCheckout()`, `lib/checkout_server.ts`,
+  `app/api/checkout/route.ts`): `POST /api/checkout` with `{ slug, contact, attribution }`
+  (attribution = `encodeAttribution(getAttribution())`, re-validated server side) creates a
+  Checkout Session, mode `subscription`, price `STRIPE_PRICE_DONE_FOR_YOU_99`, `ui_mode`
+  `CHECKOUT_UI_MODE` (`embedded_page` today, `hosted_page` = redirect; [CONFIRM]), success /
+  return URL `stripeSuccessUrl(slug)`, and the LP slug + first/last touch as session and
+  subscription metadata. Without `STRIPE_SECRET_KEY` or the price it answers 503
+  `{ ok: false, error: 'checkout_not_configured' }` and makes no call. Cross-origin POSTs get 403.
+  Package `stripe` (server SDK) is a website dependency; Stripe.js hosts are in the CSP
+  `thirdParties` entry `Stripe.js`. Env vars: `.env.example`.
 - **Add an LP:** add one entry (slug = the ad). Reuse a layout, or add a layout: put its key in
   `LP_LAYOUT_KEYS`, write `components/lp/layouts/<key>_layout.tsx` exporting an `LpLayout`
   (`component` + supported `sections`), register it in `LP_LAYOUTS`
   (`components/lp/layouts/index.ts`). The build fails if an LP lists a section its layout cannot
   render. Nothing else changes: `generateStaticParams` prerenders it, metadata, sitemap and
   tracking follow the entry. Layouts are server components; DS UI goes in client modules.
-- **Routes:** `app/(lp)/lp/[slug]/page.tsx` (static, `dynamicParams = false`, unknown slug -> 404) and `app/(lp)/lp/[slug]/confirmation/page.tsx` (dynamic, see above). Bare `/lp` and the
+- **Routes:** `app/(lp)/lp/[slug]/page.tsx` (static, `dynamicParams = false`, unknown slug -> 404),
+  `app/(lp)/lp/[slug]/checkout/page.tsx` (dynamic, offer LPs only, see above) and
+  `app/(lp)/lp/[slug]/confirmation/page.tsx` (dynamic, see above). Bare `/lp` and the
   old `/lp/confirmation` are route handlers that 307 to `DEFAULT_LP_SLUG` (and its confirmation),
   keeping the query string, so old ad links and success URLs keep working.
 - **Layout contract:** a layout renders the page's `<main>` through `PageSkeleton` with
   `tracking={lpTrackingAttrs(slug, 'lp')}` and `idPrefix="lp-<slug>"` (slot ids
   `lp-<slug>-<section>`), and the `form` section through `LpFormSlot`, whose
-  `data-success-path` is that LP's confirmation page.
+  `data-success-path` is that LP's confirmation page. Offer layouts (`offer_layout.tsx`) have no
+  form: their `hero`, `offer-stack` and `final-cta` slots hold an `LpCheckoutCta` sub-slot.
+  Slot labels for every section id live in `components/lp/layouts/section_labels.ts`.
 - **Tracking fields:** `<main>` carries `data-page-key="lp:<slug>"`, `data-page-type="lp"` (or
   `conversion`), `data-funnel-step` and `data-lp-slug`. `page_view` and `lp_view` carry
   `page_key`, `page_type`, `funnel_step`, `lp_slug`; `lead_submit` / `purchase_complete`
   carry `lp_slug` plus `first_lp_slug` / `last_lp_slug` from stored attribution.
-- **Metadata / sitemap:** `lpMetadata(lp)` and `lpConfirmationMetadata(lp)` in `lib/metadata.ts`;
+- **Metadata / sitemap:** `lpMetadata(lp)`, `lpCheckoutMetadata(lp)` and
+  `lpConfirmationMetadata(lp)` in `lib/metadata.ts`;
   the sitemap lists an LP only when `isLpIndexable(lp)` (launch flag + `indexable` + `live`).
 
 ## Our work

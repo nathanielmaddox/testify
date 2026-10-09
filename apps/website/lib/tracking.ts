@@ -17,14 +17,27 @@ import { workPageKey } from './work'
 export const PAGE_TYPES = [
   'site',
   'lp',
+  'checkout',
   'conversion',
   'legal',
 ] as const satisfies readonly PageType[]
 
-export const FUNNEL_STEPS = ['landing', 'conversion'] as const satisfies readonly FunnelStep[]
+export const FUNNEL_STEPS = [
+  'landing',
+  'checkout',
+  'conversion',
+] as const satisfies readonly FunnelStep[]
 
 /** Every event the site will emit. Add a name here before emitting it. */
-export const TRACK_EVENTS = ['page_view', 'lp_view', 'lead_submit', 'purchase_complete'] as const
+export const TRACK_EVENTS = [
+  'page_view',
+  'lp_view',
+  'checkout_view',
+  'begin_checkout',
+  'add_payment_info',
+  'lead_submit',
+  'purchase_complete',
+] as const
 
 export type TrackEvent = (typeof TRACK_EVENTS)[number]
 
@@ -47,6 +60,27 @@ export const EVENT_MAP = {
   lp_view: {
     ga4: 'view_item',
     meta: 'ViewContent',
+    metaStandard: true,
+    googleAdsConversion: false,
+  },
+  // Checkout page rendered (custom: reporting only, not an ad optimisation event).
+  checkout_view: {
+    ga4: 'checkout_view',
+    meta: 'CheckoutView',
+    metaStandard: false,
+    googleAdsConversion: false,
+  },
+  // Visitor starts the purchase (first interaction with the checkout form).
+  begin_checkout: {
+    ga4: 'begin_checkout',
+    meta: 'InitiateCheckout',
+    metaStandard: true,
+    googleAdsConversion: false,
+  },
+  // Payment details complete in the Stripe element. Stub: not fired until the element exists.
+  add_payment_info: {
+    ga4: 'add_payment_info',
+    meta: 'AddPaymentInfo',
     metaStandard: true,
     googleAdsConversion: false,
   },
@@ -86,14 +120,14 @@ export function pageTrackingAttrs(routeKey: RouteKey): PageTrackingAttrs {
 }
 
 /**
- * data-* attributes for an LP page (`template: 'lp'`) or its confirmation
- * page (`'lpConfirmation'`): page type and funnel step from the route
+ * data-* attributes for an LP page (`template: 'lp'`), its checkout page
+ * (`'lpCheckout'`) or its confirmation page (`'lpConfirmation'`): page type and funnel step from the route
  * template, page key `lp:<slug>`, plus `data-lp-slug`. The route tracker
  * reads `data-lp-slug` into the `lp_slug` event param.
  */
 export function lpTrackingAttrs(
   slug: string,
-  template: Extract<RouteKey, 'lp' | 'lpConfirmation'>
+  template: Extract<RouteKey, 'lp' | 'lpCheckout' | 'lpConfirmation'>
 ): PageTrackingAttrs {
   return {
     ...pageTrackingAttrs(template),

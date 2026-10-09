@@ -16,10 +16,10 @@
 import { DEFAULT_LP_SLUG, lpPath } from './landing_pages'
 
 /** What a route is for. Drives chrome, indexing defaults and tracking. */
-export type PageType = 'site' | 'lp' | 'conversion' | 'legal'
+export type PageType = 'site' | 'lp' | 'checkout' | 'conversion' | 'legal'
 
 /** Position in the paid funnel. Only funnel routes carry one. */
-export type FunnelStep = 'landing' | 'conversion'
+export type FunnelStep = 'landing' | 'checkout' | 'conversion'
 
 export interface RouteEntry {
   /** Stable id used by pages, tracking attributes and analytics. Never rename. */
@@ -60,6 +60,7 @@ export type RouteKey =
   | 'privacy'
   | 'terms'
   | 'lp'
+  | 'lpCheckout'
   | 'lpConfirmation'
 
 /**
@@ -172,6 +173,23 @@ export const routes = {
     inSitemap: false,
     inNav: false,
     funnelStep: 'landing',
+  },
+  // TEMPLATE for every offer LP's PURCHASE page (/lp/<slug>/checkout): the
+  // order summary + Stripe payment step between the LP and its confirmation.
+  // Served only for LPs with an `offer` (lib/landing_pages.ts). Always
+  // noindex, nofollow, never in the sitemap, Cache-Control no-store.
+  lpCheckout: {
+    key: 'lpCheckout',
+    path: '/lp/[slug]/checkout',
+    title: 'Checkout',
+    description: 'Placeholder checkout page description.',
+    updated: '2026-10-09',
+    navLabel: 'Checkout',
+    pageType: 'checkout',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+    funnelStep: 'checkout',
   },
   // TEMPLATE for every LP's conversion page (/lp/<slug>/confirmation): where
   // that LP's form/checkout lands after a successful submit. Title and

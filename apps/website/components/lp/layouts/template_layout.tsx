@@ -1,19 +1,8 @@
 import { LpFormSlot } from '@/components/lp/lp_form_slot'
 import { PageSkeleton, SectionSlot } from '@/components/skeleton/page_skeleton'
-import type { LpSectionId } from '@/lib/landing_pages'
 import { lpTrackingAttrs } from '@/lib/tracking'
+import { LP_SECTION_LABELS } from './section_labels'
 import type { LpLayout, LpLayoutProps } from './types'
-
-/** Author-facing names of the sections this layout renders (never shown). */
-const SECTION_LABELS = {
-  hero: 'Hero',
-  proof: 'Proof',
-  process: 'Process',
-  honesty: 'Honesty',
-  guarantee: 'Guarantee',
-  faq: 'FAQ',
-  form: 'Form and checkout',
-} as const satisfies Record<LpSectionId, string>
 
 /**
  * The "template" layout: the original LP skeleton. A single column of empty
@@ -33,7 +22,7 @@ function TemplateLayout({ lp }: LpLayoutProps) {
             key={section}
             idPrefix={idPrefix}
             slot={section}
-            label={SECTION_LABELS[section]}
+            label={LP_SECTION_LABELS[section]}
           />
         )
       )}

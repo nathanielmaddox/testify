@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { lpConfirmationPath, lpPath, type LandingPage } from './landing_pages'
+import { lpCheckoutPath, lpConfirmationPath, lpPath, type LandingPage } from './landing_pages'
 import { getRoute, routes, siteConfig, type RouteEntry, type RouteKey } from './site.config'
 import { isWorkPublic, workPath, type WorkStory } from './work'
 
@@ -16,10 +16,11 @@ type Robots = NonNullable<Metadata['robots']>
 
 /**
  * Whether a route may be indexed right now: the launch flag AND the route's
- * own flag. The conversion page is never indexable, whatever its flags say.
+ * own flag. The conversion and checkout pages are never indexable, whatever
+ * their flags say.
  */
 export function isRouteIndexable(route: RouteEntry): boolean {
-  if (route.pageType === 'conversion') return false
+  if (route.pageType === 'conversion' || route.pageType === 'checkout') return false
   return siteConfig.indexable && route.indexable
 }
 
@@ -167,6 +168,24 @@ export function lpConfirmationMetadata(lp: LandingPage): Metadata {
     title: route.title,
     description: route.description,
     openGraph: baseOpenGraph({ ...social, url: lpConfirmationPath(lp.slug) }),
+    twitter: baseTwitter(social),
+    robots: routeRobots(route),
+  }
+}
+
+/**
+ * Metadata for an offer LP's purchase page (`/lp/<slug>/checkout`). Copy is
+ * shared by every checkout (the `lpCheckout` route template) with the offer
+ * name in the title; always `noindex, nofollow`, never a canonical.
+ */
+export function lpCheckoutMetadata(lp: LandingPage): Metadata {
+  const route = routes.lpCheckout
+  const title = lp.offer ? `${route.title}: ${lp.offer.name}` : route.title
+  const social = { title: `${title} | ${siteConfig.name}`, description: route.description }
+  return {
+    title,
+    description: route.description,
+    openGraph: baseOpenGraph({ ...social, url: lpCheckoutPath(lp.slug) }),
     twitter: baseTwitter(social),
     robots: routeRobots(route),
   }

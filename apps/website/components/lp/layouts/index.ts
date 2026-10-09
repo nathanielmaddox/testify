@@ -9,11 +9,15 @@
  * layout cannot render.
  */
 import { landingPages, type LandingPage, type LpLayoutKey } from '@/lib/landing_pages'
+import { offer99ColdLayout } from './offer_99_cold_layout'
+import { offer99RetargetLayout } from './offer_99_retarget_layout'
 import { templateLayout } from './template_layout'
 import type { LpLayout } from './types'
 
 export const LP_LAYOUTS = {
   template: templateLayout,
+  'offer-99-cold': offer99ColdLayout,
+  'offer-99-retarget': offer99RetargetLayout,
 } as const satisfies Record<LpLayoutKey, LpLayout>
 
 export function getLpLayout(lp: LandingPage): LpLayout {
