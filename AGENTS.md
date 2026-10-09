@@ -23,9 +23,12 @@ learn a rule while working here, add it HERE in the same commit, never only in a
    and `@testify/config/prettier`. Never copy rules into an app; change them in `packages/config`.
 3. **All UI comes from `@otesse/design-system`** (source `vs_code/otesse_ds`, pinned as
    `github:nathanielmaddox/storybook#<full sha>`). Every manifest that depends on it uses the same pin.
-   No hand-rolled primitives (buttons, inputs, cards, dialogs, tables, nav, icons): if the DS lacks
-   something, add it in `otesse_ds` (coordinate with its owner), bump the pin, and re-pack the vendored
-   tarball (`scripts/vercel/README.md`). App code composes DS components; it does not restyle them.
+   No hand-rolled primitives (buttons, inputs, cards, dialogs, tables, nav, icons). **Never edit
+   `otesse_ds` and never file changes against it from this repo** (owner ruling 2026-10-09). The Testify
+   look lives in `packages/style-guide` (`@testify/style-guide`): role tokens mapped onto the DS CSS
+   variables, NEW brand-named Tailwind keys (never redefine DS keys such as `rounded-lg`, `text-display`,
+   `shadow-sm`), and brand compositions built from DS primitives (section wrapper, calendar, proof row,
+   emphasis panel...). Apps import from those two packages only; they never style DS components inline.
 4. **No emojis** in UI source or copy. Use DS icons.
 5. **Never deploy from the root.** Each app deploys from its own folder (`DO-NOT-DEPLOY-FROM-HERE.md`,
    `scripts/vercel/README.md`). Remote Vercel build only. Delete any root `.vercel/` that holds more than
