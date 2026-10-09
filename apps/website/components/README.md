@@ -16,14 +16,18 @@ it from here; never fork or restyle a DS component in this app.
   placement only (width, margin, alignment). A look the DS cannot express is a DS change.
 - Links: use the DS `Link` with `linkComponent={NextLink}` so Next client navigation and
   prefetch are kept. Button-looking links are `Link variant="button"`.
-- Site data (name, nav, CTA, footer columns) comes from `lib/site.config.ts`, never inline.
+- Site data (name, nav, CTA, legal links) comes from the routes registry in
+  `lib/site.config.ts`, never inline.
 
 ## Layout
 
-| Path                        | What                                                    |
-| --------------------------- | ------------------------------------------------------- |
-| `providers.tsx`             | DS client providers (`ThemeProvider`), used by layout   |
-| `site/site_header.tsx`      | DS `SkipLink` + `Navbar` + `Link`                       |
-| `site/site_footer.tsx`      | DS `Footer`                                             |
-| `site/not_found_panel.tsx`  | DS `Layout` + `EmptyState` for `app/not-found.tsx`      |
-| `home/home_placeholder.tsx` | DS `Hero` + `Layout` + `Card`, placeholder home content |
+| Path                         | What                                                  |
+| ---------------------------- | ----------------------------------------------------- |
+| `providers.tsx`              | DS client providers (`ThemeProvider`), used by layout |
+| `site/site_header.tsx`       | DS `SkipLink` + `Navbar` + `Link`, `(site)` header    |
+| `site/site_footer.tsx`       | DS `Footer`, `(site)` footer (nav + legal)            |
+| `site/lp_header.tsx`         | DS `SkipLink` + `Navbar`, name only, `(lp)` header    |
+| `site/lp_footer.tsx`         | DS `Footer` minimal, legal + copyright, `(lp)` footer |
+| `site/not_found_panel.tsx`   | DS `Layout` + `EmptyState` for `app/not-found.tsx`    |
+| `skeleton/page_skeleton.tsx` | Server-safe `<main>` + empty labelled section slots   |
+| `lp/lp_form_slot.tsx`        | LP form slot carrying the attributed onward href      |

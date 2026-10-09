@@ -1,13 +1,19 @@
 import type { MetadataRoute } from 'next'
-import { siteConfig } from '@/lib/site.config'
+import { routeList, siteConfig } from '@/lib/site.config'
 
-/** One entry per route listed in `siteConfig.routes`. Add routes there, not here. */
+/**
+ * Generated from the routes registry (`lib/site.config.ts`): every route with
+ * `inSitemap` and its own `indexable` flag set. The launch flag gates
+ * robots.txt, not this list. The conversion page is never listed.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date()
-  return siteConfig.routes.map((route) => ({
-    url: `${siteConfig.url}${route === '/' ? '' : route}`,
-    lastModified,
-    changeFrequency: 'monthly',
-    priority: route === '/' ? 1 : 0.7,
-  }))
+  return routeList
+    .filter((route) => route.inSitemap && route.indexable && route.pageType !== 'conversion')
+    .map((route) => ({
+      url: `${siteConfig.url}${route.path === '/' ? '' : route.path}`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: route.path === '/' ? 1 : route.pageType === 'legal' ? 0.3 : 0.7,
+    }))
 }

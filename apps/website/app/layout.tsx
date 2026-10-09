@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { Providers } from '@/components/providers'
-import { SiteFooter } from '@/components/site/site_footer'
-import { SiteHeader } from '@/components/site/site_header'
 import { siteConfig } from '@/lib/site.config'
 // DS styles first: they carry the Tailwind layers and the DS CSS variables.
 import '@otesse/design-system/styles'
@@ -51,13 +49,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
-        <Providers>
-          <SiteHeader />
-          <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-            {children}
-          </main>
-          <SiteFooter />
-        </Providers>
+        {/* Header, <main> and footer come from the (site) and (lp) group layouts. */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
