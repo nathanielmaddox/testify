@@ -1,0 +1,435 @@
+/*
+ * @testify/style-guide/tokens.css: the Testify brand layer (light only).
+ *
+ * Import order in the app's root layout (the order is the contract):
+ *   1. '@otesse/design-system/styles'    Tailwind layers + DS defaults (inside @layer base)
+ *   2. '@testify/style-guide/tokens.css'  THIS file: unlayered, so it wins over the DS defaults
+ *   3. './globals.css'                    page-frame rules only
+ *
+ * Values come from testify-research/tokens-final.json (final-v1 2026-10-09) and
+ * 02-token-audit.md. Do not invent values here; change the token file first.
+ *
+ * Sections:
+ *   A. Role colours (hex + RGB triplet per role, brand names)
+ *   B. DS mapping (--color-* RGB triplets the DS Tailwind preset reads)
+ *   C. DS component tokens (--link-button-*, --link-pill-*, --accordion-card-*, ...)
+ *   D. shadcn-style HSL fallbacks (only the two verified as needed)
+ *   E. --brand-* parity (DS BrandProvider variables)
+ *   F. Type, space, radius, elevation, layout, motion, z
+ *   G. Base rules: body face and size, focus ring, calendar keyframes, reduced motion
+ *
+ * No @tailwind, @layer or theme() here: this file is plain CSS so it can be
+ * imported after the DS stylesheet without emitting utilities twice.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------- A. Role colours */
+  --canvas: #f4f2ee;
+  --canvas-rgb: 244 242 238;
+  --canvas-alt: #efebe4;
+  --canvas-alt-rgb: 239 235 228;
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-sunken: #efebe4;
+  --surface-sunken-rgb: 239 235 228;
+  --surface-raised: #ffffff;
+  --surface-raised-rgb: 255 255 255;
+  --ink: #19171c;
+  --ink-rgb: 25 23 28;
+  --ink-muted: #4f4c54;
+  --ink-muted-rgb: 79 76 84;
+  --ink-subtle: #6a6770;
+  --ink-subtle-rgb: 106 103 112;
+  --ink-disabled: #a3a0a8;
+  --ink-disabled-rgb: 163 160 168;
+  --border: #e7e3dc;
+  --border-rgb: 231 227 220;
+  --border-strong: #8d8579;
+  --border-strong-rgb: 141 133 121;
+  --action: #7a40de;
+  --action-rgb: 122 64 222;
+  --action-hover: #6832c8;
+  --action-hover-rgb: 104 50 200;
+  --action-pressed: #5a2ab0;
+  --action-pressed-rgb: 90 42 176;
+  --action-ink: #ffffff;
+  --action-ink-rgb: 255 255 255;
+  --action-text: #6832c8;
+  --action-text-rgb: 104 50 200;
+  --inverse-1: #711de2;
+  --inverse-1-rgb: 113 29 226;
+  --inverse-2: #5a14c4;
+  --inverse-2-rgb: 90 20 196;
+  --inverse-3: #3f0d8c;
+  --inverse-3-rgb: 63 13 140;
+  --inverse-ink: #ffffff;
+  --inverse-ink-rgb: 255 255 255;
+  --inverse-ink-muted: #ddcdfc;
+  --inverse-ink-muted-rgb: 221 205 252;
+  --done-bg: #e8dcc8;
+  --done-bg-rgb: 232 220 200;
+  --done-bg-strong: #d9c9ae;
+  --done-bg-strong-rgb: 217 201 174;
+  --done-fg: #7a5a2c;
+  --done-fg-rgb: 122 90 44;
+  --done-border: #a8865a;
+  --done-border-rgb: 168 134 90;
+  --focus: #7a40de;
+  --focus-rgb: 122 64 222;
+  --focus-inverse: #ffffff;
+  --focus-inverse-rgb: 255 255 255;
+  --mark: #c3a9fa;
+  --mark-rgb: 195 169 250;
+  --danger-fg: #b42318;
+  --danger-fg-rgb: 180 35 24;
+  --danger-bg: #fdf1ef;
+  --danger-bg-rgb: 253 241 239;
+  --danger-border: #d9483b;
+  --danger-border-rgb: 217 72 59;
+  --success-fg: #1d7438;
+  --success-fg-rgb: 29 116 56;
+  --success-bg: #edf7ef;
+  --success-bg-rgb: 237 247 239;
+  --success-border: #3d9a5a;
+  --success-border-rgb: 61 154 90;
+  --warning-fg: #8a5300;
+  --warning-fg-rgb: 138 83 0;
+  --warning-bg: #fdf4e1;
+  --warning-bg-rgb: 253 244 225;
+  --warning-border: #a8700f;
+  --warning-border-rgb: 168 112 15;
+  --info-fg: #1c62b3;
+  --info-fg-rgb: 28 98 179;
+  --info-bg: #edf3fb;
+  --info-bg-rgb: 237 243 251;
+  --info-border: #4a88d4;
+  --info-border-rgb: 74 136 212;
+  --action-quiet: #19171c;
+  --action-quiet-rgb: 25 23 28;
+  --action-quiet-ink: #f4f2ee;
+  --action-quiet-ink-rgb: 244 242 238;
+
+  /* --------------------------------------------- B. DS mapping (RGB triplets) */
+  /* primary = ink: DS primary UI (Button primary, Link button primary, checked
+     controls) is the quiet ink pill. Violet lives only in cta + ring. */
+  --color-primary: var(--ink-rgb);
+  --color-primary-foreground: var(--action-quiet-ink-rgb);
+  --color-secondary: var(--surface-rgb);
+  --color-secondary-foreground: var(--ink-rgb);
+  /* accent = the DS hover fill (nav active, ghost hover, select option hover). */
+  --color-accent: var(--surface-sunken-rgb);
+  --color-accent-foreground: var(--ink-rgb);
+  --color-background: var(--canvas-rgb);
+  --color-foreground: var(--ink-rgb);
+  --color-muted: var(--surface-sunken-rgb);
+  --color-muted-foreground: var(--ink-muted-rgb);
+  --color-card: var(--surface-rgb);
+  --color-card-foreground: var(--ink-rgb);
+  --color-popover: var(--surface-raised-rgb);
+  --color-popover-foreground: var(--ink-rgb);
+  --color-border: var(--border-rgb);
+  /* Input outline = border-strong (>=3:1, WCAG 1.4.11). tokens-final names
+     border-strong as THE input-outline role; the decorative hairline (1.28:1)
+     would leave every field boundary imperceptible. */
+  --color-input: var(--border-strong-rgb);
+  --color-ring: var(--focus-rgb);
+  --color-cta: var(--action-rgb);
+  --color-cta-foreground: var(--action-ink-rgb);
+  /* Status: the DS renders field messages as text-error / text-success, so the
+     BASE must already be text-safe. Base and -strong both take the -fg value
+     (>=4.5:1 on canvas, surface and the role's own bg); -foreground is the label
+     on a solid fill (white clears 4.5:1 on all four -fg values). */
+  --color-success: var(--success-fg-rgb);
+  --color-success-foreground: var(--surface-rgb);
+  --color-success-strong: var(--success-fg-rgb);
+  --color-warning: var(--warning-fg-rgb);
+  --color-warning-foreground: var(--surface-rgb);
+  --color-warning-strong: var(--warning-fg-rgb);
+  --color-error: var(--danger-fg-rgb);
+  --color-error-foreground: var(--surface-rgb);
+  --color-error-strong: var(--danger-fg-rgb);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-error-foreground);
+  --color-info: var(--info-fg-rgb);
+  --color-info-foreground: var(--surface-rgb);
+  --color-info-strong: var(--info-fg-rgb);
+
+  /* -------------------------------------------------- C. DS component tokens */
+  /* Link variant="button": every size is a pill and every tier is >=44px tall. */
+  --link-button-font-family: var(--font-text-stack);
+  --link-button-font-weight: 600;
+  --link-button-line-height: 1.2;
+  --link-button-gap: var(--space-2);
+  --link-button-height-sm: 2.75rem;
+  --link-button-padding-sm: var(--space-5);
+  --link-button-radius-sm: var(--radius-pill);
+  --link-button-font-size-sm: 0.875rem;
+  --link-button-height-md: 3rem;
+  --link-button-padding-md: var(--space-6);
+  --link-button-radius-md: var(--radius-pill);
+  --link-button-font-size-md: 1rem;
+  --link-button-height-lg: 3.25rem;
+  --link-button-padding-lg: var(--space-8);
+  --link-button-radius-lg: var(--radius-pill);
+  --link-button-font-size-lg: 1rem;
+  /* color="cta" (violet: hero + closing CTA only). Full colours, not triplets. */
+  --link-button-cta-hover-bg: var(--action-hover);
+  --link-button-cta-active-bg: var(--action-pressed);
+  --link-button-cta-active-fg: var(--action-ink);
+  /* color="outline" */
+  --link-button-outline: var(--ink-rgb);
+  --link-button-outline-shadow: inset 0 0 0 1px var(--ink);
+  --link-button-outline-hover-bg: var(--surface-sunken);
+  /* Link variant="pill" (chips, filters). Colours are RGB triplets. */
+  --link-pill-radius: var(--radius-pill);
+  --link-pill-gap: var(--space-1);
+  --link-pill-padding-x: var(--space-3);
+  --link-pill-padding-y: 0.375rem;
+  --link-pill-font-family: var(--font-text-stack);
+  --link-pill-font-size: 0.875rem;
+  --link-pill-font-weight: 500;
+  --link-pill-bg: var(--surface-sunken-rgb);
+  --link-pill-fg: var(--ink-rgb);
+  --link-pill-hover-bg: var(--ink-rgb);
+  --link-pill-hover-fg: var(--action-quiet-ink-rgb);
+  --link-pill-active-bg: var(--ink-rgb);
+  --link-pill-active-fg: var(--action-quiet-ink-rgb);
+  /* Accordion variant="card" (FAQ). open-bg / icon-open are RGB triplets. */
+  --accordion-card-gap: var(--space-3);
+  --accordion-card-radius: var(--radius-md);
+  --accordion-card-padding-x: var(--space-6);
+  --accordion-card-padding-y: var(--space-5);
+  --accordion-card-padding-bottom: var(--space-6);
+  --accordion-card-open-bg: var(--surface-rgb);
+  --accordion-card-icon-open: var(--ink-rgb);
+  /* Button focus ring. NOTE: the DS Button writes both of these inline on every
+     instance (2px / 2px), so these root values only reach parts that read them
+     without an inline default. Kept for parity. */
+  --button-ring-width: 2px;
+  --button-ring-offset: 3px;
+  /* Skeleton. The DS writes --skeleton-background inline from its tone
+     (hsl(var(--muted))), so the visible fill comes from --muted in section D;
+     the highlight here applies whenever no override is passed. */
+  --skeleton-background: var(--surface-sunken);
+  --skeleton-highlight: rgb(255 255 255 / 0.55);
+  --skeleton-duration: 1.5s;
+  --skeleton-radius: var(--radius-sm);
+  --skeleton-gap: var(--space-2);
+  /* Spinner. Size, stroke, duration and gap are written inline per instance.
+     --spinner-color is deliberately NOT set: a spinner inherits currentColor,
+     so one inside an ink button stays light. */
+  --spinner-track-color: rgb(var(--ink-rgb) / 0.12);
+
+  /* --------------------------------------- D. shadcn-style HSL fallbacks */
+  /* Verified against the e7d37602 dist: Modal's backdrop is
+     hsl(var(--foreground) / n) and Skeleton's default tone is hsl(var(--muted));
+     both were undefined (transparent backdrop, invisible skeleton).
+     --background / --border / --card are NOT set as HSL: chart and map parts read
+     var(--background) and Tabs reads var(--border) as full colours. --border is
+     the role hex from section A, which is the right value for Tabs. */
+  --foreground: 264 9.8% 10%;
+  --muted: 38.2 25.6% 91.6%;
+
+  /* -------------------------------------------------- E. --brand-* parity */
+  --brand-primary: var(--ink-rgb);
+  --brand-primary-hex: var(--ink);
+  --brand-secondary: var(--ink-muted-rgb);
+  --brand-secondary-hex: var(--ink-muted);
+  --brand-accent: var(--action-rgb);
+  --brand-accent-hex: var(--action);
+  --brand-success: var(--success-fg-rgb);
+  --brand-success-hex: var(--success-fg);
+  --brand-warning: var(--warning-fg-rgb);
+  --brand-warning-hex: var(--warning-fg);
+  --brand-error: var(--danger-fg-rgb);
+  --brand-error-hex: var(--danger-fg);
+  --brand-info: var(--info-fg-rgb);
+  --brand-info-hex: var(--info-fg);
+  --brand-background: var(--canvas-rgb);
+  --brand-background-hex: var(--canvas);
+  --brand-foreground: var(--ink-rgb);
+  --brand-foreground-hex: var(--ink);
+
+  /* ------------------------------------------------------------- F. Type */
+  /* Faces arrive from next/font as --font-display / --font-text / --font-hand
+     (@testify/style-guide/fonts). Stacks end in the system sans, never serif. */
+  --font-display-stack:
+    var(--font-display, ui-sans-serif), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-text-stack:
+    var(--font-text, ui-sans-serif), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-hand-stack: var(--font-hand, 'Segoe Script'), 'Segoe Script', cursive;
+  --font-mono-stack: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Fluid modular scale ~1.2 @360 -> ~1.3 @1280. Every clamp carries a rem term. */
+  --text-display: clamp(3rem, 2.2174rem + 3.4783vw, 5rem);
+  --text-heading-lg: clamp(2.5rem, 1.913rem + 2.6087vw, 4rem);
+  --text-heading: clamp(2.0625rem, 1.6957rem + 1.6304vw, 3rem);
+  --text-title: clamp(1.75rem, 1.5543rem + 0.8696vw, 2.25rem);
+  --text-title-sm: clamp(1.375rem, 1.2283rem + 0.6522vw, 1.75rem);
+  --text-lead: clamp(1.125rem, 1.0516rem + 0.3261vw, 1.3125rem);
+  --text-body: 1rem;
+  --text-label: 0.875rem;
+  --text-button: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: clamp(0.75rem, 0.7255rem + 0.1087vw, 0.8125rem);
+  --text-overline: clamp(0.75rem, 0.7255rem + 0.1087vw, 0.8125rem);
+  --text-accent: clamp(1.375rem, 1.2283rem + 0.6522vw, 1.75rem);
+
+  --measure-heading: 22ch;
+  --measure-narrow: 48ch;
+  --measure: 65ch;
+  --measure-caption: 70ch;
+
+  /* ------------------------------------------------------------ Space (4px) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --section-y: clamp(4rem, 2.4348rem + 6.9565vw, 8rem);
+  --gutter: clamp(1rem, 0.413rem + 2.6087vw, 2.5rem);
+  --card-pad: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
+
+  /* ----------------------------------------------------------------- Radius */
+  /* Nested rule: inner = max(outer - padding, radius-xs); padding >= 0.3 x outer. */
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: clamp(1.5rem, 1.1087rem + 1.7391vw, 2.5rem);
+  --radius-pill: 9999px;
+
+  /* -------------------------------------------------------------- Elevation */
+  --elevation-0: none;
+  --elevation-1:
+    0 15px 6px 0 rgb(25 23 28 / 0.008), 0 9px 5px 0 rgb(25 23 28 / 0.04),
+    0 4px 4px 0 rgb(25 23 28 / 0.072), 0 1px 2px 0 rgb(25 23 28 / 0.08);
+  --elevation-2:
+    0 61px 24px 0 rgb(25 23 28 / 0.01), 0 34px 20px 0 rgb(25 23 28 / 0.05),
+    0 15px 15px 0 rgb(25 23 28 / 0.09), 0 4px 8px 0 rgb(25 23 28 / 0.1);
+  --elevation-3:
+    0 152px 61px 0 rgb(25 23 28 / 0.01), 0 85px 51px 0 rgb(25 23 28 / 0.05),
+    0 38px 38px 0 rgb(25 23 28 / 0.09), 0 9px 21px 0 rgb(25 23 28 / 0.1);
+  --elevation-cta: 0 18px 34px -14px rgb(122 64 222 / 0.55);
+  --focus-ring: 0 0 0 3px var(--canvas), 0 0 0 5px var(--focus);
+  --gradient-inverse: linear-gradient(
+    152deg,
+    var(--inverse-1) 0%,
+    var(--inverse-2) 58%,
+    var(--inverse-3) 100%
+  );
+
+  /* ----------------------------------------------------------------- Layout */
+  /* Breakpoints are the Tailwind v3 defaults (sm 640, md 768, lg 1024, xl 1280);
+     custom properties cannot drive media queries, these are for reference. */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --container-prose: 65ch;
+  --container-form: 480px;
+  --container: 880px;
+  --container-wide: 1200px;
+  --grid-gap: clamp(1rem, 0.6087rem + 1.7391vw, 2rem);
+
+  /* ----------------------------------------------------------------- Motion */
+  --duration-instant: 0ms;
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-slower: 480ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* Calendar fill: 360ms per tile, 70ms stagger, ease-enter, from 30% in view. */
+  --calendar-fill-duration: 360ms;
+  --calendar-fill-stagger: 70ms;
+
+  /* -------------------------------------------------------------------- Z */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-sticky: 100;
+  --z-dropdown: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+  --z-skiplink: 1000;
+}
+
+/* --------------------------------------------------------- G. Base rules */
+
+/* The DS sets body to a 14px system stack, unlayered; this file loads after it. */
+body {
+  font-family: var(--font-text-stack);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  background-color: var(--canvas);
+}
+
+/* Visible focus on anything the brand renders. :where() keeps specificity at 0,
+   so a DS component's own ring utilities still win on DS components. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Calendar fill (ProgressCalendar). The resting markup is the FILLED state; only
+   a mounted, motion-allowed calendar opts in to pending -> filling. */
+@keyframes tf-tile-fill {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+    --calendar-fill-duration: 0ms;
+    --calendar-fill-stagger: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* No transforms or staggers; state changes land instantly. Looping indicators
+     (spinners) keep their animation so "still working" stays visible. */
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  [data-tf-motion] {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

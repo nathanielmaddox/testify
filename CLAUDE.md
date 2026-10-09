@@ -6,12 +6,13 @@ learn a rule while working here, add it HERE in the same commit, never only in a
 
 ## Layout
 
-| Path              | Package            | Role                                                                        |
-| ----------------- | ------------------ | --------------------------------------------------------------------------- |
-| `apps/website`    | `@testify/website` | Next.js marketing site. Dev port 3200.                                      |
-| `packages/config` | `@testify/config`  | The ONLY home of shared tsconfig, eslint, tailwind preset, prettier.        |
-| `scripts/`        | (root)             | Workspace checks and `scripts/vercel/install.mjs` (per-app Vercel install). |
-| `vendor/`         | (root)             | Prebuilt design-system tarball for Vercel builds only.                      |
+| Path                   | Package                | Role                                                                                |
+| ---------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| `apps/website`         | `@testify/website`     | Next.js marketing site. Dev port 3200.                                              |
+| `packages/config`      | `@testify/config`      | The ONLY home of shared tsconfig, eslint, tailwind preset, prettier.                |
+| `packages/style-guide` | `@testify/style-guide` | Brand layer: tokens.css, brand Tailwind preset (`check:keys`), fonts, compositions. |
+| `scripts/`             | (root)                 | Workspace checks and `scripts/vercel/install.mjs` (per-app Vercel install).         |
+| `vendor/`              | (root)                 | Prebuilt design-system tarball for Vercel builds only.                              |
 
 ## Rules
 
