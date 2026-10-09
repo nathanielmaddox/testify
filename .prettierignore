@@ -1,0 +1,10 @@
+node_modules
+.next
+dist
+out
+.turbo
+storybook-static
+vendor
+pnpm-lock.yaml
+**/next-env.d.ts
+**/convex/_generated/**

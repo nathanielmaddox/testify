@@ -1,0 +1,39 @@
+{
+  "name": "testify",
+  "version": "0.0.0",
+  "private": true,
+  "description": "testify monorepo. Apps live in apps/, shared config in packages/. All UI components come from @otesse/design-system (vs_code/otesse_ds).",
+  "scripts": {
+    "dev": "pnpm --filter @testify/website dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r --no-bail lint",
+    "type-check": "pnpm -r --no-bail type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,md,css}\"",
+    "prepare": "husky",
+    "commitlint": "commitlint --edit",
+    "check:agents-md": "node scripts/check-agents-md.mjs",
+    "check:workspace": "node scripts/check-workspace.mjs && node scripts/check-agents-md.mjs",
+    "preflight": "pnpm check:workspace && pnpm lint && pnpm type-check",
+    "predeploy": "echo 'Refusing: deploy from apps/<app>/, never the monorepo root. See DO-NOT-DEPLOY-FROM-HERE.md' && exit 1",
+    "deploy": "exit 1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@testify/config": "workspace:*",
+    "@types/node": "^22.15.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.49.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.11.0"
+}

@@ -1,0 +1,14 @@
+# Upload filter for app deploys (the CLI packages the whole monorepo via the ephemeral
+# root .vercel/repo.json; see scripts/vercel/README.md). Remote build installs fresh.
+**/node_modules
+**/.next
+.git
+.vercel
+.claude
+.turbo
+.pnpm-store
+**/*.tsbuildinfo
+**/*.log
+# Every local env file. Never upload .env.local or any other secret file.
+**/.env*
+!**/.env.example

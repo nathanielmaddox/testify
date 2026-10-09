@@ -1,0 +1,29 @@
+#!/bin/sh
+# Runs only when node_modules exists in the worktree you push from. Verify a push with
+# `git branch -r --contains <sha>`, never with exit codes alone.
+
+# 1. The monorepo root is never a Vercel project (DO-NOT-DEPLOY-FROM-HERE.md).
+if [ -d ".vercel" ] && [ "$(ls -A .vercel | grep -v '^repo.json$')" ]; then
+  echo "ERROR: .vercel/ at the repo root holds more than repo.json. Remove it: rm -rf .vercel"
+  exit 1
+fi
+
+# 2. Never push to main directly. Lanes: <app>_migrate -> <app>_staging -> main by PR (CLAUDE.md).
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main)
+      echo "ERROR: refusing to push to main. Promote <lane>_staging -> main through a pull request."
+      exit 1
+      ;;
+  esac
+done
+
+# 3. Workspace invariants and AGENTS.md == CLAUDE.md.
+if [ ! -d "node_modules" ]; then
+  echo "ERROR: node_modules missing at the repo root; run pnpm install --config.confirmModulesPurge=false first."
+  exit 1
+fi
+pnpm check:workspace || exit 1
+
+# 4. Every workspace member must type-check.
+pnpm type-check

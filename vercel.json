@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "**": false
+    }
+  },
+  "buildCommand": "echo 'Refusing: the monorepo root is not deployable. Deploy from apps/<app>/.' && exit 1",
+  "installCommand": "echo 'Refusing: the monorepo root is not deployable.' && exit 1"
+}

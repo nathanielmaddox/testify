@@ -1,0 +1,27 @@
+/*
+ * App-level CSS for @testify/website.
+ *
+ * The Tailwind layers come from the design system: `app/layout.tsx` imports
+ * `@otesse/design-system/styles` first, and that file opens with
+ * `@tailwind base; @tailwind components; @tailwind utilities;` and defines
+ * every CSS variable the DS Tailwind preset reads (--color-*, --brand-*).
+ * PostCSS runs it through THIS app's tailwind.config.js, so the utilities
+ * generated cover the app's own files and the DS dist alike.
+ *
+ * Do NOT add the three @tailwind directives here: that would emit preflight
+ * and every utility a second time. For the same reason this file cannot use
+ * `@layer` (Tailwind v3 rejects @layer in a file with no matching @tailwind
+ * directive). Keep this file to plain CSS: tokens the DS exposes for
+ * overriding (set on :root), and page-frame rules. Never restyle a DS
+ * component here; a missing look is a DS change in vs_code/otesse_ds.
+ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# pnpm 10 blocks dependency lifecycle scripts unless listed. The design system builds
+# dist/ in its `prepare` script on install; without it every DS entry point is a missing file.
+onlyBuiltDependencies:
+  - '@otesse/design-system'
+  - esbuild
+  - sharp
+  - unrs-resolver

@@ -1,0 +1,4 @@
+#!/bin/sh
+# --no-stash: several agents may share this worktree; lint-staged must never stash/restore other people's edits.
+npx lint-staged --no-stash
+node scripts/check-agents-md.mjs

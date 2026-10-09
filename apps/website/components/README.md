@@ -1,0 +1,29 @@
+# components/
+
+**No hand-rolled UI primitives.** Buttons, links, inputs, cards, dialogs, tables, navigation,
+headers, footers, empty states and icons all come from `@otesse/design-system`
+(source: `vs_code/otesse_ds`). Files here only _compose_ DS components and wire site data into
+them. If the DS lacks something, add it in `otesse_ds`, bump the pin in `package.json`, and use
+it from here; never fork or restyle a DS component in this app.
+
+## Rules
+
+- **DS imports only in `'use client'` files.** A server component (anything in `app/` without
+  `'use client'`) that imports the `@otesse/design-system` barrel makes the bundler resolve the
+  whole barrel, hits its optional peers (`reactflow`, `@mapbox/mapbox-gl-draw`) and the page
+  500s. Put DS usage in a small client module here and render it from the server page.
+- Restyle with Tailwind utilities passed through a DS `className`/`classNames` prop for
+  placement only (width, margin, alignment). A look the DS cannot express is a DS change.
+- Links: use the DS `Link` with `linkComponent={NextLink}` so Next client navigation and
+  prefetch are kept. Button-looking links are `Link variant="button"`.
+- Site data (name, nav, CTA, footer columns) comes from `lib/site.config.ts`, never inline.
+
+## Layout
+
+| Path                        | What                                                    |
+| --------------------------- | ------------------------------------------------------- |
+| `providers.tsx`             | DS client providers (`ThemeProvider`), used by layout   |
+| `site/site_header.tsx`      | DS `SkipLink` + `Navbar` + `Link`                       |
+| `site/site_footer.tsx`      | DS `Footer`                                             |
+| `site/not_found_panel.tsx`  | DS `Layout` + `EmptyState` for `app/not-found.tsx`      |
+| `home/home_placeholder.tsx` | DS `Hero` + `Layout` + `Card`, placeholder home content |

@@ -1,0 +1,46 @@
+{
+  "name": "@testify/config",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared tooling config for testify: TypeScript bases, ESLint flat config, Tailwind v3 preset (wraps @otesse/design-system tokens), Prettier.",
+  "exports": {
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/nextjs.json": "./tsconfig/nextjs.json",
+    "./eslint": "./eslint.mjs",
+    "./tailwind-preset": "./tailwind-preset.cjs",
+    "./prettier": "./prettier.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "tsconfig",
+    "eslint.mjs",
+    "tailwind-preset.cjs",
+    "prettier.json"
+  ],
+  "dependencies": {
+    "@next/eslint-plugin-next": "^16.2.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "typescript-eslint": "^8.49.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.9.3"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f"
+  }
+}

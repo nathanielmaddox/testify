@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+.next/
+dist/
+out/
+.turbo/
+storybook-static/
+next-env.d.ts
+*.tsbuildinfo
+
+# deploy state (the root is never a Vercel project; see DO-NOT-DEPLOY-FROM-HERE.md)
+.vercel/
+
+# env files: never commit secrets; .env.example is the documented template
+.env
+.env*
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent and review worktrees (CLAUDE.md "Branches and worktrees")
+agent_workspace/
