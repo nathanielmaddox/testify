@@ -23,7 +23,7 @@ export interface StripeCssFontSource {
 
 /** Token hexes used below (tokens-final.json, final-v1 2026-10-09). */
 const t = {
-  canvas: '#f4f2ee',
+  canvas: '#FAF9F6',
   surface: '#ffffff',
   surfaceSunken: '#efebe4',
   ink: '#19171c',
