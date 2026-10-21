@@ -58,11 +58,15 @@ function touchMetadata(prefix: 'first' | 'last', touch: AttributionTouch): Recor
  */
 export function checkoutMetadata(input: {
   lpSlug: string
+  firstName: string
+  lastName: string
   businessName: string
   attribution: StoredAttribution | null
 }): Record<string, string> {
   const meta: Record<string, string> = {
     lp_slug: input.lpSlug,
+    first_name: input.firstName,
+    last_name: input.lastName,
     business_name: input.businessName,
     ...(input.attribution ? touchMetadata('first', input.attribution.first) : {}),
     ...(input.attribution ? touchMetadata('last', input.attribution.last) : {}),
@@ -100,6 +104,23 @@ export async function isPaidCheckoutSession(sessionId: string): Promise<boolean>
   }
 }
 
+/**
+ * Creates the Stripe Customer for a checkout, named "First Last" with the email and business name.
+ * Call it before `checkoutSessionParams` and pass the id as `customerId`, so the Stripe customer
+ * carries the name. Throws on a Stripe error; the caller answers `stripe_error`.
+ */
+export async function createCheckoutCustomer(
+  stripe: Stripe,
+  contact: CheckoutContact
+): Promise<string> {
+  const customer = await stripe.customers.create({
+    email: contact.email,
+    name: `${contact.firstName} ${contact.lastName}`,
+    metadata: { business_name: contact.businessName },
+  })
+  return customer.id
+}
+
 /** Parse the client's encoded attribution; anything malformed reads as none. */
 export function parseCheckoutAttribution(raw: unknown): StoredAttribution | null {
   return typeof raw === 'string' && raw.length <= 4096 ? decodeAttribution(raw) : null
@@ -116,17 +137,22 @@ export function checkoutSessionParams(input: {
   priceId: string
   contact: CheckoutContact
   attribution: StoredAttribution | null
+  /** A Customer created with `createCheckoutCustomer`. When set, Stripe uses its name and email. */
+  customerId?: string
 }): Stripe.Checkout.SessionCreateParams {
-  const { lp, priceId, contact, attribution } = input
+  const { lp, priceId, contact, attribution, customerId } = input
   const metadata = checkoutMetadata({
     lpSlug: lp.slug,
+    firstName: contact.firstName,
+    lastName: contact.lastName,
     businessName: contact.businessName,
     attribution,
   })
+  const customer = customerId ? { customer: customerId } : { customer_email: contact.email }
   const shared: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    customer_email: contact.email,
+    ...customer,
     client_reference_id: lp.slug,
     metadata,
     subscription_data: { metadata },

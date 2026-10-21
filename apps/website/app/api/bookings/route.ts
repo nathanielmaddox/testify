@@ -19,6 +19,7 @@ import { NextResponse } from 'next/server'
 import { overRateLimit, parseJsonObject, sameOrigin, statusForFailure } from '@/lib/api_guard'
 import {
   bookableDayKeys,
+  fullNameOf,
   isValidDateKey,
   isValidTimeZone,
   mockSlotsForDay,
@@ -209,7 +210,7 @@ export async function POST(request: Request) {
   const startsAt = slotStart(date, time, timeZone)
   if (!startsAt) return invalid()
 
-  const name = textOf(answers.aboutYou, 'fullName')
+  const name = fullNameOf(answers.aboutYou)
   const email = textOf(answers.aboutYou, 'email')
   const businessName = textOf(answers.yourBusiness, 'businessName')
   const { dataStore, booking: bookingAdapter } = getIntegrations()

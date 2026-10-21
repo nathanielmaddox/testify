@@ -1,6 +1,6 @@
 'use client'
 
-// Checkout pay form: email, name, business name, the Stripe Payment Element slot, the charge notice,
+// Checkout pay form: email, first and last name, business name, the Stripe Payment Element slot, the charge notice,
 // the submit button, the risk reversal and the support line (Paper "Checkout two columns", form column).
 // Inline errors follow Paper "checkout, inline errors": field messages under the field, one payment
 // banner above the button, values kept. A submit with field errors moves focus to the first invalid
@@ -22,18 +22,20 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const COPY = {
   emailEmpty: 'Enter your email so we can send your receipt and portal link.',
   emailInvalid: "That email doesn't look right. Check for a typo.",
-  nameEmpty: 'Enter your name.',
+  firstNameEmpty: 'Enter your first name.',
+  lastNameEmpty: 'Enter your last name.',
   businessEmpty: 'Enter your business name so we can start your posts.',
 } as const
 
-type Field = 'email' | 'name' | 'businessName'
+type Field = 'email' | 'firstName' | 'lastName' | 'businessName'
 type Errors = Partial<Record<Field, string>>
 
 /** Fields in form order. The first invalid one takes focus on a failed submit. */
-const FIELD_ORDER: readonly Field[] = ['email', 'name', 'businessName']
+const FIELD_ORDER: readonly Field[] = ['email', 'firstName', 'lastName', 'businessName']
 const FIELD_SUFFIX: Record<Field, string> = {
   email: 'email',
-  name: 'name',
+  firstName: 'first-name',
+  lastName: 'last-name',
   businessName: 'business',
 }
 
@@ -44,7 +46,8 @@ export function validateCheckoutContact(input: Record<Field, string>): Errors {
   else if (email.length > CHECKOUT_LIMITS.email || !EMAIL_RE.test(email)) {
     errors.email = COPY.emailInvalid
   }
-  if (!input.name.trim()) errors.name = COPY.nameEmpty
+  if (!input.firstName.trim()) errors.firstName = COPY.firstNameEmpty
+  if (!input.lastName.trim()) errors.lastName = COPY.lastNameEmpty
   if (!input.businessName.trim()) errors.businessName = COPY.businessEmpty
   return errors
 }
@@ -75,7 +78,8 @@ export function CheckoutForm({
 }) {
   const [values, setValues] = useState<Record<Field, string>>({
     email: '',
-    name: '',
+    firstName: '',
+    lastName: '',
     businessName: '',
   })
   const [errors, setErrors] = useState<Errors>({})
@@ -109,7 +113,8 @@ export function CheckoutForm({
 
     const contact: CheckoutContact = {
       email: values.email.trim(),
-      name: values.name.trim(),
+      firstName: values.firstName.trim(),
+      lastName: values.lastName.trim(),
       businessName: values.businessName.trim(),
     }
     setSubmitting(true)
@@ -151,21 +156,35 @@ export function CheckoutForm({
           value={values.email}
           onChange={(event) => update('email', event.target.value)}
           {...(errors.email !== undefined ? { error: errors.email } : {})}
-          {...(errors.email ? {} : { helperText: 'Your receipt and portal link go here.' })}
+          {...(errors.email ? {} : { helperText: 'We send your receipt and portal link here.' })}
           required
         />
-        <TextField
-          id={`${idPrefix}-name`}
-          label="Your name"
-          name="name"
-          autoComplete="name"
-          placeholder="First and last"
-          value={values.name}
-          onChange={(event) => update('name', event.target.value)}
-          {...(errors.name !== undefined ? { error: errors.name } : {})}
-          maxLength={CHECKOUT_LIMITS.name}
-          required
-        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <TextField
+            id={`${idPrefix}-first-name`}
+            label="First name"
+            name="firstName"
+            autoComplete="given-name"
+            placeholder="e.g. Maria"
+            value={values.firstName}
+            onChange={(event) => update('firstName', event.target.value)}
+            {...(errors.firstName !== undefined ? { error: errors.firstName } : {})}
+            maxLength={CHECKOUT_LIMITS.firstName}
+            required
+          />
+          <TextField
+            id={`${idPrefix}-last-name`}
+            label="Last name"
+            name="lastName"
+            autoComplete="family-name"
+            placeholder="e.g. Lopez"
+            value={values.lastName}
+            onChange={(event) => update('lastName', event.target.value)}
+            {...(errors.lastName !== undefined ? { error: errors.lastName } : {})}
+            maxLength={CHECKOUT_LIMITS.lastName}
+            required
+          />
+        </div>
         <TextField
           id={`${idPrefix}-business`}
           label="Business name"
