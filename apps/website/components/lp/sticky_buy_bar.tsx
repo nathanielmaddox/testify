@@ -9,6 +9,7 @@
  */
 import { useEffect, useState } from 'react'
 import { BuyCta } from '@/components/lp/sections/buy_cta'
+import { OPEN_SIGN_STICKY_LABEL } from '@/components/lp/sections/open_sign_copy'
 import { DEFAULT_STICKY_BAR_TEXT } from '@/lib/landing_pages'
 
 export interface StickyBuyBarProps {
@@ -55,7 +56,13 @@ export function StickyBuyBar({
     >
       <div className="mx-auto flex w-full max-w-grid flex-col items-center gap-4 rounded-pill bg-brand-surface py-3 pl-8 pr-3 shadow-raised sm:flex-row sm:justify-between">
         <p className="font-text text-brand-small text-brand-ink">{text}</p>
-        <BuyCta href={href} lpSlug={lpSlug} label="Yes! Turn It On for $99/Month" tone="action" />
+        <BuyCta
+          href={href}
+          lpSlug={lpSlug}
+          label={OPEN_SIGN_STICKY_LABEL}
+          tone="quiet"
+          placement="sticky"
+        />
       </div>
     </div>
   )

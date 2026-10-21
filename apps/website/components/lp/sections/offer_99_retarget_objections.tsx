@@ -1,7 +1,7 @@
 /**
- * Retargeting objections (Paper frame "Section - Catches", registry section
- * `objections`): six "yes, but" questions, each answered in one card, and the
- * note on what the plan does not cover. Server component, no DS import.
+ * Retargeting objections (registry section `objections`): six "yes, but"
+ * questions, each answered in one card, three per row from lg. Plain pre-line,
+ * H2, no CTA. Server component, no DS import beyond the heading.
  */
 import { DisplayHeading } from '@testify/style-guide/components/DisplayHeading'
 import { PageSection } from '@testify/style-guide/components/PageSection'
@@ -38,15 +38,19 @@ export function Offer99RetargetObjections({ lp }: LpSectionProps) {
   const headingId = `lp-${lp.slug}-objections-heading`
   return (
     <PageSection flush {...slotProps(lp, 'objections')} aria-labelledby={headingId} width="grid">
-      <DisplayHeading
-        level={2}
-        id={headingId}
-        size="h2"
-        kicker={'Every "yes, but…", answered.'}
-        lead="So nothing surprises you after you sign up."
-      >
-        Every Catch, Answered Upfront
-      </DisplayHeading>
+      <div className="flex flex-col gap-3">
+        <p className="font-text text-brand-body-strong text-brand-ink">
+          Every &quot;yes, but&hellip;&quot;, answered.
+        </p>
+        <DisplayHeading
+          level={2}
+          id={headingId}
+          size="h2"
+          lead="So nothing surprises you after you sign up."
+        >
+          Every Catch, Answered Upfront
+        </DisplayHeading>
+      </div>
       <ul className="grid gap-brand-grid md:grid-cols-2 lg:grid-cols-3">
         {CATCHES.map((item) => (
           <li key={item.question} className="grid">
@@ -59,10 +63,6 @@ export function Offer99RetargetObjections({ lp }: LpSectionProps) {
           </li>
         ))}
       </ul>
-      <p className="font-text text-brand-small text-brand-ink-muted">
-        Not in this plan: posting to your accounts, answering comments and messages, paid ads. Want
-        those? That&apos;s our full service.
-      </p>
     </PageSection>
   )
 }

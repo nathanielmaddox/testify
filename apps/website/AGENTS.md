@@ -105,6 +105,8 @@ page draws its own `<main id="main-content">` through `components/skeleton/page_
   - `lp_view` -> `view_item` / `ViewContent`.
   - `checkout_view` -> GA4 `checkout_view` / Meta custom `CheckoutView`.
   - `begin_checkout` -> `begin_checkout` / `InitiateCheckout`.
+  - `checkout_click` -> `checkout_click` / custom `CheckoutClick`. A buy button on an LP was clicked
+    (`BuyCta` in `components/lp/sections/buy_cta.tsx`). Props: `lp_slug`, `placement` (default `unknown`). Value-free: only `COMMERCE_EVENTS` in `lib/tracking.ts` carry value, currency and item ids.
   - `add_payment_info` -> `add_payment_info` / `AddPaymentInfo`.
   - `lead_submit` -> `generate_lead` / `Lead`.
   - `purchase_complete` -> `purchase` / `Purchase`.
@@ -243,12 +245,13 @@ the ad it serves, and the page lives at `/lp/<slug>`.
     `LpFormSlot` (`components/lp/lp_form_slot.tsx`). That slot is empty for now, and its
     `data-success-path` is the LP's confirmation page. No sticky bar.
   - `offer-99-cold` (`offer_99_cold_layout.tsx`, drawn by `OfferLayout` in `offer_layout.tsx`):
-    hero, proof, letter, story, problem, seen, time, mechanism, sample, straight, offer-stack,
-    guarantee, team, objections-faq, next, final-cta, ps. Section components come from
-    `OFFER_SECTIONS` in `offer_sections.ts`.
-  - `offer-99-retarget` (`offer_99_retarget_layout.tsx`): hero, letter, objections, first-month,
-    team, offer-stack, guarantee, final-cta, ps. Its own map, `OFFER_99_RETARGET_SECTIONS` in
-    `offer_99_retarget_sections.ts`, is kept apart from the cold map.
+    a short conversion page: hero, problem, mechanism, offer-stack, guarantee, objections-faq,
+    final-cta, ps. Section components come from `OFFER_SECTIONS` in `offer_sections.ts`. The copy
+    spec is `docs/lp-99-conversion-page.md`.
+  - `offer-99-retarget` (`offer_99_retarget_layout.tsx`): hero, objections, first-month,
+    offer-stack, guarantee, final-cta, ps. Its own map, `OFFER_99_RETARGET_SECTIONS` in
+    `offer_99_retarget_sections.ts`, is kept apart from the cold map. The offer stack and guarantee
+    reuse the cold components.
 - **Layout contract:** a layout renders its `<main>` through `PageSkeleton` with
   `tracking={lpTrackingAttrs(slug, 'lp')}` and `idPrefix="lp-<slug>"`. Offer section components
   take `lp` and derive their ids with `slotProps(lp, slot)` (`section_props.ts`), so anchors read
