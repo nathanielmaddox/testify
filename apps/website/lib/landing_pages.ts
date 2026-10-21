@@ -42,19 +42,11 @@ export const LP_SECTION_IDS = [
   'faq',
   'form',
   // Direct-response slots used by the offer LPs (layouts `offer-99-*`).
-  'letter',
-  'story',
   'problem',
-  'seen',
-  'time',
   'mechanism',
-  'sample',
-  'straight',
   'offer-stack',
   'objections',
   'objections-faq',
-  'team',
-  'next',
   'final-cta',
   'ps',
   // Retargeting layout (`offer-99-retarget`): day-by-day first month.
@@ -183,8 +175,9 @@ const ENTRIES = [
     updated: '2026-10-09',
   },
   {
-    // Cold paid social (Meta). Direct-response order: hook, proof, problem,
-    // mechanism, offer stack, risk reversal, objections, close.
+    // Cold paid social (Meta). A short conversion page: hook, problem, the
+    // mechanism, the offer stack, the risk reversal, the questions, the close
+    // and the P.S. The hero example-week mock is the demonstration.
     slug: 'done-for-you-99',
     name: '$99/month ready-to-post content, cold (Meta)',
     campaign: CONFIRM,
@@ -193,50 +186,32 @@ const ENTRIES = [
     layout: 'offer-99-cold',
     sections: [
       'hero',
-      'proof',
-      'letter',
-      'story',
       'problem',
-      'seen',
-      'time',
       'mechanism',
-      'sample',
-      'straight',
       'offer-stack',
       'guarantee',
-      'team',
       'objections-faq',
-      'next',
       'final-cta',
       'ps',
     ],
-    title: 'Ready-to-post content',
-    description: 'Placeholder description of the Testify ready-to-post content offer.',
+    title: 'A Post and a Story Every Day, Made for You',
+    description:
+      '30 posts and 30 stories a month, made from your real jobs, captions in your voice. You press post. $99/month, no contract.',
     indexable: false,
     status: 'draft',
-    updated: '2026-10-09',
+    updated: '2026-10-21',
     offer: OFFER_99,
   },
   {
-    // Retargeting (visited, did not buy): objections first, then proof, the
-    // stack and risk reversal again, then the close.
+    // Retargeting (visited, did not buy): the trial as the hero, objections
+    // first, then the first month, the stack and risk reversal again, then the close.
     slug: 'done-for-you-99-back',
     name: '$99/month ready-to-post content, retargeting',
     campaign: CONFIRM,
     channel: 'meta',
     offerAngle: CONFIRM,
     layout: 'offer-99-retarget',
-    sections: [
-      'hero',
-      'letter',
-      'objections',
-      'first-month',
-      'team',
-      'offer-stack',
-      'guarantee',
-      'final-cta',
-      'ps',
-    ],
+    sections: ['hero', 'objections', 'first-month', 'offer-stack', 'guarantee', 'final-cta', 'ps'],
     stickyBarText: 'Open Sign · 30 posts + 30 stories a month · You press post',
     title: 'Ready-to-post content',
     description: 'Placeholder description of the Testify ready-to-post content offer.',

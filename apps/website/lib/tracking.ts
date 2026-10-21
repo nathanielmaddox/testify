@@ -34,12 +34,25 @@ export const TRACK_EVENTS = [
   'lp_view',
   'checkout_view',
   'begin_checkout',
+  'checkout_click',
   'add_payment_info',
   'lead_submit',
   'purchase_complete',
 ] as const
 
 export type TrackEvent = (typeof TRACK_EVENTS)[number]
+
+/**
+ * Events that carry money. Only these get the offer's value, currency and item
+ * ids (GA4 items, Meta content_ids). Every other event sends only its own props.
+ */
+export const COMMERCE_EVENTS: ReadonlySet<TrackEvent> = new Set<TrackEvent>([
+  'checkout_view',
+  'begin_checkout',
+  'add_payment_info',
+  'lead_submit',
+  'purchase_complete',
+])
 
 export type TrackProps = Record<string, string | number | boolean | null | undefined>
 
@@ -75,6 +88,14 @@ export const EVENT_MAP = {
     ga4: 'begin_checkout',
     meta: 'InitiateCheckout',
     metaStandard: true,
+    googleAdsConversion: false,
+  },
+  // A buy button was clicked (any LP buy CTA). Custom: a click is not a purchase intent in the
+  // standard sense, so it is reporting only, not an ad optimization event. Props: lp_slug, placement.
+  checkout_click: {
+    ga4: 'checkout_click',
+    meta: 'CheckoutClick',
+    metaStandard: false,
     googleAdsConversion: false,
   },
   // Payment details complete in the Stripe element. Stub: not fired until the element exists.
@@ -233,7 +254,7 @@ export function track(event: TrackEvent, props: TrackProps = {}): void {
   const map: ProviderEvents = EVENT_MAP[event]
   const w = window as unknown as AnalyticsWindow
   const { event_id: eventId, value, currency, ...rest } = props
-  const isCommerce = event !== 'page_view'
+  const isCommerce = COMMERCE_EVENTS.has(event)
   const money = isCommerce
     ? {
         value: value ?? siteConfig.offer.price,
@@ -284,7 +305,7 @@ export function track(event: TrackEvent, props: TrackProps = {}): void {
           content_name: siteConfig.offer.name,
           lp_slug: rest['lp_slug'] ?? undefined,
         })
-      : {}
+      : compact({ lp_slug: rest['lp_slug'] ?? undefined })
     w.fbq(
       map.metaStandard ? 'track' : 'trackCustom',
       map.meta,
