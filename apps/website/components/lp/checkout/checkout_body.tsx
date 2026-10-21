@@ -1,13 +1,23 @@
-// Checkout body: the story column (left) and the sticky pay card (right), then the trust row.
-// Owner ruling (checkout-99-v4): story left, one sticky pay card right; the card stays in view on
-// large screens and stacks below the story on small ones. Server component: it composes the client
-// form and FAQ, the server story blocks and the trust row, and formats the offer price for them.
+// Checkout body: two columns under the intro. LEFT the plan card (offer name, price, four included
+// items). RIGHT the pay card, sticky at lg and stacked below the plan card on small screens.
+// Owner ruling: the checkout page does only this. 64px between the intro and the columns.
+//
+// CUT from this page (components kept in the folder, not rendered here):
+// - CheckoutPromises ("You're covered five ways"): too much for the page; the reassurance line
+//   under the button carries the guarantee.
+// - CheckoutFaq (two questions): cut, no FAQ on the purchase page.
+// - CheckoutTrustRow (Stripe line, setup-fee placeholder, legal links): cut; the footer carries the
+//   legal links on the (lp) chrome.
+// - AfterPaySteps ("What happens after you pay"): cut; the confirmation page explains next steps.
+// - OrderSummary (kicker pill, tax row, totals, "Your part" line): replaced by CheckoutPlanCard.
+// - The guarantee block and the support line: folded into the one reassurance line.
+// - The auto-renewal charge paragraph: its one legal sentence stays as small muted text under the
+//   reassurance line, in CheckoutForm.
+// - StickyBuyBar and the person/quote card: not on this page (the sticky bar is LP-only, and the
+//   person card belongs to the confirmation page).
 import { PageSection } from '@testify/style-guide/components/PageSection'
-import { CheckoutFaq } from './checkout_faq'
 import { CheckoutForm } from './checkout_form'
-import { CheckoutPromises } from './checkout_promises'
-import { CheckoutTrustRow } from './checkout_trust_row'
-import { AfterPaySteps, OrderSummary } from './order_summary'
+import { CheckoutPlanCard } from './checkout_plan_card'
 
 export interface CheckoutOffer {
   name: string
@@ -28,40 +38,24 @@ export function CheckoutBody({
   successPath: string
   offer: CheckoutOffer
 }) {
-  const amountLabel = `$${offer.price}`
   const priceLabel = `$${offer.price}/${offer.interval}`
   return (
-    <PageSection as="div" flush width="grid" className="pb-16">
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1.38fr)_minmax(0,1fr)] lg:items-start lg:gap-14">
-        <div className="flex min-w-0 flex-col gap-10">
-          <OrderSummary
-            idPrefix={idPrefix}
-            offerName={offer.name}
-            amountLabel={`${amountLabel}.00`}
-            priceLabel={priceLabel}
-            currency={offer.currency}
-            interval={offer.interval}
-            price={offer.price}
-          />
-          <CheckoutPromises idPrefix={idPrefix} />
-          <AfterPaySteps idPrefix={idPrefix} />
-          <CheckoutFaq idPrefix={idPrefix} />
+    <PageSection as="div" flush width="grid" className="pt-16 pb-16">
+      <div className="grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-14">
+        <div className="min-w-0">
+          <CheckoutPlanCard idPrefix={idPrefix} offerName={offer.name} priceLabel={priceLabel} />
         </div>
         <div className="min-w-0 lg:sticky lg:top-[88px]">
           <CheckoutForm
             idPrefix={idPrefix}
             slug={slug}
             successPath={successPath}
-            amountLabel={amountLabel}
             priceLabel={priceLabel}
-            guaranteeTitle="Love It or It's Free."
-            guaranteeBody={`If your first month isn't worth it to you, tell us within [7] days after it ends and we refund the full ${amountLabel}. You keep all 60 pieces.`}
             value={offer.price}
             currency={offer.currency}
           />
         </div>
       </div>
-      <CheckoutTrustRow idPrefix={idPrefix} />
     </PageSection>
   )
 }
