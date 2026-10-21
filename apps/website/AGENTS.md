@@ -131,6 +131,12 @@ page draws its own `<main id="main-content">` through `components/skeleton/page_
   layout, Service with a nested Offer on `/` and on every LP (`serviceJsonLd(lpHref)`), and
   BreadcrumbList on every work story (`breadcrumbJsonLd(items)`: Home > Our work > story). All
   come from `siteConfig`. Render with `<script {...jsonLdScriptProps(data)} />`.
+- **Contact** (`app/(site)/contact/page.tsx`): a booking page. An intro, one booking card, and one
+  support line. `BookingEmbed` (`components/contact/booking_embed.tsx`) iframes the owner's
+  scheduling page when `NEXT_PUBLIC_BOOKING_EMBED_URL` is an https URL. Its host must be in the
+  "Booking embed" `frame` entry in `next.config.js`. Otherwise it shows an inert calendar
+  placeholder. `ContactRouter`, `ContactFootnotes` and their copy are not rendered. The support
+  address is in `components/contact/support_email.ts`. The headline copy is `[CONFIRM]`.
 - **Nav rule:** never add site nav links to the `(lp)` or `(flow)` chrome. Paid visitors must not
   be sent away, and the get-started flow keeps its one job.
 
@@ -280,11 +286,13 @@ the ad it serves, and the page lives at `/lp/<slug>`.
   with an `offer`; other slugs are a 404. An LP that shares another LP's offer 307s to its host's
   checkout (`/lp/<checkoutSlug>/checkout`), keeping the query string. It uses the same focused (lp)
   chrome.
-- **Layout** (`components/lp/checkout/checkout_body.tsx`): an intro, then the story column (order
-  summary, promises, what happens after you pay, FAQ) beside one sticky pay card
-  (`CheckoutForm`), then the trust row. The pay card holds email, name, business name, the payment
-  slot, the charge notice, the submit button ("Start my plan for $99/month"), the guarantee and a
-  support line.
+- **Layout** (`components/lp/checkout/checkout_body.tsx`): the intro (`CheckoutIntro`), then two
+  columns. The left is `CheckoutPlanCard` (offer name, price, four included items). The right is
+  one sticky pay card (`CheckoutForm`): email, first and last name, business name, the payment
+  slot, the reassurance line, the auto-renewal line and the submit button ("Start my plan for
+  $99/month"). `CheckoutPromises`, `CheckoutFaq`, `CheckoutTrustRow`, `AfterPaySteps` and
+  `OrderSummary` stay in the folder but are not rendered (owner ruling: the checkout page does only
+  this).
 - **Payment is NOT wired yet.** `PaymentElementSlot`
   (`components/lp/checkout/payment_element_slot.tsx`) is a placeholder box ("Secure payment fields
   load here."). The Stripe.js client packages are not in `package.json`, and no Payment Element

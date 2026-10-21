@@ -213,6 +213,38 @@ Three things are not wired yet. Each one needs an owner decision or a built comp
 
 Also note that `finalizeUpload` and `saveLead` have no call site. The upload finalize step and the lead save are not in any route read for this guide. Add them when the photo step and the lead flow are built.
 
+## Booking embed (Contact page)
+
+The Contact page embeds the owner's scheduling page in an iframe. The URL comes from
+`NEXT_PUBLIC_BOOKING_EMBED_URL`, which is public because the browser loads it. Use the full booking
+page URL from Cal.com, Calendly, or any other provider. When the variable is unset, the page shows a
+placeholder calendar instead.
+
+The browser only loads the frame if its host is on the CSP `frame-src` list. That list comes from the
+`thirdParties` array in `next.config.js`, in the entry named "Booking embed". It lists `cal.com`,
+`app.cal.com` and `calendly.com`. For any other provider, add its host to that entry. Otherwise the
+browser blocks the frame, and the visitor sees an empty box.
+
+The embed and the `BOOKING_PROVIDER` adapter are separate features:
+
+- **Embed:** the provider's own booking UI, shown in an iframe on the Contact page. No API key, no
+  server call, and nothing is stored by this site.
+- **Adapter:** the Get started flow calls the provider's API to list slots and create the booking,
+  then reports the result. It needs server-side keys such as `CALCOM_API_KEY`.
+
+Each one works without the other. The Get started flow runs with no embed, and the Contact page runs
+with no adapter.
+
+Paste-ready prompt for switching the embed host:
+
+```text
+In apps/website, set NEXT_PUBLIC_BOOKING_EMBED_URL in .env.local to the full booking page URL from the new
+provider (https://...). Then add that URL's host to the "Booking embed" frame list in next.config.js
+(thirdParties), so the CSP allows the iframe. Do not add an API key for this embed; the URL is public.
+Restart the dev server, open /contact, and confirm the calendar loads. Run:
+pnpm --filter @testify/website type-check
+```
+
 ## Webhooks
 
 Webhook routes are not created yet. Each handler goes in its own folder under `app/api/webhooks/`, and
