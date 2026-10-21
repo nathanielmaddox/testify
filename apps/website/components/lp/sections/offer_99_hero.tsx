@@ -48,12 +48,12 @@ export function Offer99Hero({ lp }: LpSectionProps) {
   const headingId = `lp-${lp.slug}-hero-heading`
   return (
     <PageSection flush {...slotProps(lp, 'hero')} aria-labelledby={headingId} width="grid">
-      <div className="flex flex-col items-start gap-6">
+      <div className="flex w-full flex-col items-center gap-6 text-center">
         <p className="font-text text-brand-body-strong text-brand-ink">{copy.eyebrow}</p>
-        <DisplayHeading level={1} id={headingId} lead={copy.lead}>
+        <DisplayHeading level={1} id={headingId} lead={copy.lead} align="center">
           {copy.headline}
         </DisplayHeading>
-        <ul className="flex flex-wrap gap-3">
+        <ul className="flex flex-wrap justify-center gap-3">
           {CHIPS.map((chip) => (
             <li
               key={chip}

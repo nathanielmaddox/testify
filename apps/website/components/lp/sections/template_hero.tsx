@@ -18,19 +18,21 @@ export function TemplateHero({ lp }: LpSectionProps) {
   const formSlotHref = `#lp-${lp.slug}-form`
   return (
     <PageSection flush {...slotProps(lp, 'hero')} aria-labelledby={headingId} width="content">
-      <DisplayHeading level={1} id={headingId} size="display-xl">
-        [HEADLINE]
-      </DisplayHeading>
-      {checkoutHref ? (
-        <BuyCta
-          href={checkoutHref}
-          lpSlug={lp.slug}
-          label="[CTA LABEL]"
-          caption="[PRICE, TERMS AND NEXT STEP]"
-        />
-      ) : (
-        <BuyCta href={formSlotHref} lpSlug={lp.slug} label="[CTA LABEL]" sameDocument />
-      )}
+      <div className="flex w-full flex-col items-center gap-6 text-center">
+        <DisplayHeading level={1} id={headingId} size="display-xl" align="center">
+          [HEADLINE]
+        </DisplayHeading>
+        {checkoutHref ? (
+          <BuyCta
+            href={checkoutHref}
+            lpSlug={lp.slug}
+            label="[CTA LABEL]"
+            caption="[PRICE, TERMS AND NEXT STEP]"
+          />
+        ) : (
+          <BuyCta href={formSlotHref} lpSlug={lp.slug} label="[CTA LABEL]" sameDocument />
+        )}
+      </div>
     </PageSection>
   )
 }
