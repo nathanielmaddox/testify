@@ -8,11 +8,11 @@ if [ -d ".vercel" ] && [ "$(ls -A .vercel | grep -v '^repo.json$')" ]; then
   exit 1
 fi
 
-# 2. Never push to main directly. Lanes: <app>_migrate -> <app>_staging -> main by PR (CLAUDE.md).
+# 2. Never push to main directly. Lanes: *_migrate -> staging -> main; main is deploy-only (CLAUDE.md).
 while read -r local_ref local_sha remote_ref remote_sha; do
   case "$remote_ref" in
     refs/heads/main)
-      echo "ERROR: refusing to push to main. Promote <lane>_staging -> main through a pull request."
+      echo "ERROR: refusing to push to main. main moves only from staging by pull request, right before a deploy."
       exit 1
       ;;
   esac

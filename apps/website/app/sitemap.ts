@@ -1,13 +1,42 @@
 import type { MetadataRoute } from 'next'
-import { siteConfig } from '@/lib/site.config'
+import { landingPages, lpPath } from '@/lib/landing_pages'
+import { isLpIndexable, isRouteIndexable, isWorkIndexable } from '@/lib/metadata'
+import { routeList, siteConfig } from '@/lib/site.config'
+import { workPath, workStories } from '@/lib/work'
 
-/** One entry per route listed in `siteConfig.routes`. Add routes there, not here. */
+/**
+ * Generated from the routes registry (`lib/site.config.ts`) and the LP
+ * registry (`lib/landing_pages.ts`). Empty while the launch flag is off;
+ * after launch:
+ * - every route with `inSitemap` that is indexable right now
+ *   (`isRouteIndexable`, which also always excludes the conversion page; the
+ *   `lp` / `lpConfirmation` templates have `inSitemap: false`)
+ * - every LP that `isLpIndexable` (its own `indexable` + `status: 'live'`)
+ * - every client story that `isWorkIndexable` (`status: 'published'` +
+ *   `consent: 'approved'`; `/work` itself comes from the routes registry)
+ * `lastModified` is the entry's static `updated` date, never request time.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date()
-  return siteConfig.routes.map((route) => ({
-    url: `${siteConfig.url}${route === '/' ? '' : route}`,
-    lastModified,
+  if (!siteConfig.indexable) return []
+  const siteRoutes: MetadataRoute.Sitemap = routeList
+    .filter((route) => route.inSitemap && isRouteIndexable(route))
+    .map((route) => ({
+      url: `${siteConfig.url}${route.path === '/' ? '' : route.path}`,
+      lastModified: route.updated,
+      changeFrequency: 'monthly',
+      priority: route.path === '/' ? 1 : route.pageType === 'legal' ? 0.3 : 0.7,
+    }))
+  const lps: MetadataRoute.Sitemap = landingPages.filter(isLpIndexable).map((lp) => ({
+    url: `${siteConfig.url}${lpPath(lp.slug)}`,
+    lastModified: lp.updated,
     changeFrequency: 'monthly',
-    priority: route === '/' ? 1 : 0.7,
+    priority: 0.5,
   }))
+  const stories: MetadataRoute.Sitemap = workStories.filter(isWorkIndexable).map((story) => ({
+    url: `${siteConfig.url}${workPath(story.slug)}`,
+    lastModified: story.updated,
+    changeFrequency: 'monthly',
+    priority: 0.6,
+  }))
+  return [...siteRoutes, ...stories, ...lps]
 }

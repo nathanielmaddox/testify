@@ -1,0 +1,49 @@
+{
+  "name": "@testify/style-guide",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Testify brand layer: role tokens mapped onto the @otesse/design-system CSS variables, a brand-key Tailwind preset, next/font faces, a Stripe appearance and brand compositions built from DS primitives. Never redefines a DS key.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./tokens": "./src/tokens.ts",
+    "./preset": "./preset.cjs",
+    "./fonts": "./src/fonts.ts",
+    "./stripe-appearance": "./src/stripe-appearance.ts",
+    "./components": "./src/components/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "preset.cjs",
+    "scripts"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "check:keys": "node scripts/check-keys.mjs"
+  },
+  "dependencies": {
+    "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f",
+    "lucide-react": "^0.554.0"
+  },
+  "peerDependencies": {
+    "next": "^16.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@testify/config": "workspace:*",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.39.1",
+    "next": "^16.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.9.3"
+  }
+}

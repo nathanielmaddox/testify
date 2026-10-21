@@ -1,0 +1,29 @@
+/*
+ * App-level CSS for @testify/admin.
+ *
+ * The Tailwind layers come from the design system: `app/layout.tsx` imports
+ * `@otesse/design-system/styles` first, and that file opens with
+ * `@tailwind base; @tailwind components; @tailwind utilities;` and defines
+ * every CSS variable the DS Tailwind preset reads (--color-*, --brand-*).
+ * PostCSS runs it through THIS app's tailwind.config.js, so the utilities
+ * generated cover the app's own files and the DS dist alike.
+ *
+ * Do NOT add the three @tailwind directives here: that would emit preflight
+ * and every utility a second time. For the same reason this file cannot use
+ * `@layer` (Tailwind v3 rejects @layer in a file with no matching @tailwind
+ * directive). Keep this file to page-frame rules only. Every token (role
+ * colours, the DS --color-* mapping, DS component tokens, body face and size)
+ * lives in @testify/style-guide/tokens.css, imported between the DS styles and
+ * this file. Never restyle a DS component here, and never edit otesse_ds: a
+ * missing look is a token or a brand composition in packages/style-guide.
+ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

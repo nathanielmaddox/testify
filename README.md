@@ -1,6 +1,6 @@
 # testify
 
-A pnpm monorepo for the testify web properties. Today it holds one Next.js app (`apps/website`) and one
+A pnpm monorepo for the testify web properties. Today it holds two Next.js apps (`apps/website` and `apps/admin`) and one
 shared config package (`packages/config`). Every UI component comes from the Otesse design system.
 
 Agent and contributor rules: [`CLAUDE.md`](./CLAUDE.md) (mirrored byte-for-byte in `AGENTS.md`).
@@ -10,6 +10,7 @@ Agent and contributor rules: [`CLAUDE.md`](./CLAUDE.md) (mirrored byte-for-byte 
 ```
 testify/
 ├── apps/
+│   ├── admin/              @testify/admin    Next.js internal admin, dev port 3201
 │   └── website/            @testify/website  Next.js site, dev port 3200
 ├── packages/
 │   └── config/             @testify/config   tsconfig, eslint, tailwind preset, prettier
@@ -32,6 +33,7 @@ Node 22 (`.nvmrc`), pnpm 10.11.0 (`packageManager`; `corepack enable`).
 ```sh
 pnpm install --config.confirmModulesPurge=false
 pnpm dev              # website on http://localhost:3200
+pnpm dev:admin        # admin on http://localhost:3201
 pnpm build            # build every workspace member
 pnpm lint             # eslint in every member
 pnpm type-check       # tsc --noEmit in every member
