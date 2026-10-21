@@ -22,10 +22,9 @@ export const dynamic = 'force-dynamic'
  * shares another LP's offer (the retargeting LP) 307s to its `offer.checkoutSlug` checkout, keeping
  * the query string, so there is one purchase page per offer.
  *
- * Layout (checkout-99-v4): intro, then the story column on the left (order summary, promises, what
- * happens after you pay, FAQ) and one sticky pay card on the right (email, name, business name, the
- * Stripe Payment Element, charge notice, button, guarantee), then the trust row. The form posts `CheckoutRequest` to `/api/checkout`; Stripe
- * returns the buyer to `/lp/<slug>/confirmation?session_id=...` (`stripeSuccessUrl`).
+ * Layout (owner ruling, essentials only): one intro (headline and sub line), then two columns: the
+ * plan card on the left and one sticky pay card on the right (stacked below lg). The form posts
+ * `CheckoutRequest` to `/api/checkout`. Stripe returns the buyer to `/lp/<slug>/confirmation?session_id=...` (`stripeSuccessUrl`).
  */
 type Params = Promise<{ slug: string }>
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
