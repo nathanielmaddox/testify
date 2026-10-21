@@ -426,81 +426,92 @@ Purpose: the cold offer page for paid social. It sells the $99/month content pla
 to `/lp/done-for-you-99/checkout`. Chrome: LP. Page: `app/(lp)/lp/[slug]/page.tsx`. Layout key
 `offer-99-cold`, in `components/lp/layouts/offer_99_cold_layout.tsx`, rendered by `OfferLayout`
 (`offer_layout.tsx`). Section map: `components/lp/sections/offer_sections.ts`. Its frame is
-`lp/done-for-you-99`.
+`lp/done-for-you-99`. The copy spec is `apps/website/docs/lp-99-conversion-page.md` (section 4). Its
+bracketed markers stay visible on the page by owner rule.
 
 Sections in order (registry `sections`; files are in `components/lp/sections/`):
 
-1. `hero`: `Offer99Hero` (`offer_99_hero.tsx`), centered headline (`DisplayHeading align="center"`),
-   with `ExampleWeek` and `BuyCta` (`buy_cta.tsx`).
-2. `proof`: `Offer99Trust` (`offer_99_trust.tsx`).
-3. `letter`: `Offer99Letter` (`offer_99_letter.tsx`).
-4. `story`: `Offer99Story` (`offer_99_story.tsx`).
-5. `problem`: `Offer99Problem` (`offer_99_problem.tsx`).
-6. `seen`: `Offer99Seen` (`offer_99_seen.tsx`, client module, with a link).
-7. `time`: `Offer99Time` (`offer_99_time.tsx`), with `OfferCompare` (`offer_99_compare.tsx`,
-   client).
-8. `mechanism`: `Offer99How` (`offer_99_how.tsx`).
-9. `sample`: `Offer99Sample` (`offer_99_sample.tsx`), with `TradeTags` and `BuyCta`.
-10. `straight`: `Offer99Straight` (`offer_99_straight.tsx`, client module).
-11. `offer-stack`: `Offer99OfferStack` (`offer_99_offer_stack.tsx`).
-12. `guarantee`: `Offer99Guarantee` (`offer_99_guarantee.tsx`), with `BuyCta`.
-13. `team`: `Offer99Team` (`offer_99_team.tsx`).
-14. `objections-faq`: `Offer99Faq` (`offer_99_faq.tsx`), using `FaqList`.
-15. `next`: `Offer99Next` (`offer_99_next.tsx`).
-16. `final-cta`: `Offer99Close` (`offer_99_close.tsx`).
-17. `ps`: `Offer99Ps` (`offer_99_close.tsx`).
+1. `hero`: `Offer99Hero` (`offer_99_hero.tsx`). Pre-line, H1, one sub line, two fact chips, the buy
+   CTA with the trust row under it, then `ExampleWeek` labeled "Example. Demo business.". The example
+   week is the page's demonstration.
+2. `problem`: `Offer99Problem` (`offer_99_problem.tsx`). Six short paragraphs, no CTA.
+3. `mechanism`: `Offer99How` (`offer_99_how.tsx`). Three step cards and the "After you sign up" list, no CTA.
+4. `offer-stack`: `Offer99OfferStack` (`offer_99_offer_stack.tsx`). Two cards, the price line, the
+   scope line ("Not in this plan"), and `BuyCta` in the ink (`quiet`) tone.
+5. `guarantee`: `Offer99Guarantee` (`offer_99_guarantee.tsx`), the five promises through `GuaranteeList`, no CTA.
+6. `objections-faq`: `Offer99Faq` (`offer_99_faq.tsx`), `FaqList` with `defaultOpenCount` 3 (the first three open).
+7. `final-cta`: `Offer99Close` (`offer_99_close.tsx`), with `BuyCta` in the violet (`action`) tone.
+8. `ps`: `Offer99Ps` (`offer_99_close.tsx`). Sign-off and P.S., no CTA.
+
+Retired from this page (council review, 2026-10-21): `sample` and `straight`. The sample week is the
+hero mock, and the honest-limits lines live in the guarantee, the offer stack and FAQ Q8.
+
+The buy button label and caption are `OPEN_SIGN_BUY_LABEL` and `OPEN_SIGN_BUY_CAPTION` in
+`components/lp/sections/open_sign_copy.ts`. The hero, offer stack and close read them. The sticky bar reads `OPEN_SIGN_STICKY_LABEL` from the same file.
 
 After the sections, `StickyBuyBar` (`components/lp/sticky_buy_bar.tsx`) appears once the hero
-scrolls away. Its text is `DEFAULT_STICKY_BAR_TEXT` in `lib/landing_pages.ts`.
+scrolls away. Its text is `DEFAULT_STICKY_BAR_TEXT` in `lib/landing_pages.ts`, and its button uses `OPEN_SIGN_STICKY_LABEL` (the shorter label) in the ink tone.
 
-Copy: the section files, plus `lib/landing_pages.ts` for name, title and description. The
-`heroVariant` field is not set on any LP. Every hero uses the default copy, and the `closed` and
-`busiest` variants are not used.
+Copy: the section files, plus `lib/landing_pages.ts` for name, title and description. The title is
+"A Post and a Story Every Day, Made for You" (the site template adds "| Testify"). The `heroVariant`
+field is not set on any LP, so every hero uses the default copy.
 
-Open placeholders:
+Open decisions and placeholders (all visible on the page):
 
 - Campaign and offer angle: `[CONFIRM]`.
-- Month and day copy: `[MONTH]` in `offer_99_hero.tsx`, `offer_99_letter.tsx`, `offer_99_story.tsx`
-  and `offer_99_close.tsx`. `[N]` and `[DAY]` in `offer_99_how.tsx`, `offer_99_next.tsx`,
-  `offer_99_guarantee.tsx` and `offer_99_time.tsx`. `[SAMPLE WEEK ...]` in `offer_99_sample.tsx`.
-- Team: `[NAME]` and `[ROLE]` in `offer_99_team.tsx` and `offer_99_close.tsx`.
-- FAQ: `[ANSWER]` for all 16 questions in `offer_99_faq.tsx`.
-- Setup fee: `[SETUP FEE]` in `offer_99_offer_stack.tsx`.
+- Guarantee P4 ("No contract", "Cancel in 2 clicks") is unconfirmed (`[CONFIRM P4]`, FAQ Q7). Until the
+  owner confirms it, it gates the caption in `open_sign_copy.ts`, the offer-stack price line, the P.S.
+  and FAQ Q7. The caption, the price line and the P.S. carry `[CONFIRM P4]`. Strip them together when P4 is confirmed.
+- Full-service and scope line: `[CONFIRM D8]` in `offer_99_offer_stack.tsx`.
+- `[MONTH]`: `offer_99_problem.tsx`.
+- `[N]`, `[DAY]`, `[TIME]`: `offer_99_how.tsx`, `offer_99_guarantee.tsx`, `offer_99_offer_stack.tsx`
+  (the bonus list) and `offer_99_faq.tsx`.
+- `[DATE]`: `offer_99_close.tsx`.
+- `[NAME]` and `[ROLE]`: `offer_99_close.tsx` (P.S.) and `offer_99_faq.tsx` (email line).
+- `[SETUP FEE]`: `offer_99_offer_stack.tsx`.
+- Guarantee windows and terms (`[7]`, `[DAY]`, `[TIME]`, `[N]`): `offer_99_guarantee.tsx`.
+- Trust row reads "Secure checkout" (no Stripe name) until the payment element is mounted:
+  `offer_99_hero.tsx`.
 
-Interactive: buy CTAs to the checkout, with attribution after mount. Accordion. The comparison table
-and honesty panel are client modules. No forms.
+Interactive: buy CTAs to the checkout, with attribution after mount (hero, offer stack, close, sticky
+bar). Each click fires `checkout_click` with `placement` (`hero`, `offer`, `close`, `sticky`, or
+`unknown`), with no value. Accordion. No forms.
 
-Events: `page_view` and `lp_view`.
+Events: `page_view`, `lp_view` and `checkout_click`.
 
 ### Landing page: done-for-you-99-back (`/lp/done-for-you-99-back`)
 
-Purpose: retargeting for visitors who looked and did not buy. It objects first, then repeats the
-offer. Chrome: LP. Layout key `offer-99-retarget`, in
+Purpose: retargeting for visitors who looked and did not buy. It opens on the trial, objects, then
+repeats the offer. Chrome: LP. Layout key `offer-99-retarget`, in
 `components/lp/layouts/offer_99_retarget_layout.tsx`. Its section map is
-`components/lp/sections/offer_99_retarget_sections.ts`. The Paper frame name is not in code. Its
-sections cite frames such as "Hero", "Section - Letter" and "Section - Deal".
+`components/lp/sections/offer_99_retarget_sections.ts`. The section files hold the copy; no separate
+brief exists for this page.
 
-Sections in order (registry `sections`):
+Sections in order (registry `sections`, seven ids; the P.S. follows the close):
 
-1. `hero`: `Offer99RetargetHero` (`offer_99_retarget_hero.tsx`), centered headline, with
-   `ExampleWeek` and `BuyCta`.
-2. `letter`: `Offer99RetargetLetter` (`offer_99_retarget_letter.tsx`).
-3. `objections`: `Offer99RetargetObjections` (`offer_99_retarget_objections.tsx`). Six questions.
-4. `first-month`: `Offer99RetargetFirstMonth` (`offer_99_retarget_first_month.tsx`).
-5. `team`: `Offer99RetargetTeam` (`offer_99_retarget_team.tsx`).
-6. `offer-stack`: `Offer99RetargetDeal` (`offer_99_retarget_deal.tsx`).
-7. `guarantee`: `Offer99RetargetGuarantee` (`offer_99_retarget_guarantee.tsx`).
-8. `final-cta`: `Offer99RetargetClose` (`offer_99_retarget_close.tsx`).
-9. `ps`: `Offer99RetargetPs` (`offer_99_retarget_close.tsx`).
+1. `hero`: `Offer99RetargetHero` (`offer_99_retarget_hero.tsx`). Headline "Try a Month. Love It or
+   It's Free.", one sub line, the two fact chips (`CHIPS` from `offer_99_hero.tsx`), the violet
+   `BuyCta`, the trust row (`TRUST_ROW`, shared with the cold hero), and `ExampleWeek` (compact).
+2. `objections`: `Offer99RetargetObjections` (`offer_99_retarget_objections.tsx`). Six cards, three per
+   row from lg, no CTA.
+3. `first-month`: `Offer99RetargetFirstMonth` (`offer_99_retarget_first_month.tsx`). Day-by-day list, no CTA.
+4. `offer-stack`: `Offer99RetargetDeal` (`offer_99_retarget_deal.tsx`). Renders the cold
+   `Offer99OfferStack`, so the copy and the ink `BuyCta` (placement `offer`) are the cold ones.
+5. `guarantee`: `Offer99RetargetGuarantee` (`offer_99_retarget_guarantee.tsx`). Renders the cold
+   `Offer99Guarantee`: the five promises in canonical wording, no close line, no CTA.
+6. `final-cta`: `Offer99RetargetClose` (`offer_99_retarget_close.tsx`). Violet `BuyCta` (placement `close`)
+   and the reply line.
+7. `ps`: `Offer99RetargetPs` (same file). Signed P.S., no CTA.
 
 `StickyBuyBar` follows, with the registry's `stickyBarText`.
 
-Copy: the section files, and `lib/landing_pages.ts` for the entry.
+Removed in the rebuild: the opening letter, the team block and the feed-post mock in the first-month
+section. Their files are deleted.
 
-Open placeholders: `[N]` and `[DAY]` in `offer_99_retarget_first_month.tsx` and
-`offer_99_retarget_guarantee.tsx`. `[DATE]` in `offer_99_retarget_close.tsx`. `[NAME]` and `[ROLE]`
-in `offer_99_retarget_team.tsx`. `[NAME] replies within [N] hours: hello@[DOMAIN]` in
-`offer_99_retarget_close.tsx`. `[SETUP FEE]` in `offer_99_retarget_deal.tsx`.
+Open placeholders: `[N]` and `[DAY]` in `offer_99_retarget_first_month.tsx`, `[DATE]` in
+`offer_99_retarget_close.tsx` (twice), `[NAME]`, `[ROLE]` and `[N]` in `offer_99_retarget_close.tsx`
+(P.S. signature and reply line), `hello@[DOMAIN]` in the same close file. `[SETUP FEE]` and the
+bonus `[CONFIRM]` markers are in the cold `offer_99_offer_stack.tsx` (shared with this page).
 
 Interactive: buy CTAs to `/lp/done-for-you-99/checkout`. No forms.
 

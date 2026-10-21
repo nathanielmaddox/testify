@@ -1,8 +1,7 @@
 /**
- * Retargeting LP skeleton (layout `offer-99-retarget`, Paper frame order):
- * hero, opening letter, catches, first month, team, offer stack, guarantees,
- * close, P.S. Renders each registry section in order through
- * OFFER_99_RETARGET_SECTIONS. Server component.
+ * Retargeting LP skeleton (layout `offer-99-retarget`): hero, catches, first
+ * month, offer stack, guarantees, close, P.S. Renders each registry section in
+ * order through OFFER_99_RETARGET_SECTIONS. Server component.
  */
 import { PageSkeleton } from '@/components/skeleton/page_skeleton'
 import { OFFER_99_RETARGET_SECTIONS } from '@/components/lp/sections/offer_99_retarget_sections'
@@ -36,15 +35,5 @@ function RetargetLayout({ lp }: LpLayoutProps) {
 
 export const offer99RetargetLayout: LpLayout = {
   component: RetargetLayout,
-  sections: [
-    'hero',
-    'letter',
-    'objections',
-    'first-month',
-    'team',
-    'offer-stack',
-    'guarantee',
-    'final-cta',
-    'ps',
-  ],
+  sections: ['hero', 'objections', 'first-month', 'offer-stack', 'guarantee', 'final-cta', 'ps'],
 }

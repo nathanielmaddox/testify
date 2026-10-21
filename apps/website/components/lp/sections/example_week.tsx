@@ -72,7 +72,16 @@ const DAYS: readonly MockDay[] = [
 export function ExampleWeek({
   storyLabel,
   compact = false,
-}: { storyLabel?: string; compact?: boolean } = {}) {
+  caption,
+}: {
+  storyLabel?: string
+  compact?: boolean
+  caption: string
+}) {
+  // Every tile is one flow column: image block, title, day row, caption, labels.
+  // Nothing is absolutely positioned, so no text sits on other text. Grid and
+  // flex rows stretch the tiles to one height, and the labels sit last (mt-auto).
+  const imageHeight = compact ? 'h-36' : 'h-42'
   return (
     <figure className="flex w-full flex-col gap-4">
       <div
@@ -80,7 +89,7 @@ export function ExampleWeek({
         className="flex flex-col gap-3 rounded-card bg-brand-surface p-6 shadow-raised"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <p className="font-display text-brand-h3 text-brand-ink">Week of [DATE]</p>
+          <p className="font-display text-brand-h3 text-brand-ink">Example week</p>
           <p className="font-text text-brand-small text-brand-ink-muted">
             7 posts · 7 stories · every caption written
           </p>
@@ -89,73 +98,46 @@ export function ExampleWeek({
           {DAYS.map((item) => (
             <div
               key={item.day}
-              className="flex w-[min(12rem,70vw)] shrink-0 snap-start flex-col gap-2.5 lg:w-auto lg:min-w-0 lg:shrink"
+              className="flex w-[min(12rem,70vw)] shrink-0 snap-start flex-col gap-3 lg:w-auto lg:min-w-0 lg:shrink"
             >
+              <div
+                className={`flex ${imageHeight} flex-col justify-between gap-3 rounded-tile bg-brand-done-bg p-3`}
+              >
+                {item.overlay ? (
+                  <p className="font-display text-brand-small font-semibold leading-5 text-brand-ink">
+                    {item.overlay}
+                  </p>
+                ) : null}
+                <div className="flex flex-col gap-2">
+                  <span className="block h-0.5 bg-brand-ink" />
+                  <p className="whitespace-pre-line font-text text-brand-caption leading-4 text-brand-ink">
+                    {storyLabel ? `${storyLabel}\n${item.story}` : item.story}
+                  </p>
+                </div>
+              </div>
+              <p className="font-display text-brand-body-lg font-semibold leading-[22px] tracking-[-0.02em] text-brand-ink">
+                {item.title}
+              </p>
               <div className="flex items-center justify-between gap-1">
                 <p className="font-text text-brand-small font-semibold text-brand-ink">
                   {item.day}
                 </p>
-                <p className="truncate rounded-pill bg-brand-canvas px-2 py-0.5 font-text text-[11px] font-semibold leading-4 text-brand-ink">
+                <p className="truncate rounded-pill bg-brand-canvas px-2 py-0.5 font-text text-brand-caption font-semibold leading-4 text-brand-ink">
                   Post on {item.day}
                 </p>
               </div>
-              <div
-                className={
-                  compact
-                    ? 'relative flex h-[144px] flex-col justify-end rounded-tile bg-brand-done-bg p-3'
-                    : 'relative flex h-[168px] flex-col justify-end rounded-tile bg-brand-done-bg p-3'
-                }
-              >
-                {item.overlay ? (
-                  <p
-                    className={
-                      compact
-                        ? 'absolute left-3 top-3 w-[144px] font-text text-brand-small font-semibold leading-5 text-brand-ink'
-                        : 'absolute left-4 right-4 top-4 font-display text-brand-body-xl leading-6 text-brand-ink'
-                    }
-                  >
-                    {item.overlay}
-                  </p>
-                ) : null}
-                <p
-                  className={
-                    compact
-                      ? 'absolute left-3 right-3 top-[88px] font-display text-brand-body-lg font-semibold leading-[22px] tracking-[-0.02em] text-brand-ink'
-                      : 'font-display text-brand-body-lg font-semibold leading-[22px] tracking-[-0.02em] text-brand-ink'
-                  }
-                >
-                  {item.title}
-                </p>
-              </div>
-              <div className="flex h-[171px] w-full flex-col justify-between rounded-tile bg-brand-done-bg p-2.5">
-                <span className="block h-0.5 bg-brand-ink" />
-                <p className="whitespace-pre-line font-text text-[12px] leading-4 text-brand-ink">
-                  {storyLabel ? `${storyLabel}\n${item.story}` : item.story}
-                </p>
-              </div>
-              <p
-                className={
-                  compact
-                    ? 'whitespace-pre-line pb-1 font-text text-brand-small text-brand-ink-muted'
-                    : 'h-[84px] whitespace-pre-line font-text text-brand-small text-brand-ink-muted'
-                }
-              >
+              <p className="flex-1 whitespace-pre-line font-text text-brand-small text-brand-ink-muted">
                 {item.caption.join('\n')}
               </p>
-              <div className="flex flex-col gap-1.5">
-                <span className="flex h-8 items-center justify-center rounded-pill border border-brand-ink font-text text-[12px] font-semibold text-brand-ink">
-                  Copy caption
-                </span>
-                <span className="flex h-8 items-center justify-center rounded-pill border border-brand-ink font-text text-[12px] font-semibold text-brand-ink">
-                  Download
-                </span>
-              </div>
+              <p className="mt-auto font-text text-brand-caption text-brand-ink-muted">
+                <span>Copy caption</span> · <span>Download</span>
+              </p>
             </div>
           ))}
         </div>
       </div>
       <figcaption className="font-text text-brand-small font-semibold text-brand-ink-muted">
-        Example week · demo business
+        {caption}
       </figcaption>
     </figure>
   )

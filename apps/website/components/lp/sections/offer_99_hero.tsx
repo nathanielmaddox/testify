@@ -1,44 +1,54 @@
 /**
- * Offer LP hero (Paper `a-hero`, and the `closed` and `busiest` hero variants
- * from the Paper frames): eyebrow, display headline, lead, two fact chips, the
- * violet buy CTA with its price line, and the example-week mock. Only the copy
- * changes between variants (`LandingPage.heroVariant`). Server component; the
- * buy CTA is the client BuyCta.
+ * Offer LP hero (cold `done-for-you-99`, and the `closed` and `busiest` hero
+ * variants): plain pre-line, display-xl H1 (centered), one sub line, two fact
+ * chips (DS Badge, client module), the violet buy CTA with its caption, the
+ * thin trust row, then the example-week mock. Only the copy changes between
+ * variants (`LandingPage.heroVariant`). Keeps the `lp-<slug>-hero` id the
+ * sticky buy bar waits for. Server component; the chips and the buy CTA are
+ * client modules. `CHIPS` and `TRUST_ROW` are exported for the retargeting hero.
  */
 import { DisplayHeading } from '@testify/style-guide/components/DisplayHeading'
 import { PageSection } from '@testify/style-guide/components/PageSection'
 import { lpCheckoutHref, type LpHeroVariant } from '@/lib/landing_pages'
 import { BuyCta } from './buy_cta'
 import { ExampleWeek } from './example_week'
+import { HeroChips } from './hero_chips'
+import { OPEN_SIGN_BUY_CAPTION, OPEN_SIGN_BUY_LABEL } from './open_sign_copy'
 import { slotProps, type LpSectionProps } from './section_props'
 
-const CHIPS = ['60 pieces a month', 'Your part: less than one customer call a week'] as const
+export const CHIPS = ['60 pieces a month', 'Your part: less than one customer call a week'] as const
+
+export const TRUST_ROW = [
+  'We never need your passwords',
+  'Nothing goes out unless you post it',
+  'Every file is yours to keep',
+  // Says "Secure checkout" only. The Stripe payment element is not mounted yet
+  // (components/lp/checkout/payment_element_slot.tsx). Restore "Secure checkout by
+  // Stripe" once it is.
+  'Secure checkout',
+] as const
 
 interface HeroCopy {
-  eyebrow: string
+  preLine: string
   headline: string
-  lead: string
-  caption: string
+  sub: string
 }
 
 const HERO_COPY: Record<LpHeroVariant, HeroCopy> = {
   default: {
-    eyebrow: 'For local pros too busy to post.',
+    preLine: 'For local pros too busy to post.',
     headline: 'A Fresh Post and Story, Every Single Day',
-    lead: "So when a homeowner looks you up on the couch tonight, they don't find a page that went quiet in [MONTH]. They find a business that's open, busy and proud of its work. You never write a caption, design a post or think up an idea again. You just press post. $99/month. No contract.",
-    caption: "$99/month. No contract. Cancel in 2 clicks. First month: love it or it's free.",
+    sub: 'We make 30 posts and 30 stories a month from your real jobs. You press post.',
   },
   closed: {
-    eyebrow: 'Before they call, they look you up.',
+    preLine: 'Before they call, they look you up.',
     headline: "Your Page Looks Closed. You're Not.",
-    lead: "Somewhere right now, a homeowner is scrolling your page, landing on a last post from [MONTH], and quietly wondering if you're still trading. Let's give them a page full of fresh, finished work instead: the before and after, the crew, the little tips only a pro would know. We make 30 posts and 30 stories a month from about 5 minutes of your week. You press post. $99/month.",
-    caption: "No contract. Cancel in 2 clicks. First month: love it or it's free.",
+    sub: "Before they call, people look you up. Give them a page that's open every day. You press post.",
   },
   busiest: {
-    eyebrow: 'For pros who are flat out every day.',
+    preLine: 'For pros who are flat out every day.',
     headline: 'Look as Busy Online as You Are',
-    lead: 'Your days are full of good work nobody online ever sees: the bathroom you turned around in a day, the leak you caught before it brought a ceiling down, the van packed and gone by 7am. We turn those moments into a post and a story for every day, so your page finally looks as busy as your diary. About 5 minutes a week from you. You press post.',
-    caption: "No contract. Cancel in 2 clicks. First month: love it or it's free.",
+    sub: 'Your days are full of good work nobody online sees. We turn it into a post and a story a day.',
   },
 }
 
@@ -49,31 +59,24 @@ export function Offer99Hero({ lp }: LpSectionProps) {
   return (
     <PageSection flush {...slotProps(lp, 'hero')} aria-labelledby={headingId} width="grid">
       <div className="flex w-full flex-col items-center gap-6 text-center">
-        <p className="font-text text-brand-body-strong text-brand-ink">{copy.eyebrow}</p>
-        <DisplayHeading level={1} id={headingId} lead={copy.lead} align="center">
+        <p className="font-text text-brand-body-strong text-brand-ink">{copy.preLine}</p>
+        <DisplayHeading level={1} size="display-xl" id={headingId} lead={copy.sub} align="center">
           {copy.headline}
         </DisplayHeading>
-        <ul className="flex flex-wrap justify-center gap-3">
-          {CHIPS.map((chip) => (
-            <li
-              key={chip}
-              className="flex h-11 items-center rounded-pill border border-brand-border-strong bg-brand-surface px-5 font-text text-brand-label text-brand-ink"
-            >
-              {chip}
-            </li>
-          ))}
-        </ul>
+        <HeroChips items={CHIPS} />
         {href ? (
           <BuyCta
             href={href}
             lpSlug={lp.slug}
-            label="Yes! Turn On My Open Sign: $99/Month"
+            label={OPEN_SIGN_BUY_LABEL}
             tone="action"
-            caption={copy.caption}
+            caption={OPEN_SIGN_BUY_CAPTION}
+            placement="hero"
           />
         ) : null}
+        <p className="font-text text-brand-small text-brand-ink-muted">{TRUST_ROW.join(' · ')}</p>
       </div>
-      <ExampleWeek />
+      <ExampleWeek caption="Example. Demo business." />
     </PageSection>
   )
 }
