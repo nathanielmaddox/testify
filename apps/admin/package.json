@@ -1,0 +1,32 @@
+{
+  "name": "@testify/admin",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The testify admin app (internal). Structure only; every UI component comes from @otesse/design-system. Port 3201.",
+  "scripts": {
+    "dev": "next dev -p 3201",
+    "build": "next build",
+    "start": "next start -p 3201",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f",
+    "@testify/style-guide": "workspace:*",
+    "next": "^16.2.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@testify/config": "workspace:*",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^9.39.1",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.9.3"
+  }
+}
