@@ -21,13 +21,19 @@ tokens and compositions), never in this app; never fork or restyle a DS componen
 
 ## Layout
 
-| Path                         | What                                                  |
-| ---------------------------- | ----------------------------------------------------- |
-| `providers.tsx`              | DS client providers (`ThemeProvider`), used by layout |
-| `site/site_header.tsx`       | DS `SkipLink` + `Navbar` + `Link`, `(site)` header    |
-| `site/site_footer.tsx`       | DS `Footer`, `(site)` footer (nav + legal)            |
-| `site/lp_header.tsx`         | DS `SkipLink` + `Navbar`, name only, `(lp)` header    |
-| `site/lp_footer.tsx`         | DS `Footer` minimal, legal + copyright, `(lp)` footer |
-| `site/not_found_panel.tsx`   | DS `Layout` + `EmptyState` for `app/not-found.tsx`    |
-| `skeleton/page_skeleton.tsx` | Server-safe `<main>` + empty labelled section slots   |
-| `lp/lp_form_slot.tsx`        | LP form slot carrying the attributed onward href      |
+| Path                         | What                                                                         |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| `providers.tsx`              | DS client providers (`ThemeProvider`), used by layout                        |
+| `site/site_header.tsx`       | DS `SkipLink` + `Navbar` + `Link`, `(site)` header                           |
+| `site/site_footer.tsx`       | `(site)` footer composed from `footer_parts` (Paper layout)                  |
+| `site/section_header.tsx`    | Server-safe kicker + H2 + sub opener for every section                       |
+| `site/closing_cta.tsx`       | DS-backed closing block: kicker, headline, violet CTA                        |
+| `site/faq_list.tsx`          | DS `Accordion` (card variant) for FAQ items                                  |
+| `site/testimonial_card.tsx`  | Server-safe quote card with attribution                                      |
+| `site/lp_header.tsx`         | DS `SkipLink` + `Navbar`, name only, `(lp)` header                           |
+| `site/lp_footer.tsx`         | Legal + copyright bottom row only, `(lp)` footer                             |
+| `site/not_found_panel.tsx`   | Style-guide `PageSection` + `DisplayHeading` + `CtaRow`, `app/not-found.tsx` |
+| `skeleton/page_skeleton.tsx` | Server-safe `<main>` + empty labelled section slots                          |
+| `lp/lp_form_slot.tsx`        | LP form slot naming its LP confirmation page                                 |
+| `lp/layouts/`                | LP layout map (`LP_LAYOUTS`) + one file per layout                           |
+| `legal/legal_page.tsx`       | Legal page layout: TOC, dates, sections (server-safe)                        |

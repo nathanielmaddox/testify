@@ -1,14 +1,18 @@
-import { PageSkeleton, type SlotSpec } from '@/components/skeleton/page_skeleton'
+// Contact page: the router page (intro, Sales and Support cards, footnote lines). No form.
+import { ContactFootnotes } from '@/components/contact/contact_footnotes'
+import { ContactIntro } from '@/components/contact/contact_intro'
+import { ContactRouter } from '@/components/contact/contact_router'
+import { PageSkeleton } from '@/components/skeleton/page_skeleton'
 import { pageMetadata } from '@/lib/metadata'
 
 export const metadata = pageMetadata('contact')
 
-/** Contact skeleton. The form slot is filled later. */
-const SLOTS: readonly SlotSpec[] = [
-  { slot: 'intro', label: 'Introduction' },
-  { slot: 'form', label: 'Contact form' },
-]
-
 export default function ContactPage() {
-  return <PageSkeleton routeKey="contact" slots={SLOTS} />
+  return (
+    <PageSkeleton routeKey="contact" slots={[]}>
+      <ContactIntro />
+      <ContactRouter />
+      <ContactFootnotes />
+    </PageSkeleton>
+  )
 }

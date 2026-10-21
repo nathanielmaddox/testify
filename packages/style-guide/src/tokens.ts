@@ -15,7 +15,7 @@ export interface ColorRole {
 export const colorRoles: readonly ColorRole[] = [
   {
     name: 'canvas',
-    hex: '#f4f2ee',
+    hex: '#FAF9F6',
     usage:
       'Page ground. Warm off-white; most of every page. Cards lift off it (owner ruling 2026-10-09: off-white page, white cards).',
   },
@@ -166,7 +166,7 @@ export const colorRoles: readonly ColorRole[] = [
     usage:
       'Ink pill for nav CTA and mid-page repeated CTAs. Violet is reserved for the hero and closing CTA (owner ruling 2026-10-09).',
   },
-  { name: 'action-quiet-ink', hex: '#f4f2ee', usage: 'Label on an action-quiet pill (15.9:1).' },
+  { name: 'action-quiet-ink', hex: '#FAF9F6', usage: 'Label on an action-quiet pill (15.9:1).' },
 ]
 
 export interface TypeStyle {
@@ -192,6 +192,27 @@ export const typeScale: readonly TypeStyle[] = [
     weight: 800,
     family: 'display',
     usage: 'One hero H1 per page. Max ~14ch per line.',
+  },
+  {
+    key: 'brand-display-xl',
+    token: 'display-xl',
+    size: 'clamp(3.5rem, 2.13rem + 6.09vw, 7rem)',
+    lineHeight: '0.93',
+    tracking: '-0.04em',
+    weight: 800,
+    family: 'display',
+    usage:
+      'Paper Display XL (112px desktop, 104px line). Hero H1 and closing H2 only. Max ~14ch per line.',
+  },
+  {
+    key: 'brand-wordmark',
+    token: 'wordmark',
+    size: 'clamp(2.75rem, 2.75rem + 12.17vw, 12.5rem)',
+    lineHeight: '1',
+    tracking: '-0.04em',
+    weight: 800,
+    family: 'display',
+    usage: 'Footer giant wordmark (Paper 200px). Decorative and aria-hidden; never a heading.',
   },
   {
     key: 'brand-h1',
@@ -252,6 +273,26 @@ export const typeScale: readonly TypeStyle[] = [
     weight: 400,
     family: 'text',
     usage: 'Running copy, ink-muted, max 65ch.',
+  },
+  {
+    key: 'brand-body-lg',
+    token: 'body-lg',
+    size: '1.125rem',
+    lineHeight: '28px',
+    tracking: '-0.005em',
+    weight: 400,
+    family: 'text',
+    usage: 'LP and letter running copy at 18px (Paper body step).',
+  },
+  {
+    key: 'brand-body-xl',
+    token: 'body-xl',
+    size: '1.25rem',
+    lineHeight: '32px',
+    tracking: '-0.005em',
+    weight: 400,
+    family: 'text',
+    usage: 'LP letter paragraphs at 20px (Paper frame JOY-0).',
   },
   {
     key: 'brand-body-strong',
@@ -345,6 +386,16 @@ export const spaceScale: readonly ScaleStep[] = [
   { name: 'space-20', value: '80px', usage: 'Section padding tablet.' },
   { name: 'space-24', value: '96px', usage: 'Section padding desktop.' },
   { name: 'space-32', value: '128px', usage: 'Hero / final-CTA breathing room on wide screens.' },
+  {
+    name: 'section-gap',
+    value: '80px to 160px (fluid)',
+    usage: 'Gap between page sections (brand-section-gap). Paper 160px, down to 80px on phones.',
+  },
+  {
+    name: 'heading-stack',
+    value: '64px',
+    usage: 'Heading block to its content (brand-heading-stack).',
+  },
 ]
 
 export const radiusScale: readonly (ScaleStep & { tailwind: string })[] = [

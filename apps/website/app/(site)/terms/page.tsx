@@ -1,11 +1,12 @@
-import { PageSkeleton, type SlotSpec } from '@/components/skeleton/page_skeleton'
+// Terms of service page: placeholder outline on the shared legal layout. No approved copy yet.
+import { LegalPage } from '@/components/legal/legal_page'
+import { LEGAL_EFFECTIVE_DATE, TERMS_SECTIONS } from '@/lib/legal'
 import { pageMetadata } from '@/lib/metadata'
 
 export const metadata = pageMetadata('terms')
 
-/** Terms of service skeleton. The terms body is filled later. */
-const SLOTS: readonly SlotSpec[] = [{ slot: 'body', label: 'Terms of service' }]
-
 export default function TermsPage() {
-  return <PageSkeleton routeKey="terms" slots={SLOTS} />
+  return (
+    <LegalPage routeKey="terms" effectiveDate={LEGAL_EFFECTIVE_DATE} sections={TERMS_SECTIONS} />
+  )
 }

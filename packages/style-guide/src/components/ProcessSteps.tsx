@@ -9,25 +9,34 @@ export interface ProcessStep {
 }
 
 export interface ProcessStepsProps {
-  /** Exactly four steps. */
-  steps: readonly [ProcessStep, ProcessStep, ProcessStep, ProcessStep]
+  /**
+   * Three to six steps, in order. Four is the original layout and renders the
+   * same as before; three uses three columns on lg, five and six use three.
+   */
+  steps:
+    | readonly [ProcessStep, ProcessStep, ProcessStep]
+    | readonly [ProcessStep, ProcessStep, ProcessStep, ProcessStep]
+    | readonly [ProcessStep, ProcessStep, ProcessStep, ProcessStep, ProcessStep]
+    | readonly [ProcessStep, ProcessStep, ProcessStep, ProcessStep, ProcessStep, ProcessStep]
   /** Heading level for step titles. Default 3. */
   headingLevel?: 3 | 4
   className?: string
 }
 
 /**
- * Four steps, in order. White cards lifted off the canvas (shadow-raised, no
- * border). Step numbers use the display face with tabular figures; a finished
+ * Three to six steps, in order. White cards lifted off the canvas (shadow-raised,
+ * no border). Step numbers use the display face with tabular figures; a finished
  * step's number sits on done-bg with ink text and says "done" to screen readers.
  */
 export function ProcessSteps({ steps, headingLevel = 3, className }: ProcessStepsProps) {
   const Heading = `h${headingLevel}` as const
+  const list: readonly ProcessStep[] = steps
+  const lgColumns = list.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'
   return (
-    <ol className={cx('grid gap-brand-grid sm:grid-cols-2 lg:grid-cols-4', className)}>
-      {steps.map((step, index) => (
+    <ol className={cx('grid gap-brand-grid md:grid-cols-2', lgColumns, className)}>
+      {list.map((step, index) => (
         <li
-          key={step.title}
+          key={`${index}-${step.title}`}
           className="flex flex-col gap-4 rounded-card bg-brand-surface p-6 shadow-raised"
         >
           <span

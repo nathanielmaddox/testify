@@ -75,6 +75,10 @@ const type = (size, lineHeight, letterSpacing, fontWeight) => [
 
 const fontSize = {
   'brand-display': type('display', '1', '-0.03em', '800'),
+  // Paper display XL: 112px / 104px line, -4% tracking. Hero H1 and closing H2 only.
+  'brand-display-xl': type('display-xl', '0.93', '-0.04em', '800'),
+  // Footer giant wordmark (Paper 200px). Line and tracking follow the display family.
+  'brand-wordmark': type('wordmark', '1', '-0.04em', '800'),
   'brand-h1': type('heading-lg', '1.05', '-0.028em', '800'),
   'brand-h2': type('heading', '1.1', '-0.024em', '800'),
   'brand-h3': type('title', '1.2', '-0.02em', '700'),
@@ -82,6 +86,9 @@ const fontSize = {
   'brand-lead': type('lead', '1.45', '-0.01em', '400'),
   'brand-body': type('body', '1.6', '-0.005em', '400'),
   'brand-body-strong': type('body', '1.6', '-0.005em', '600'),
+  // Fixed Paper body steps for LP and letter copy: 18/28 and 20/32, weight 400.
+  'brand-body-lg': type('body-lg', '28px', '-0.005em', '400'),
+  'brand-body-xl': type('body-xl', '32px', '-0.005em', '400'),
   'brand-label': type('label', '1.3', '0em', '500'),
   'brand-button': type('button', '1.2', '-0.005em', '600'),
   'brand-small': type('small', '1.5', '0em', '400'),
@@ -122,6 +129,9 @@ const preset = {
         'brand-gutter': 'var(--gutter)',
         'brand-card': 'var(--card-pad)',
         'brand-grid': 'var(--grid-gap)',
+        // Paper rhythm: 160px between sections; 64px heading block to its content.
+        'brand-section-gap': 'var(--section-gap)',
+        'brand-heading-stack': 'var(--heading-stack)',
       },
       maxWidth: {
         measure: 'var(--measure)',

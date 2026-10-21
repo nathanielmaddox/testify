@@ -38,6 +38,23 @@ const thirdParties = [
     beacon: ['https://www.facebook.com', 'https://connect.facebook.net'],
   },
   { name: 'Stripe Checkout', form: ['https://checkout.stripe.com'] },
+  // Stripe.js + embedded Checkout / Payment Element on /lp/<slug>/checkout.
+  {
+    name: 'Stripe.js',
+    script: ['https://js.stripe.com', 'https://*.js.stripe.com', 'https://checkout.stripe.com'],
+    beacon: [
+      'https://api.stripe.com',
+      'https://checkout.stripe.com',
+      'https://m.stripe.network',
+      'https://q.stripe.com',
+    ],
+    frame: [
+      'https://js.stripe.com',
+      'https://*.js.stripe.com',
+      'https://hooks.stripe.com',
+      'https://checkout.stripe.com',
+    ],
+  },
 ]
 
 /** Unique, space-joined host list for one key of `thirdParties`. */
@@ -93,9 +110,19 @@ const nextConfig = {
         has: [{ type: 'host', value: '(?<h>.*\\.vercel\\.app)' }],
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
-      // The conversion page is per visitor: never cache it anywhere.
+      // Every offer LP's purchase page is per visitor: never cache it anywhere.
       {
-        source: '/lp/confirmation',
+        source: '/lp/:slug/checkout',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
+      },
+      // Every LP's conversion page is per visitor: never cache it anywhere.
+      {
+        source: '/lp/:slug/confirmation',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
+      },
+      // The booked page shows one visitor's booking (kept in sessionStorage): never cache it.
+      {
+        source: '/get-started/booked',
         headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
       },
       {

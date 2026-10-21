@@ -3,12 +3,15 @@ import { Kicker } from './Kicker'
 import { cx } from './cx'
 
 export type DisplayHeadingLevel = 1 | 2 | 3 | 4
-export type DisplayHeadingSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4'
+export type DisplayHeadingSize = 'display-xl' | 'display' | 'h1' | 'h2' | 'h3' | 'h4'
 
 export interface DisplayHeadingProps {
   /** Semantic level (h1..h4). One h1 per page. */
   level: DisplayHeadingLevel
-  /** Visual size; defaults by level (1 = display, 2 = h2, 3 = h3, 4 = h4). */
+  /**
+   * Visual size; defaults by level (1 = display, 2 = h2, 3 = h3, 4 = h4).
+   * `display-xl` is the Paper hero and closing scale (hero H1 and closing H2 only).
+   */
   size?: DisplayHeadingSize
   /** Optional pill label rendered above the headline. */
   kicker?: ReactNode
@@ -20,6 +23,7 @@ export interface DisplayHeadingProps {
 }
 
 const SIZE: Record<DisplayHeadingSize, string> = {
+  'display-xl': 'text-brand-display-xl',
   display: 'text-brand-display',
   h1: 'text-brand-h1',
   h2: 'text-brand-h2',

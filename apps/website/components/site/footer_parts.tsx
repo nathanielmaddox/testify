@@ -1,5 +1,7 @@
 'use client'
 
+// Shared footer band, footer link and bottom row for the site and paid-funnel footers.
+
 import NextLink from 'next/link'
 import type { ReactNode } from 'react'
 import { Link } from '@otesse/design-system'
@@ -19,19 +21,32 @@ import { CHROME_CONTAINER, copyrightLine } from './chrome'
  * keys and the DS Link (every link is still a DS primitive).
  */
 
-/** Footer landmark: the recessed canvas-alt band with the brand hairline on top. */
+/**
+ * Footer landmark: the page canvas (Paper footer frames sit on var(--canvas), no
+ * band). The container is CHROME_CONTAINER, the same one the header uses, so the
+ * footer edges line up with the nav.
+ */
 export function FooterBand({ children }: { children: ReactNode }) {
   return (
-    <footer className="border-t border-brand-border bg-brand-canvas-alt">
+    <footer className="bg-brand-canvas">
       <div className={CHROME_CONTAINER}>{children}</div>
     </footer>
   )
 }
 
-/** One footer link: DS Link, ink-muted, underline on hover, Next client navigation. */
-export function FooterLink({ link }: { link: NavLink }) {
+/**
+ * One footer link on the DS Link, underline on hover, Next client navigation.
+ * `muted` (default) is the legal line; `inherit` takes the ink of its column.
+ */
+export function FooterLink({
+  link,
+  color = 'muted',
+}: {
+  link: NavLink
+  color?: 'muted' | 'inherit'
+}) {
   return (
-    <Link href={link.href} linkComponent={NextLink} color="muted" underline="hover" size="small">
+    <Link href={link.href} linkComponent={NextLink} color={color} underline="hover" size="medium">
       {link.label}
     </Link>
   )
@@ -43,15 +58,23 @@ export function FooterLink({ link }: { link: NavLink }) {
  */
 export function FooterBottomRow() {
   return (
-    <div className="flex flex-col gap-3 py-8 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {/* The year is computed at render; a static page built in December may differ by one on the client. */}
-      <p className="font-text text-brand-small text-brand-ink-subtle" suppressHydrationWarning>
+      <p className="font-text text-brand-small text-brand-ink-muted" suppressHydrationWarning>
         {copyrightLine()}
       </p>
       <nav aria-label="Legal">
-        <ul className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          {siteConfig.legal.map((link) => (
-            <li key={link.href}>
+        <ul className="flex flex-wrap items-center gap-x-2 gap-y-3">
+          {siteConfig.legal.map((link, index) => (
+            <li key={link.href} className="flex items-center gap-2">
+              {index > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="font-text text-brand-small text-brand-ink-muted"
+                >
+                  ·
+                </span>
+              ) : null}
               <FooterLink link={link} />
             </li>
           ))}

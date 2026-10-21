@@ -70,6 +70,7 @@ export const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(fun
       size="xl"
       radius="full"
       motion="none"
+      data-brand-ring=""
       disabled={disabled}
       loading={loading}
       {...(disabledReason ? { disabledReason } : {})}

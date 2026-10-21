@@ -19,15 +19,22 @@ export interface FieldBaseProps {
   /** Visible label. Required: placeholders are never a label. */
   label: string
   /** One line under the field that helps (14px, ink-muted). Hidden while an error shows. */
-  helperText?: ReactNode
+  helperText?: ReactNode | undefined
   /** Error message (words, not just colour). Shows with an icon in danger-fg. */
-  error?: string
-  required?: boolean
-  disabled?: boolean
+  error?: string | undefined
+  required?: boolean | undefined
+  /** Paper's "Optional" pill beside the label. Default off: existing callers render unchanged. */
+  optional?: boolean | undefined
+  disabled?: boolean | undefined
   /** Explicit id; generated when omitted. */
-  id?: string
+  id?: string | undefined
   /** Layout class for the field's outer box (grid placement, width). */
-  className?: string
+  className?: string | undefined
+}
+
+/** Joins id references for aria-describedby; undefined when there are none. */
+export function joinIds(...ids: Array<string | undefined>): string | undefined {
+  return ids.filter(Boolean).join(' ') || undefined
 }
 
 export interface FieldIds {
@@ -73,6 +80,57 @@ export const CONTROL_RADIUS: CSSProperties = { borderRadius: 'var(--radius-md)' 
 /** Invalid outline: danger-border (4.25:1 on surface) on rest and hover; danger ring on focus. */
 export const CONTROL_INVALID =
   'border-brand-danger-border hover:border-brand-danger-border focus:ring-brand-danger-fg'
+
+/**
+ * Paper's "Optional" pill: 11px uppercase, hairline border, ink-subtle text, pill
+ * radius, 1px / 8px padding. Uses the brand overline size and tracking; the
+ * weight drops to 400 to match Paper.
+ */
+export function OptionalPill() {
+  return (
+    <span className="inline-flex items-center rounded-pill border border-brand-border px-2 py-px font-text text-brand-overline font-normal uppercase text-brand-ink-subtle">
+      Optional
+    </span>
+  )
+}
+
+/**
+ * Label row for an optional field. Used instead of the DS FormField `label`
+ * (a plain string, so the pill cannot sit inside it). Same association: the
+ * label's htmlFor is the control id.
+ */
+export function FieldLabelRow({
+  ids,
+  label,
+  required,
+  disabled,
+  error,
+}: {
+  ids: FieldIds
+  label: string
+  required?: boolean
+  disabled?: boolean
+  error?: string | undefined
+}) {
+  const tone = error
+    ? 'text-brand-danger-fg'
+    : disabled
+      ? 'text-brand-ink-subtle'
+      : 'text-brand-ink'
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <label htmlFor={ids.fieldId} className={`font-text text-sm font-medium ${tone}`}>
+        {label}
+        {required ? (
+          <span aria-hidden="true" className="ml-0.5 text-brand-danger-fg">
+            *
+          </span>
+        ) : null}
+      </label>
+      <OptionalPill />
+    </div>
+  )
+}
 
 /** Error then helper, under the control. */
 export function FieldMessages({

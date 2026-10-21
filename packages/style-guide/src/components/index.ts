@@ -5,8 +5,9 @@
  * ProofRow, CalendarTile, EmphasisPanel, Annotation, MediaFrame, ProcessSteps,
  * HonestyBlock, GuaranteeList.
  * Client ('use client', DS barrel): CtaRow, ActionButton, SubmitButton, TextLink,
- * Notice, TextField, TextAreaField, SelectField, CheckboxField, RadioGroupField;
- * ProgressCalendar (IntersectionObserver).
+ * Notice, TextField, TextAreaField, SelectField, CheckboxField, RadioGroupField,
+ * ChoiceChip, ChoiceChipGroup, TimePill, BookingDayCell, BookingDayGrid, BrandIcon
+ * (DS Icon with the lucide-react registry); ProgressCalendar (IntersectionObserver).
  *
  * Each is also importable on its own: '@testify/style-guide/components/<Name>'.
  */
@@ -25,7 +26,19 @@ export {
   type ActionTone,
   type SubmitButtonProps,
 } from './ActionButton'
+export {
+  BookingDayCell,
+  BookingDayGrid,
+  type BookingDayCellProps,
+  type BookingDayGridProps,
+} from './BookingDayCell'
 export { CheckboxField, type CheckboxFieldProps } from './CheckboxField'
+export {
+  ChoiceChip,
+  ChoiceChipGroup,
+  type ChoiceChipGroupProps,
+  type ChoiceChipProps,
+} from './ChoiceChip'
 export { CtaRow, type CtaRowProps, type CtaTone } from './CtaRow'
 export {
   DisplayHeading,
@@ -54,4 +67,5 @@ export { SelectField, type SelectFieldProps } from './SelectField'
 export { TextAreaField, type TextAreaFieldProps } from './TextAreaField'
 export { TextField, type TextFieldProps } from './TextField'
 export { TextLink, type TextLinkProps } from './TextLink'
+export { TimePill, type TimePillProps } from './TimePill'
 export { BrandIcon, brandIcons, type BrandIconName, type BrandIconProps } from './BrandIcon'

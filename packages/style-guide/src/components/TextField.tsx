@@ -7,8 +7,10 @@ import {
   CONTROL_INVALID,
   CONTROL_RADIUS,
   CONTROL_SIZE,
+  FieldLabelRow,
   FieldMessages,
   describedByFor,
+  joinIds,
   useFieldIds,
   type FieldBaseProps,
 } from './field-parts'
@@ -38,20 +40,40 @@ export type TextFieldProps = FieldBaseProps &
  * 14px and the error carries an icon (see field-parts).
  */
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, helperText, error, required = false, disabled = false, id, className, ...inputProps },
+  {
+    label,
+    helperText,
+    error,
+    required = false,
+    optional = false,
+    disabled = false,
+    id,
+    className,
+    'aria-describedby': callerDescribedBy,
+    ...inputProps
+  },
   ref
 ) {
   const ids = useFieldIds(id)
-  const describedBy = describedByFor(ids, { error, helperText })
+  const describedBy = joinIds(callerDescribedBy, describedByFor(ids, { error, helperText }))
   return (
     <FormField
       id={ids.fieldId}
-      label={label}
+      {...(optional ? {} : { label })}
       required={required}
       disabled={disabled}
       className={`gap-2 ${className ?? ''}`}
     >
       <div className="flex flex-col gap-2">
+        {optional ? (
+          <FieldLabelRow
+            ids={ids}
+            label={label}
+            required={required}
+            disabled={disabled}
+            error={error}
+          />
+        ) : null}
         <Input
           {...inputProps}
           ref={ref}

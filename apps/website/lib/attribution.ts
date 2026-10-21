@@ -8,9 +8,10 @@
  * (`parseAttributionParams`, `mergeTouch`, `encode/decodeAttribution`,
  * `applyParams`) take their inputs explicitly so they can be tested in Node.
  *
- * Never store PII here: only campaign params, click ids, the landing path and
- * the referrer HOST.
+ * Never store PII here: only campaign params, click ids, the landing path,
+ * the landing LP slug and the referrer HOST.
  */
+import { lpSlugFromPath } from './landing_pages'
 
 /** Query params that carry ad attribution. Matched case-insensitively. */
 export const ATTRIBUTION_PARAMS = [
@@ -55,6 +56,12 @@ export interface AttributionTouch {
   params: AttributionParams
   /** Path the visitor landed on (no query string). */
   landingPath: string
+  /**
+   * Slug of the landing page this touch landed on (`/lp/<slug>`, = the ad it
+   * serves), '' when the landing was not an LP. Optional: touches stored
+   * before LP slugs existed read as ''.
+   */
+  lpSlug?: string
   /** Referrer host only (never the full referrer URL), '' when direct. */
   referrerHost: string
   /** ISO timestamp. */
@@ -72,6 +79,13 @@ export interface StoredAttribution {
 export const ATTRIBUTION_COOKIE = 'tfy_attr'
 export const ATTRIBUTION_STORAGE_KEY = 'tfy_attr'
 export const ATTRIBUTION_MAX_AGE_DAYS = 90
+/** Shape of a stored LP slug (kebab-case); anything else is dropped on read. */
+const LP_SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function cleanLpSlug(value: unknown): string {
+  return typeof value === 'string' && value.length <= 64 && LP_SLUG_RE.test(value) ? value : ''
+}
+
 /** Per-value cap so the cookie stays far below 4 KB. */
 const MAX_VALUE_LENGTH = 256
 
@@ -152,10 +166,21 @@ export function decodeAttribution(raw: string | null | undefined): StoredAttribu
     const value = JSON.parse(decodeURIComponent(raw)) as Record<string, unknown>
     if (value['v'] !== 1 || !isTouch(value['first']) || !isTouch(value['last'])) return null
     // Re-run the params through the allow-list so a tampered cookie adds nothing else.
+    // Same for the LP slug: kept only when it is slug-shaped.
+    const first = value['first']
+    const last = value['last']
     return {
       v: 1,
-      first: { ...value['first'], params: parseAttributionParams(toRecord(value['first'].params)) },
-      last: { ...value['last'], params: parseAttributionParams(toRecord(value['last'].params)) },
+      first: {
+        ...first,
+        params: parseAttributionParams(toRecord(first.params)),
+        lpSlug: cleanLpSlug(first.lpSlug),
+      },
+      last: {
+        ...last,
+        params: parseAttributionParams(toRecord(last.params)),
+        lpSlug: cleanLpSlug(last.lpSlug),
+      },
     }
   } catch {
     return null
@@ -250,6 +275,7 @@ export function captureAttribution(): StoredAttribution | null {
   const touch: AttributionTouch = {
     params: parseAttributionParams(window.location.search),
     landingPath: window.location.pathname,
+    lpSlug: lpSlugFromPath(window.location.pathname),
     referrerHost,
     at: new Date().toISOString(),
   }
@@ -277,4 +303,15 @@ export function storedParams(
 export function withStoredAttribution(href: string): string {
   if (!inBrowser()) return href
   return applyParams(href, storedParams())
+}
+
+/**
+ * The LP slugs of the first and last touch ('' when that touch did not land
+ * on an LP), for the lead / Stripe session metadata and conversion events.
+ */
+export function landingLpSlugs(stored: StoredAttribution | null = getAttribution()): {
+  first: string
+  last: string
+} {
+  return { first: stored?.first.lpSlug ?? '', last: stored?.last.lpSlug ?? '' }
 }

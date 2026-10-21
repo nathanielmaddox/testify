@@ -108,18 +108,18 @@ Deliberate choices:
 
 ## Tailwind keys (preset)
 
-| Namespace                   | Keys                                                                                                                                                                   |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| colors                      | `brand-<role>` for every role (`bg-brand-canvas`, `text-brand-ink-muted`, ...)                                                                                         |
-| fontFamily                  | `font-display`, `font-text`, `font-hand`                                                                                                                               |
-| fontSize                    | `text-brand-display / -h1 / -h2 / -h3 / -h4 / -lead / -body / -body-strong / -label / -button / -small / -caption / -overline / -hand`                                 |
-| borderRadius                | `rounded-card` (24-40 fluid), `rounded-media` (22), `rounded-control` / `rounded-tile` (14), `rounded-tile-sm` (8), `rounded-pill`                                     |
-| boxShadow                   | `shadow-raised`, `shadow-lifted`, `shadow-overlay`, `shadow-cta`                                                                                                       |
-| spacing                     | `brand-section`, `brand-gutter`, `brand-card`, `brand-grid` (all fluid)                                                                                                |
-| maxWidth                    | `max-w-measure` (65ch), `-measure-narrow` (48ch), `-measure-heading` (22ch), `-measure-caption` (70ch), `max-w-content` (880), `max-w-grid` (1200), `max-w-form` (480) |
-| backgroundImage             | `bg-brand-inverse` (the EmphasisPanel gradient)                                                                                                                        |
-| transitionDuration / timing | `duration-brand-fast/base/slow/slower`, `ease-brand-standard/enter/exit`                                                                                               |
-| animation                   | `animate-brand-tile-fill`                                                                                                                                              |
+| Namespace                   | Keys                                                                                                                                                                                                                                                                               |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| colors                      | `brand-<role>` for every role (`bg-brand-canvas`, `text-brand-ink-muted`, ...)                                                                                                                                                                                                     |
+| fontFamily                  | `font-display`, `font-text`, `font-hand`                                                                                                                                                                                                                                           |
+| fontSize                    | `text-brand-display-xl` (Paper 112/104, hero H1 and closing H2 only) / `-display / -h1 / -h2 / -h3 / -h4 / -lead / -body / -body-strong / -body-lg (18/28) / -body-xl (20/32) / -label / -button / -small / -caption / -overline / -hand` / `-wordmark` (footer giant word, 200px) |
+| borderRadius                | `rounded-card` (24-40 fluid), `rounded-media` (22), `rounded-control` / `rounded-tile` (14), `rounded-tile-sm` (8), `rounded-pill`                                                                                                                                                 |
+| boxShadow                   | `shadow-raised`, `shadow-lifted`, `shadow-overlay`, `shadow-cta`                                                                                                                                                                                                                   |
+| spacing                     | `brand-section`, `brand-gutter`, `brand-card`, `brand-grid` (all fluid); `brand-section-gap` (160px between sections, fluid to 80px) and `brand-heading-stack` (64px from a heading block to its content)                                                                          |
+| maxWidth                    | `max-w-measure` (65ch), `-measure-narrow` (48ch), `-measure-heading` (22ch), `-measure-caption` (70ch), `max-w-content` (880), `max-w-grid` (1200), `max-w-form` (480)                                                                                                             |
+| backgroundImage             | `bg-brand-inverse` (the EmphasisPanel gradient)                                                                                                                                                                                                                                    |
+| transitionDuration / timing | `duration-brand-fast/base/slow/slower`, `ease-brand-standard/enter/exit`                                                                                                                                                                                                           |
+| animation                   | `animate-brand-tile-fill`                                                                                                                                                                                                                                                          |
 
 ## Components
 
@@ -127,34 +127,49 @@ DS-free and server-safe: `PageSection`, `Kicker`, `DisplayHeading`, `PricingLine
 `CalendarTile`, `EmphasisPanel`, `Annotation`, `MediaFrame`, `ProcessSteps`, `HonestyBlock`,
 `GuaranteeList`.
 `'use client'` (import the DS barrel): `CtaRow`, `ActionButton`, `SubmitButton`, `TextLink`,
-`Notice`, `TextField`, `TextAreaField`, `SelectField`, `CheckboxField`, `RadioGroupField`; and
-`ProgressCalendar` (IntersectionObserver).
+`Notice`, `TextField`, `TextAreaField`, `SelectField`, `CheckboxField`, `RadioGroupField`,
+`ChoiceChip`, `ChoiceChipGroup`, `TimePill`, `BookingDayCell`, `BookingDayGrid`, `BrandIcon`
+(DS Icon with the lucide-react registry); and `ProgressCalendar`
+(IntersectionObserver).
 
-| Component        | Notes                                                                                      |
-| ---------------- | ------------------------------------------------------------------------------------------ |
-| PageSection      | fluid section padding + gutter; `width` content (880) / grid (1200) / form / prose         |
-| Kicker           | overline pill above a headline (the only uppercase)                                        |
-| DisplayHeading   | h1-h4, display face, 22ch; optional `kicker` and one `lead`                                |
-| CtaRow           | DS Link `variant="button"`; `tone="action"` (violet, hero + close only) or `"quiet"` (ink) |
-| PricingLine      | 14px ink-subtle caption under the CTA, tabular figures                                     |
-| ProofRow         | figures with per-figure `source`; `caveat` is required by type                             |
-| ProgressCalendar | 30 tiles; complete without JS and under reduced motion; fills on scroll-in (~2.4s)         |
-| CalendarTile     | states past / today / milestone / waiting / first / done; milestone is white + 2px ink     |
-| EmphasisPanel    | the inverse gradient block; focus rings inside switch to white                             |
-| Annotation       | circle / underline / arrow / note; marks are aria-hidden; `enabled={false}` turns it off   |
-| HonestyBlock     | "what we do not do" list on a brand surface; ink-subtle list bullets                       |
-| GuaranteeList    | guarantees on brand surfaces; title and body share one left edge                           |
-| MediaFrame       | 9:16 slot, radius-card; video never autoplays (poster is the still)                        |
-| ProcessSteps     | exactly four steps (tuple type)                                                            |
-| TextField        | DS FormField + Input: 48px, 16px text, radius-md, border-strong, white fill, 14px messages |
-| TextAreaField    | DS FormField + Textarea: same anatomy, at least 128px tall                                 |
-| SelectField      | DS FormField + native DS Select: same anatomy as TextField                                 |
-| CheckboxField    | DS Checkbox: border-strong box, radius-xs, 16px label, 48px row                            |
-| RadioGroupField  | DS RadioGroup: border-strong rings, 14px/500 group label, 16px options, 48px rows          |
-| ActionButton     | DS Button: pill, 48px, `tone` action / quiet, loading, `disabledReason` shown beside it    |
-| SubmitButton     | ActionButton with `type="submit"`; keep it enabled and validate on submit                  |
-| TextLink         | DS Link, inline: action-text, always underlined, 2px underline on hover, inherits size     |
-| Notice           | DS InlineAlert with the `-bg` fill, `-border` edge and `-fg` icon per state                |
+| Component        | Notes                                                                                                                                                                                                                                                                                                                               |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PageSection      | fluid section padding + gutter; `width` content (880) / grid (1200 at 1440; below that, the viewport minus the fluid gutter on each side) / form / prose; `stack` default (48px gap) / heading (64px)                                                                                                                               |
+| BrandIcon        | `name` ArrowRight / Check / ChevronDown / ChevronLeft / ChevronRight / Info / Menu / Minus / Play / ShieldCheck / X; `size` xs-lg; decorative unless `label`                                                                                                                                                                        |
+| Kicker           | overline pill above a headline (the only uppercase)                                                                                                                                                                                                                                                                                 |
+| DisplayHeading   | h1-h4, display face, 22ch; `size` display-xl / display / h1-h4; optional `kicker` and one `lead`                                                                                                                                                                                                                                    |
+| CtaRow           | DS Link `variant="button"`; `tone="action"` (violet, hero + close only) or `"quiet"` (ink)                                                                                                                                                                                                                                          |
+| PricingLine      | 14px ink-subtle caption under the CTA, tabular figures                                                                                                                                                                                                                                                                              |
+| ProofRow         | figures with per-figure `source`; `caveat` optional (no element when absent or empty). One column at base, two from md, auto-fit columns from lg                                                                                                                                                                                    |
+| ProgressCalendar | 30 tiles in 2 columns at base, 3 from sm, 5 from md, 6 from lg; complete without JS and under reduced motion; fills on scroll-in (~2.4s)                                                                                                                                                                                            |
+| CalendarTile     | states past / today / milestone / waiting / first / done; milestone is white + 2px ink                                                                                                                                                                                                                                              |
+| EmphasisPanel    | the inverse gradient block; `width` content (880) / wide (1200) / full, omit for today's; `columns` 1 (default) or 2 (heading beside body from lg); `bodyWidth` narrow (default, about 48ch) or full (no cap, for a child grid); focus rings inside switch to white                                                                 |
+| Annotation       | circle / underline / arrow / note; marks are aria-hidden; `enabled={false}` turns it off                                                                                                                                                                                                                                            |
+| HonestyBlock     | "what we do not do" list on a brand surface; ink-subtle list bullets                                                                                                                                                                                                                                                                |
+| GuaranteeList    | guarantees on brand surfaces; title and body share one left edge. One column at base, two from md                                                                                                                                                                                                                                   |
+| MediaFrame       | `ratio` 9:16 (default) / 16:9 / 4:3 / 1:1 / auto; radius-card; video never autoplays (poster is the still); `captions` adds a caption track. Do not ship video without captions                                                                                                                                                     |
+| ProcessSteps     | three to six steps (union of tuples); four is the original layout. One column at base, two from md, three (four for four steps) from lg                                                                                                                                                                                             |
+| TextField        | DS FormField + Input: 48px, 16px text, radius-md, border-strong, white fill, 14px messages                                                                                                                                                                                                                                          |
+| TextAreaField    | DS FormField + Textarea: same anatomy, at least 128px tall                                                                                                                                                                                                                                                                          |
+| SelectField      | DS FormField + native DS Select: same anatomy as TextField                                                                                                                                                                                                                                                                          |
+| CheckboxField    | DS Checkbox: border-strong box, radius-xs, 16px label, 48px row                                                                                                                                                                                                                                                                     |
+| RadioGroupField  | DS RadioGroup: border-strong rings, 14px/500 group label, 16px options, 48px rows                                                                                                                                                                                                                                                   |
+| ActionButton     | DS Button: pill, 48px, `tone` action / quiet, loading, `disabledReason` shown beside it                                                                                                                                                                                                                                             |
+| SubmitButton     | ActionButton with `type="submit"`; keep it enabled and validate on submit                                                                                                                                                                                                                                                           |
+| TextLink         | DS Link, inline: action-text, always underlined, 2px underline on hover, inherits size                                                                                                                                                                                                                                              |
+| Notice           | DS InlineAlert with the `-bg` fill, `-border` edge and `-fg` icon per state                                                                                                                                                                                                                                                         |
+| ChoiceChip       | DS Button, 44px pill. `multiple` = checkbox (`role="checkbox"`, 16px check when selected); default radio (`role="radio"`). `selected`, `disabled`, `onToggle(next)`                                                                                                                                                                 |
+| ChoiceChipGroup  | `label` (required), `description`, `error`, `required` (asterisk, `aria-required` in single choice), `multiple`, `name` (id base). Single choice: radiogroup with a roving tabindex (selected chip, else the first), arrow keys move and select, Home/End go to the ends. Multiple: every chip tabbable. Chips wrap, never truncate |
+| TimePill         | DS Button, 40px pill, full column width. `selected` (ink fill, `aria-pressed`), `disabled` (struck through), `onSelect`                                                                                                                                                                                                             |
+| BookingDayCell   | DS Button, 40px circle. `day`, `selected` (ink, `aria-pressed`), `today` (ring, `aria-current="date"`), `disabled`, `onSelect`, `label` (accessible name), `aria-current` override. Use inside BookingDayGrid                                                                                                                       |
+| BookingDayGrid   | `label` (required), 7-column group for the cells. One tab stop: the selected day, else today, else the first enabled day. Left/right move one day, up/down one week (skipping disabled days), Home/End to the ends. Weekday headers are the caller's                                                                                |
+
+Optional fields: `TextField`, `TextAreaField` and `SelectField` take `optional` (default off).
+It draws Paper's "Optional" pill beside the label. With it set, the label renders in a row
+of its own instead of the DS FormField `label`, which accepts only a string. Same `htmlFor`,
+same required mark and error colour.
+
+A caller's `aria-describedby` is joined with the field's helper and error ids, not overwritten.
 
 Field messages: the DS prints helper and error text at 12px with no icon and offers no slot for it
 on Input / Textarea, so the field wrappers keep `helperText` / `error` out of the DS control,
@@ -177,11 +192,10 @@ Closed by a brand wrapper (DS props, set once in this package):
 
 Still open:
 
-- DS `Icon` resolves `lucide="Name"` only through a `registry` prop at e7d37602 and the DS
-  exports no registry. This package cannot import `lucide-react` (not a dependency), so a named
-  icon renders nothing. Adding `lucide-react` here (pnpm install, lockfile change) plus a small
-  registry module would restore icons; until then compositions do not depend on them. The site
-  header menu icon has the same problem.
+- DS `Icon` resolves `lucide="Name"` only through a `registry` prop at e7d37602, and the DS
+  exports no registry. `BrandIcon` supplies that registry from `lucide-react`, a dependency of
+  this package. Use `BrandIcon` for named icons; a `lucide` string passed to a DS Icon renders
+  nothing.
 - DS `SkipLink` takes no style prop where it is rendered; `tokens.css` section G restyles it
   through its `href="#main-content"` (inset 12px, ink pill, one 2px outline at 3px offset).
 - DS `Accordion variant="card"` puts a `ring-offset-2` keyboard ring inside an
@@ -195,3 +209,6 @@ Still open:
   `rounded-card` / `shadow-raised`. Only `variant="bordered"` (elevation-0) is used; default
   and elevated pair the border with a shadow and look alike.
 - DS `Skeleton` writes `--skeleton-background` inline per tone, so only `--muted` steers it.
+- Focus: the global outline in `tokens.css` skips brand DS Buttons, which carry `data-brand-ring`
+  (ActionButton, ChoiceChip, TimePill, BookingDayCell). Those draw one ring through the DS
+  focus-ring overrides. Confirm one ring per chip, pill and day cell in the browser check.
