@@ -7,6 +7,7 @@ Each app deploys independently from its own folder, by git author `cocoking` / `
 | App     | Path            | Vercel project  |
 | ------- | --------------- | --------------- |
 | website | `apps/website/` | not yet created |
+| admin   | `apps/admin/`   | not yet created |
 
 The root `package.json` `deploy` script and the root `vercel.json` both refuse on purpose.
 
