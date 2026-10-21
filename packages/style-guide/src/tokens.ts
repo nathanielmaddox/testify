@@ -15,7 +15,7 @@ export interface ColorRole {
 export const colorRoles: readonly ColorRole[] = [
   {
     name: 'canvas',
-    hex: '#f4f2ee',
+    hex: '#FAF9F6',
     usage:
       'Page ground. Warm off-white; most of every page. Cards lift off it (owner ruling 2026-10-09: off-white page, white cards).',
   },
@@ -166,7 +166,7 @@ export const colorRoles: readonly ColorRole[] = [
     usage:
       'Ink pill for nav CTA and mid-page repeated CTAs. Violet is reserved for the hero and closing CTA (owner ruling 2026-10-09).',
   },
-  { name: 'action-quiet-ink', hex: '#f4f2ee', usage: 'Label on an action-quiet pill (15.9:1).' },
+  { name: 'action-quiet-ink', hex: '#FAF9F6', usage: 'Label on an action-quiet pill (15.9:1).' },
 ]
 
 export interface TypeStyle {

@@ -26,7 +26,7 @@
   color-scheme: light;
 
   /* ---------------------------------------------------------- A. Role colours */
-  --canvas: #f4f2ee;
+  --canvas: #faf9f6;
   --canvas-rgb: 244 242 238;
   --canvas-alt: #efebe4;
   --canvas-alt-rgb: 239 235 228;
@@ -108,7 +108,7 @@
   --info-border-rgb: 74 136 212;
   --action-quiet: #19171c;
   --action-quiet-rgb: 25 23 28;
-  --action-quiet-ink: #f4f2ee;
+  --action-quiet-ink: #faf9f6;
   --action-quiet-ink-rgb: 244 242 238;
 
   /* --------------------------------------------- B. DS mapping (RGB triplets) */
