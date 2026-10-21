@@ -9,6 +9,7 @@ learn a rule while working here, add it HERE in the same commit, never only in a
 | Path                   | Package                | Role                                                                                |
 | ---------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
 | `apps/website`         | `@testify/website`     | Next.js marketing site. Dev port 3200.                                              |
+| `apps/admin`           | `@testify/admin`       | Next.js internal admin app. Dev port 3201. Always noindex.                          |
 | `packages/config`      | `@testify/config`      | The ONLY home of shared tsconfig, eslint, tailwind preset, prettier.                |
 | `packages/style-guide` | `@testify/style-guide` | Brand layer: tokens.css, brand Tailwind preset (`check:keys`), fonts, compositions. |
 | `scripts/`             | (root)                 | Workspace checks and `scripts/vercel/install.mjs` (per-app Vercel install).         |
@@ -49,15 +50,17 @@ and `main` exists only to deploy.
 ```
 testify_migrate ---+
 website_migrate ---+--> staging (integrated, the final result) --> main --> cd apps/<app> && Vercel CLI
+admin_migrate   ---+
 <app>_migrate   ---+
 ```
 
-| Branch            | What it is                                                            |
-| ----------------- | --------------------------------------------------------------------- |
-| `<app>_migrate`   | Daily work for that app, named after the app folder                   |
-| `testify_migrate` | Root toolchain, `packages/` (config, style-guide), work spanning apps |
-| `staging`         | Where every lane merges. The integrated, reviewed result              |
-| `main`            | Deploy-only: updated from `staging` right before a Vercel CLI deploy  |
+| Branch            | What it is                                                                 |
+| ----------------- | -------------------------------------------------------------------------- |
+| `<app>_migrate`   | Daily work for that app, named after the app folder                        |
+| `admin_migrate`   | Daily work for `apps/admin` (`@testify/admin`), same rules as any app lane |
+| `testify_migrate` | Root toolchain, `packages/` (config, style-guide), work spanning apps      |
+| `staging`         | Where every lane merges. The integrated, reviewed result                   |
+| `main`            | Deploy-only: updated from `staging` right before a Vercel CLI deploy       |
 
 - A new app gets an `<app>_migrate` lane, matching its folder name. There are no per-app staging branches.
 - Daily work happens in a `_migrate` lane. Merge a lane into `staging` when it is ready; never commit
@@ -69,8 +72,8 @@ website_migrate ---+--> staging (integrated, the final result) --> main --> cd a
 
 **Worktrees:** the root checkout (`vs_code/testify`) sits on `testify_migrate`. Each app lane has a
 worktree at `agent_workspace/<app>_migrate` (git-ignored); run `pnpm install
---config.confirmModulesPurge=false` inside a fresh one. `staging` and `main` checkouts are created as
-worktrees under `agent_workspace/` when needed and removed after. Never leave the only copy of anything (a
+--config.confirmModulesPurge=false` inside a fresh one. The `staging` and `main` checkouts live at
+`agent_workspace/staging` and `agent_workspace/main` when needed, and are removed after. Never leave the only copy of anything (a
 backup, an export) inside a worktree.
 
 ## Commands (from the root)
@@ -78,6 +81,7 @@ backup, an export) inside a worktree.
 | Command                | What                                                    |
 | ---------------------- | ------------------------------------------------------- |
 | `pnpm dev`             | Website dev server (port 3200)                          |
+| `pnpm dev:admin`       | Admin dev server (port 3201)                            |
 | `pnpm build`           | Build every workspace member                            |
 | `pnpm lint`            | ESLint in every member                                  |
 | `pnpm type-check`      | `tsc --noEmit` in every member                          |
