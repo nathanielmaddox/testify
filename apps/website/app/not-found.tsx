@@ -1,3 +1,5 @@
+// Root 404 page: site chrome plus the not-found panel.
+
 import type { Metadata } from 'next'
 import { NotFoundPanel } from '@/components/site/not_found_panel'
 import { SiteFooter } from '@/components/site/site_footer'

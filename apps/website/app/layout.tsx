@@ -1,3 +1,5 @@
+// Root layout: fonts, styles, site-wide JSON-LD and providers.
+
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import { Providers } from '@/components/providers'

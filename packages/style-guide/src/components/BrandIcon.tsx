@@ -2,7 +2,19 @@
 
 import { Icon } from '@otesse/design-system'
 import type { IconRegistry } from '@otesse/design-system'
-import { ArrowRight, Check, ChevronDown, Menu, Minus, X } from 'lucide-react'
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Info,
+  Menu,
+  Minus,
+  Play,
+  ShieldCheck,
+  X,
+} from 'lucide-react'
 
 /**
  * The icons the brand uses, by name. The pinned DS `Icon` resolves string
@@ -13,12 +25,28 @@ export const brandIcons: IconRegistry = {
   ArrowRight,
   Check,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Info,
   Menu,
   Minus,
+  Play,
+  ShieldCheck,
   X,
 }
 
-export type BrandIconName = 'ArrowRight' | 'Check' | 'ChevronDown' | 'Menu' | 'Minus' | 'X'
+export type BrandIconName =
+  | 'ArrowRight'
+  | 'Check'
+  | 'ChevronDown'
+  | 'ChevronLeft'
+  | 'ChevronRight'
+  | 'Info'
+  | 'Menu'
+  | 'Minus'
+  | 'Play'
+  | 'ShieldCheck'
+  | 'X'
 
 export interface BrandIconProps {
   name: BrandIconName

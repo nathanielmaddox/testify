@@ -13,8 +13,11 @@ const firedThisLoad = new Set<string>()
  *   Meta custom `CheckoutView`).
  * - `begin_checkout` once per page load on the FIRST interaction inside the
  *   form slot (`#<formSlotId>`): GA4 `begin_checkout` / Meta `InitiateCheckout`.
- * - `add_payment_info` is a stub: `trackAddPaymentInfo` is called by the
- *   Stripe element's completion handler once that UI exists.
+ * - `add_payment_info` is not fired by this component. `trackAddPaymentInfo`
+ *   is called from the Payment Element hook (`onPaymentDetailsEntered` in
+ *   `payment_element_slot.tsx`) once the element reports complete details. It
+ *   must never fire on submit or session creation, and it does not fire yet
+ *   because no element is mounted.
  *
  * Every event carries `lp_slug` (the checkout host) and the offer value, plus
  * the first/last-touch LP slugs (which LP sent the visitor here).
@@ -67,8 +70,9 @@ function checkoutProps(lpSlug: string, value: number, currency: string): TrackPr
 }
 
 /**
- * STUB: call from the Stripe element's `onChange`/completion handler when
- * the payment details become complete. Fires once per page load.
+ * Fires add_payment_info once per page load. Call it only from the Payment
+ * Element's change handler (via `onPaymentDetailsEntered`) when the details
+ * are complete. Not yet called: the element is not mounted.
  */
 export function trackAddPaymentInfo(lpSlug: string, value: number, currency: string): void {
   fireOnce(`add_payment_info:${lpSlug}`, () =>

@@ -43,24 +43,33 @@ function markFired(key: string): void {
  *
  * Also trims the address bar to the id param only, so nothing else (stray
  * params) is kept in history or shared by copy-paste.
+ *
+ * A `purchase_complete` fires only when the server verified the session as
+ * paid (`verified`). An unverified purchase fires nothing.
  */
 export function ConversionTracker({
   event,
   id,
   param,
   lpSlug,
+  verified,
 }: {
   event: 'purchase_complete' | 'lead_submit'
   id: string
   param: string
   /** The LP this conversion belongs to (`/lp/<slug>/confirmation`). */
   lpSlug: string
+  /** Server verification: a purchase fires only when Stripe confirmed it as paid. */
+  verified: boolean
 }) {
   useEffect(() => {
     const clean = `${window.location.pathname}?${param}=${encodeURIComponent(id)}`
     if (`${window.location.pathname}${window.location.search}` !== clean) {
       window.history.replaceState(window.history.state, '', clean)
     }
+
+    // An unverified purchase is not a conversion: no event goes to any provider.
+    if (event === 'purchase_complete' && !verified) return
 
     const key = conversionDedupeKey(event, id)
     if (alreadyFired(key)) return
@@ -80,7 +89,7 @@ export function ConversionTracker({
       first_lp_slug: landing.first || undefined,
       last_lp_slug: landing.last || undefined,
     })
-  }, [event, id, param, lpSlug])
+  }, [event, id, param, lpSlug, verified])
 
   return null
 }

@@ -1,5 +1,7 @@
 'use client'
 
+// Client hooks for the site chrome: scroll state and the reduced-motion preference.
+
 import { useSyncExternalStore } from 'react'
 
 /**

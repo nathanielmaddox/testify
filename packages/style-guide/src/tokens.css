@@ -279,12 +279,19 @@
   --text-title-sm: clamp(1.375rem, 1.2283rem + 0.6522vw, 1.75rem);
   --text-lead: clamp(1.125rem, 1.0516rem + 0.3261vw, 1.3125rem);
   --text-body: 1rem;
+  --text-body-lg: 1.125rem;
+  --text-body-xl: 1.25rem;
   --text-label: 0.875rem;
   --text-button: 1rem;
   --text-small: 0.875rem;
   --text-caption: clamp(0.75rem, 0.7255rem + 0.1087vw, 0.8125rem);
   --text-overline: clamp(0.75rem, 0.7255rem + 0.1087vw, 0.8125rem);
   --text-accent: clamp(1.375rem, 1.2283rem + 0.6522vw, 1.75rem);
+  /* Paper display steps (owner-approved). Display XL is the hero H1 and the closing
+     H2 only: 112px desktop, 104px line, -4% tracking. Wordmark is the footer's giant
+     brand word (200px desktop); its mobile floor keeps the word inside a phone width. */
+  --text-display-xl: clamp(3.5rem, 2.13rem + 6.09vw, 7rem);
+  --text-wordmark: clamp(2.75rem, 2.75rem + 12.17vw, 12.5rem);
 
   --measure-heading: 22ch;
   --measure-narrow: 48ch;
@@ -309,6 +316,10 @@
   --section-y: clamp(4rem, 2.4348rem + 6.9565vw, 8rem);
   --gutter: clamp(1rem, 0.413rem + 2.6087vw, 2.5rem);
   --card-pad: clamp(1.5rem, 0.913rem + 2.6087vw, 3rem);
+  /* Paper rhythm: 160px between sections (fluid down to 80px on phones), and 64px
+     from a heading block (kicker, H2, sub) to the content it introduces. */
+  --section-gap: clamp(5rem, 2.5rem + 9.4vw, 10rem);
+  --heading-stack: 4rem;
 
   /* ----------------------------------------------------------------- Radius */
   /* Nested rule: inner = max(outer - padding, radius-xs); padding >= 0.3 x outer. */
@@ -394,8 +405,13 @@ body {
 }
 
 /* Visible focus on anything the brand renders. :where() keeps specificity at 0,
-   so a DS component's own ring utilities still win on DS components. */
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+   so a DS component's own ring utilities still win on DS components. Brand DS
+   Buttons (ActionButton, ChoiceChip, TimePill, BookingDayCell) carry
+   data-brand-ring and draw their one ring through the DS focus-ring overrides,
+   so the global outline skips them. */
+:where(a, button, input, select, textarea, summary, [tabindex]):where(
+    :not([data-brand-ring])
+  ):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
 }

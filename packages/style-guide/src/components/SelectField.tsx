@@ -7,8 +7,10 @@ import {
   CONTROL_INVALID,
   CONTROL_RADIUS,
   CONTROL_SIZE,
+  FieldLabelRow,
   FieldMessages,
   describedByFor,
+  joinIds,
   useFieldIds,
   type FieldBaseProps,
 } from './field-parts'
@@ -41,20 +43,40 @@ export type SelectFieldProps = FieldBaseProps &
  * `classNames` / `styles` part props.
  */
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(function SelectField(
-  { label, helperText, error, required = false, disabled = false, id, className, ...props },
+  {
+    label,
+    helperText,
+    error,
+    required = false,
+    optional = false,
+    disabled = false,
+    id,
+    className,
+    'aria-describedby': callerDescribedBy,
+    ...props
+  },
   ref
 ) {
   const ids = useFieldIds(id)
-  const describedBy = describedByFor(ids, { error, helperText })
+  const describedBy = joinIds(callerDescribedBy, describedByFor(ids, { error, helperText }))
   return (
     <FormField
       id={ids.fieldId}
-      label={label}
+      {...(optional ? {} : { label })}
       required={required}
       disabled={disabled}
       className={`gap-2 ${className ?? ''}`}
     >
       <div className="flex flex-col gap-2">
+        {optional ? (
+          <FieldLabelRow
+            ids={ids}
+            label={label}
+            required={required}
+            disabled={disabled}
+            error={error}
+          />
+        ) : null}
         <Select
           {...props}
           ref={ref}

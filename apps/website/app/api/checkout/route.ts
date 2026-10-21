@@ -1,35 +1,30 @@
 import { NextResponse } from 'next/server'
 import {
   CHECKOUT_LIMITS,
-  CHECKOUT_UI_MODE,
   type CheckoutContact,
   type CheckoutErrorCode,
+  type CheckoutRequest,
   type CheckoutResponse,
 } from '@/lib/checkout'
-import {
-  checkoutSessionParams,
-  missingCheckoutEnv,
-  parseCheckoutAttribution,
-  stripePriceId,
-} from '@/lib/checkout_server'
-import { getOfferLandingPage } from '@/lib/landing_pages'
+import { overRateLimit, parseJsonObject, sameOrigin, visitorMessage } from '@/lib/api_guard'
+import { getIntegrations } from '@/lib/integrations'
 
 /**
- * `POST /api/checkout`: creates the Stripe Checkout Session (mode
- * subscription) for an offer LP's purchase page. Body: `CheckoutRequest`
- * (lib/checkout.ts). Returns `CheckoutResponse`: the embedded client secret
- * or the hosted URL, or `{ ok: false, error }`.
+ * `POST /api/checkout`: creates the Checkout Session for an offer LP's purchase page through the
+ * payments adapter (`getIntegrations().payments`, lib/integrations/providers/stripe.ts). Body:
+ * `CheckoutRequest` (lib/checkout.ts). Returns `CheckoutResponse`: the embedded client secret or the
+ * hosted URL, or `{ ok: false, error }`.
  *
- * STRUCTURE ONLY until keys exist: without STRIPE_SECRET_KEY and the offer's
- * price env var it answers 503 `checkout_not_configured` and makes no call.
- * Success lands on `/lp/<slug>/confirmation?session_id=...` (stripeSuccessUrl);
- * session + subscription metadata carry the LP slug and stored attribution.
+ * Without a connected payments provider the adapter answers `checkout_not_configured` (503) and makes
+ * no call. Success lands on `/lp/<slug>/confirmation?session_id=...` (stripeSuccessUrl).
  * `X-Robots-Tag: noindex` comes from next.config.js (`/api/:path*`).
  */
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const RATE_WINDOW_MS = 60_000
+const RATE_MAX = 10
 
 function fail(status: number, error: CheckoutErrorCode, message: string) {
   return NextResponse.json<CheckoutResponse>(
@@ -54,77 +49,52 @@ function parseContact(raw: unknown): CheckoutContact | null {
   return { email, name, businessName }
 }
 
-/** Same-origin only: a browser POST from another site is refused. */
-function sameOrigin(request: Request): boolean {
-  const origin = request.headers.get('origin')
-  if (!origin) return true
-  try {
-    return new URL(origin).host === new URL(request.url).host
-  } catch {
-    return false
+/** HTTP status for an error code the adapter returns. */
+function statusFor(error: CheckoutErrorCode): number {
+  switch (error) {
+    case 'unknown_offer':
+      return 404
+    case 'checkout_not_configured':
+      return 503
+    case 'invalid_request':
+      return 400
+    case 'forbidden_origin':
+      return 403
+    case 'rate_limit':
+      return 429
+    default:
+      return 502
   }
 }
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return fail(403, 'forbidden_origin', 'Cross-site request refused.')
-
-  let body: Record<string, unknown>
-  try {
-    body = (await request.json()) as Record<string, unknown>
-  } catch {
-    return fail(400, 'invalid_request', 'Body must be JSON.')
+  if (overRateLimit('checkout', request, RATE_MAX, RATE_WINDOW_MS)) {
+    return fail(429, 'rate_limit', 'Too many tries. Wait a few minutes, then try again.')
   }
 
-  const slug = typeof body['slug'] === 'string' ? body['slug'] : ''
-  const lp = getOfferLandingPage(slug)
-  // Only a checkout HOST sells (an LP sharing an offer checks out on its host).
-  if (!lp?.offer || lp.offer.checkoutSlug !== lp.slug) {
-    return fail(404, 'unknown_offer', 'No checkout for this page.')
-  }
-
-  const missing = missingCheckoutEnv(lp.slug)
-  const secretKey = process.env.STRIPE_SECRET_KEY
-  const priceId = stripePriceId(lp.slug)
-  if (missing.length > 0 || !secretKey || !priceId) {
-    console.warn(`[checkout] not configured for "${lp.slug}": missing ${missing.join(', ')}`)
-    return fail(503, 'checkout_not_configured', 'Checkout is not available yet.')
-  }
+  const body = await parseJsonObject(request)
+  if (!body) return fail(400, 'invalid_request', 'Body must be a JSON object.')
 
   const contact = parseContact(body['contact'])
   if (!contact) return fail(400, 'invalid_request', 'Email, name and business name are required.')
 
-  const params = checkoutSessionParams({
-    lp,
-    priceId,
+  const slug = typeof body['slug'] === 'string' ? body['slug'] : ''
+  const attribution = typeof body['attribution'] === 'string' ? body['attribution'] : undefined
+  const checkoutRequest: CheckoutRequest = {
+    slug,
     contact,
-    attribution: parseCheckoutAttribution(body['attribution']),
-  })
-
-  try {
-    // Loaded only once keys exist, so an unconfigured deploy never touches the SDK.
-    const { default: Stripe } = await import('stripe')
-    const stripe = new Stripe(secretKey)
-    const session = await stripe.checkout.sessions.create(params)
-    const headers = { 'Cache-Control': 'no-store' }
-    if (CHECKOUT_UI_MODE === 'embedded_page') {
-      if (!session.client_secret) return fail(502, 'stripe_error', 'Checkout could not start.')
-      return NextResponse.json<CheckoutResponse>(
-        {
-          ok: true,
-          mode: 'embedded_page',
-          sessionId: session.id,
-          clientSecret: session.client_secret,
-        },
-        { headers }
-      )
-    }
-    if (!session.url) return fail(502, 'stripe_error', 'Checkout could not start.')
-    return NextResponse.json<CheckoutResponse>(
-      { ok: true, mode: 'hosted_page', sessionId: session.id, url: session.url },
-      { headers }
-    )
-  } catch (error) {
-    console.error('[checkout] Stripe session create failed', error)
-    return fail(502, 'stripe_error', 'Checkout could not start.')
+    ...(attribution !== undefined ? { attribution } : {}),
   }
+
+  const result = await getIntegrations().payments.createCheckoutSession(checkoutRequest)
+  if (result.ok)
+    return NextResponse.json<CheckoutResponse>(result, { headers: { 'Cache-Control': 'no-store' } })
+  // The adapter's message is for server logs. The visitor gets a generic line for the same code.
+  console.warn(`[checkout] adapter failed (${result.error}): ${result.message}`)
+  return fail(
+    statusFor(result.error),
+    result.error,
+    visitorMessage(result.error === 'checkout_not_configured' ? 'not-connected' : 'provider-error')
+  )
 }

@@ -1,3 +1,7 @@
+/**
+ * Shared types for LP layouts. A layout draws one LP's <main> from its
+ * registry entry (lib/landing_pages.ts). Server-safe: type-only imports.
+ */
 import type { ComponentType } from 'react'
 import type { LandingPage, LpSectionId } from '@/lib/landing_pages'
 

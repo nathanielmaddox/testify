@@ -27,5 +27,53 @@ declare namespace NodeJS {
     readonly STRIPE_SECRET_KEY?: string
     /** SERVER ONLY. Recurring Stripe Price id (price_...) of the $99/month offer (`done-for-you-99`). */
     readonly STRIPE_PRICE_DONE_FOR_YOU_99?: string
+    /** SERVER ONLY. Stripe webhook signing secret (whsec_...). Read by the webhook handler, not written yet. */
+    readonly STRIPE_WEBHOOK_SECRET?: string
+
+    /* Integration switches (lib/integrations/index.ts). Unset = `none`, which makes no outside call. */
+    /** SERVER ONLY. Payments provider: `stripe` or `none`. */
+    readonly PAYMENTS_PROVIDER?: string
+    /** SERVER ONLY. Email provider: `postmark`, `resend` or `none`. */
+    readonly EMAIL_PROVIDER?: string
+    /** SERVER ONLY. Booking provider: `calcom`, `calendly`, `convex` or `none`. */
+    readonly BOOKING_PROVIDER?: string
+    /** SERVER ONLY. Data store provider: `convex` or `none`. */
+    readonly DATA_PROVIDER?: string
+    /** SERVER ONLY. Upload provider: `convex`, `uploadthing`, `s3` or `none`. */
+    readonly UPLOAD_PROVIDER?: string
+
+    /* Email. */
+    /** SERVER ONLY. Verified sender for every transactional email, for example "Testify <hello@example.com>". */
+    readonly EMAIL_FROM?: string
+    /** SERVER ONLY. Owner address that receives lead notifications. */
+    readonly EMAIL_NOTIFY_TO?: string
+    /** SERVER ONLY. Postmark server API token (one Postmark server). */
+    readonly POSTMARK_SERVER_TOKEN?: string
+    /** SERVER ONLY. Resend API key (re_...), the alternative to Postmark. */
+    readonly RESEND_API_KEY?: string
+
+    /* Bookings. */
+    /** SERVER ONLY. Cal.com API key (cal_...). */
+    readonly CALCOM_API_KEY?: string
+    /** SERVER ONLY. Numeric Cal.com event type id for the discovery call. */
+    readonly CALCOM_EVENT_TYPE_ID?: string
+
+    /* Data store and Convex. */
+    /** Convex deployment URL (https://<name>.convex.cloud). Server reads it; not a secret. */
+    readonly CONVEX_URL?: string
+    /** Convex HTTP actions URL (https://<name>.convex.site). Server only. */
+    readonly CONVEX_SITE_URL?: string
+
+    /* Uploads. */
+    /** SERVER ONLY. UploadThing token. */
+    readonly UPLOADTHING_TOKEN?: string
+    /** SERVER ONLY. AWS region for the S3 bucket, for example "us-west-2". */
+    readonly AWS_REGION?: string
+    /** SERVER ONLY. IAM access key id, limited to one bucket prefix. */
+    readonly AWS_ACCESS_KEY_ID?: string
+    /** SERVER ONLY. IAM secret access key. */
+    readonly AWS_SECRET_ACCESS_KEY?: string
+    /** SERVER ONLY. Private S3 bucket name for job photos. */
+    readonly S3_BUCKET?: string
   }
 }

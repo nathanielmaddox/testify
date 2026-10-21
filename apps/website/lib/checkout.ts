@@ -46,6 +46,7 @@ export type CheckoutErrorCode =
   | 'invalid_request'
   | 'unknown_offer'
   | 'forbidden_origin'
+  | 'rate_limit'
   | 'stripe_error'
 
 export type CheckoutResponse =

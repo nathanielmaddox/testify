@@ -75,6 +75,31 @@ export function checkoutMetadata(input: {
   )
 }
 
+/**
+ * The one Stripe client for this server. Loaded lazily so an unconfigured deploy never touches the SDK.
+ */
+export async function stripeClient(secretKey: string): Promise<Stripe> {
+  const { default: StripeSdk } = await import('stripe')
+  return new StripeSdk(secretKey)
+}
+
+/**
+ * True only when Stripe reports the Checkout Session as paid. A missing key, a network error or an
+ * unknown id all read as NOT paid, so a conversion is never trusted on error.
+ */
+export async function isPaidCheckoutSession(sessionId: string): Promise<boolean> {
+  const secretKey = process.env.STRIPE_SECRET_KEY
+  if (!secretKey) return false
+  try {
+    const stripe = await stripeClient(secretKey)
+    const session = await stripe.checkout.sessions.retrieve(sessionId)
+    return session.payment_status === 'paid'
+  } catch (error) {
+    console.error('[checkout] Stripe session retrieve failed', error)
+    return false
+  }
+}
+
 /** Parse the client's encoded attribution; anything malformed reads as none. */
 export function parseCheckoutAttribution(raw: unknown): StoredAttribution | null {
   return typeof raw === 'string' && raw.length <= 4096 ? decodeAttribution(raw) : null

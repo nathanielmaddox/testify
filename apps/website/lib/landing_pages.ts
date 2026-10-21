@@ -42,14 +42,29 @@ export const LP_SECTION_IDS = [
   'faq',
   'form',
   // Direct-response slots used by the offer LPs (layouts `offer-99-*`).
+  'letter',
+  'story',
   'problem',
+  'seen',
+  'time',
   'mechanism',
+  'sample',
+  'straight',
   'offer-stack',
   'objections',
   'objections-faq',
+  'team',
+  'next',
   'final-cta',
+  'ps',
+  // Retargeting layout (`offer-99-retarget`): day-by-day first month.
+  'first-month',
 ] as const
 export type LpSectionId = (typeof LP_SECTION_IDS)[number]
+
+/** Hero copy variants for the offer LPs (see `LandingPage.heroVariant`). */
+export const LP_HERO_VARIANTS = ['default', 'closed', 'busiest'] as const
+export type LpHeroVariant = (typeof LP_HERO_VARIANTS)[number]
 
 /** Billing interval of a subscription offer. */
 export type LpOfferInterval = 'month' | 'year'
@@ -98,6 +113,17 @@ export interface LandingPage {
   layout: LpLayoutKey
   /** Ordered section slot ids the layout renders. */
   sections: readonly LpSectionId[]
+  /**
+   * Which hero copy the offer hero shows (offer LPs only). `default` is the
+   * cold hero; `closed` and `busiest` are the alternate hero variants from the
+   * Paper frames. Only the hero copy changes. Absent = `default`.
+   */
+  heroVariant?: LpHeroVariant
+  /**
+   * The line the sticky buy bar shows (offer LPs). Each Paper frame words it
+   * differently. Absent = `DEFAULT_STICKY_BAR_TEXT` (the cold frame's text).
+   */
+  stickyBarText?: string
   /** Metadata title (fed through the "%s | Testify" template). Placeholder. */
   title: string
   /** Meta / Open Graph / Twitter description. Placeholder. */
@@ -117,6 +143,10 @@ export interface LandingPage {
 /** Placeholder value for any fact the owner has not confirmed yet. */
 export const CONFIRM = '[CONFIRM]'
 
+/** Sticky buy bar line for offer LPs with no `stickyBarText` (the cold Paper frame). */
+export const DEFAULT_STICKY_BAR_TEXT =
+  'Open Sign · 30 posts + 30 stories a month, made for you · You press post'
+
 /**
  * `confirmation` is a static child of /lp (old-URL redirect), so it can never
  * be a slug; `checkout` is reserved so `/lp/checkout` never reads as an LP.
@@ -129,7 +159,7 @@ const RESERVED_SLUGS = new Set(['confirmation', 'checkout'])
  * out on `/lp/done-for-you-99/checkout`. Terms are `[CONFIRM]` in the brief.
  */
 const OFFER_99 = {
-  name: 'Ready-to-Post Content, monthly',
+  name: 'The Ready-to-Post Plan, monthly',
   price: 99,
   currency: 'USD',
   interval: 'month',
@@ -164,12 +194,21 @@ const ENTRIES = [
     sections: [
       'hero',
       'proof',
+      'letter',
+      'story',
       'problem',
+      'seen',
+      'time',
       'mechanism',
+      'sample',
+      'straight',
       'offer-stack',
       'guarantee',
+      'team',
       'objections-faq',
+      'next',
       'final-cta',
+      'ps',
     ],
     title: 'Ready-to-post content',
     description: 'Placeholder description of the Testify ready-to-post content offer.',
@@ -187,7 +226,18 @@ const ENTRIES = [
     channel: 'meta',
     offerAngle: CONFIRM,
     layout: 'offer-99-retarget',
-    sections: ['hero', 'objections', 'proof', 'offer-stack', 'guarantee', 'final-cta'],
+    sections: [
+      'hero',
+      'letter',
+      'objections',
+      'first-month',
+      'team',
+      'offer-stack',
+      'guarantee',
+      'final-cta',
+      'ps',
+    ],
+    stickyBarText: 'Open Sign · 30 posts + 30 stories a month · You press post',
     title: 'Ready-to-post content',
     description: 'Placeholder description of the Testify ready-to-post content offer.',
     indexable: false,
@@ -197,7 +247,7 @@ const ENTRIES = [
   },
 ] as const satisfies readonly LandingPage[]
 
-/** Where the bare `/lp` (and old `/lp/confirmation`) links go, and the site header CTA. */
+/** Where the bare `/lp` (and old `/lp/confirmation`) links go. The site header CTA goes to the get-started flow, not here. */
 export const DEFAULT_LP_SLUG: string = 'sample-ad'
 
 function validate(entries: readonly LandingPage[]): void {
@@ -239,10 +289,6 @@ export function getLandingPage(slug: string): LandingPage | null {
   return bySlug.get(slug) ?? null
 }
 
-export function getDefaultLandingPage(): LandingPage {
-  return bySlug.get(DEFAULT_LP_SLUG) as LandingPage
-}
-
 /** `/lp/<slug>` */
 export function lpPath(slug: string): string {
   return `/lp/${slug}`
@@ -277,21 +323,9 @@ export function getOfferLandingPage(slug: string): LandingPage | null {
   return lp?.offer ? lp : null
 }
 
-/** LP slugs that host a checkout page (their offer's `checkoutSlug` is themselves). */
-export function checkoutHostSlugs(): string[] {
-  return landingPages
-    .filter((lp) => lp.offer && lp.offer.checkoutSlug === lp.slug)
-    .map((lp) => lp.slug)
-}
-
 /** Analytics page key of an LP: `lp:<slug>`. */
 export function lpPageKey(slug: string): `lp:${string}` {
   return `lp:${slug}`
-}
-
-/** Paper frame name for an LP design: `lp/<slug>`. */
-export function lpFrameName(slug: string): string {
-  return `lp/${slug}`
 }
 
 /**

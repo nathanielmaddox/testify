@@ -1,8 +1,11 @@
+// Purchase page for an offer LP: /lp/<slug>/checkout. Server component. Renders the intro, the
+// checkout body (story column, pay card, trust row) and the checkout tracker. Never indexed.
 import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
+import { CheckoutBody } from '@/components/lp/checkout/checkout_body'
+import { CheckoutIntro } from '@/components/lp/checkout/checkout_intro'
 import { CheckoutTracker } from '@/components/lp/checkout_tracker'
-import { PageSkeleton, SectionSlot } from '@/components/skeleton/page_skeleton'
-import { CHECKOUT_API_PATH, CHECKOUT_UI_MODE } from '@/lib/checkout'
+import { PageSkeleton } from '@/components/skeleton/page_skeleton'
 import { lpConfirmationPath, getOfferLandingPage, lpCheckoutPath } from '@/lib/landing_pages'
 import { lpCheckoutMetadata } from '@/lib/metadata'
 import { lpTrackingAttrs } from '@/lib/tracking'
@@ -11,31 +14,19 @@ import { lpTrackingAttrs } from '@/lib/tracking'
 export const dynamic = 'force-dynamic'
 
 /**
- * PURCHASE page skeleton for an offer LP: `/lp/<slug>/checkout`, funnel step
- * `checkout`, between the LP and its confirmation page. Same focused (lp)
- * chrome: wordmark only, no nav. Always `noindex, nofollow`, never in the
- * sitemap.
+ * PURCHASE page for an offer LP: `/lp/<slug>/checkout`, funnel step `checkout`, between the LP and
+ * its confirmation page. Same focused (lp) chrome (wordmark only). Always `noindex, nofollow`,
+ * never in the sitemap.
  *
- * Served only for slugs whose registry entry has an `offer`; any other slug
- * is a 404. An LP that shares another LP's offer (e.g. the retargeting LP)
- * 307s to its `offer.checkoutSlug` checkout, keeping the query string, so
- * there is one purchase page per offer.
+ * Served only for slugs whose registry entry has an `offer`; any other slug is a 404. An LP that
+ * shares another LP's offer (the retargeting LP) 307s to its `offer.checkoutSlug` checkout, keeping
+ * the query string, so there is one purchase page per offer.
  *
- * Slots: order-summary, included-recap, guarantee, form (contact + business
- * name; posts `CheckoutRequest` to `/api/checkout`), payment (Stripe element
- * mount), trust-row, after-you-pay. Stripe returns the buyer to
- * `/lp/<slug>/confirmation?session_id=...` (`stripeSuccessUrl`).
+ * Layout (checkout-99-v4): intro, then the story column on the left (order summary, promises, what
+ * happens after you pay, FAQ) and one sticky pay card on the right (email, name, business name, the
+ * Stripe Payment Element, charge notice, button, guarantee), then the trust row. The form posts `CheckoutRequest` to `/api/checkout`; Stripe
+ * returns the buyer to `/lp/<slug>/confirmation?session_id=...` (`stripeSuccessUrl`).
  */
-const SLOTS = [
-  { slot: 'order-summary', label: 'Order summary' },
-  { slot: 'included-recap', label: 'What is included' },
-  { slot: 'guarantee', label: 'Guarantee' },
-  { slot: 'form', label: 'Contact and business name' },
-  { slot: 'payment', label: 'Payment (Stripe element)' },
-  { slot: 'trust-row', label: 'Trust row' },
-  { slot: 'after-you-pay', label: 'What happens after you pay' },
-] as const
-
 type Params = Promise<{ slug: string }>
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
@@ -72,47 +63,13 @@ export default async function LpCheckoutPage({
   const { offer } = lp
   return (
     <PageSkeleton tracking={lpTrackingAttrs(lp.slug, 'lpCheckout')} idPrefix={idPrefix} slots={[]}>
-      {SLOTS.map(({ slot, label }) => {
-        if (slot === 'order-summary') {
-          return (
-            <SectionSlot
-              key={slot}
-              idPrefix={idPrefix}
-              slot={slot}
-              label={label}
-              data-offer-name={offer.name}
-              data-offer-price={String(offer.price)}
-              data-offer-currency={offer.currency}
-              data-offer-interval={offer.interval}
-            />
-          )
-        }
-        if (slot === 'form') {
-          return (
-            <SectionSlot
-              key={slot}
-              idPrefix={idPrefix}
-              slot={slot}
-              label={label}
-              data-lp-slug={lp.slug}
-              data-checkout-api={CHECKOUT_API_PATH}
-              data-success-path={lpConfirmationPath(lp.slug)}
-            />
-          )
-        }
-        if (slot === 'payment') {
-          return (
-            <SectionSlot
-              key={slot}
-              idPrefix={idPrefix}
-              slot={slot}
-              label={label}
-              data-stripe-ui-mode={CHECKOUT_UI_MODE}
-            />
-          )
-        }
-        return <SectionSlot key={slot} idPrefix={idPrefix} slot={slot} label={label} />
-      })}
+      <CheckoutIntro idPrefix={idPrefix} />
+      <CheckoutBody
+        idPrefix={idPrefix}
+        slug={lp.slug}
+        successPath={lpConfirmationPath(lp.slug)}
+        offer={offer}
+      />
       <CheckoutTracker
         lpSlug={lp.slug}
         formSlotId={`${idPrefix}-form`}

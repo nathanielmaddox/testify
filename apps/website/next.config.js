@@ -120,6 +120,11 @@ const nextConfig = {
         source: '/lp/:slug/confirmation',
         headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
       },
+      // The booked page shows one visitor's booking (kept in sessionStorage): never cache it.
+      {
+        source: '/get-started/booked',
+        headers: [{ key: 'Cache-Control', value: 'private, no-store, max-age=0' }],
+      },
       {
         source: '/api/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],

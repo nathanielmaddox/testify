@@ -58,7 +58,7 @@ export function ProgressCalendar({
       data-fill={fill}
       data-tf-calendar=""
       className={cx(
-        'group/calendar grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-6',
+        'group/calendar grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6',
         className
       )}
     >

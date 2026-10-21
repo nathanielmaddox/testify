@@ -3,6 +3,7 @@ import { cx } from './cx'
 
 export type PageSectionWidth = 'content' | 'grid' | 'form' | 'prose'
 export type PageSectionTone = 'canvas' | 'canvas-alt'
+export type PageSectionStack = 'default' | 'heading'
 
 export interface PageSectionProps extends HTMLAttributes<HTMLElement> {
   /** Element to render. Default `section`. */
@@ -17,6 +18,11 @@ export interface PageSectionProps extends HTMLAttributes<HTMLElement> {
   tone?: PageSectionTone
   /** Drop the fluid section padding (64 to 128px) when sections must sit flush. */
   flush?: boolean
+  /**
+   * Gap between the column's children. `default` is 48px. `heading` is the 64px
+   * heading-stack key, for a heading block that leads a large content group.
+   */
+  stack?: PageSectionStack
   children: ReactNode
 }
 
@@ -25,6 +31,11 @@ const WIDTH: Record<PageSectionWidth, string> = {
   grid: 'max-w-grid',
   form: 'max-w-form',
   prose: 'max-w-measure',
+}
+
+const STACK: Record<PageSectionStack, string> = {
+  default: 'gap-12',
+  heading: 'gap-brand-heading-stack',
 }
 
 const TONE: Record<PageSectionTone, string> = {
@@ -42,6 +53,7 @@ export function PageSection({
   width = 'content',
   tone = 'canvas',
   flush = false,
+  stack = 'default',
   className,
   children,
   ...rest
@@ -51,7 +63,9 @@ export function PageSection({
       className={cx(TONE[tone], 'px-brand-gutter', !flush && 'py-brand-section', className)}
       {...rest}
     >
-      <div className={cx('mx-auto flex w-full flex-col gap-12', WIDTH[width])}>{children}</div>
+      <div className={cx('mx-auto flex w-full flex-col', STACK[stack], WIDTH[width])}>
+        {children}
+      </div>
     </Tag>
   )
 }

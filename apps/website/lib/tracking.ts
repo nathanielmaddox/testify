@@ -63,7 +63,7 @@ export const EVENT_MAP = {
     metaStandard: true,
     googleAdsConversion: false,
   },
-  // Checkout page rendered (custom: reporting only, not an ad optimisation event).
+  // Checkout page rendered (custom: reporting only, not an ad optimization event).
   checkout_view: {
     ga4: 'checkout_view',
     meta: 'CheckoutView',

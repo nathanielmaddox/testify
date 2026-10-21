@@ -13,8 +13,6 @@
  * that hold the shared page type, funnel step and confirmation copy. Each LP
  * (slug, ad, layout, sections, title, indexing) lives in lib/landing_pages.ts.
  */
-import { DEFAULT_LP_SLUG, lpPath } from './landing_pages'
-
 /** What a route is for. Drives chrome, indexing defaults and tracking. */
 export type PageType = 'site' | 'lp' | 'checkout' | 'conversion' | 'legal'
 
@@ -62,11 +60,18 @@ export type RouteKey =
   | 'lp'
   | 'lpCheckout'
   | 'lpConfirmation'
+  | 'getStarted'
+  | 'getStartedBusiness'
+  | 'getStartedGoals'
+  | 'getStartedBook'
+  | 'getStartedBooked'
 
 /**
  * Every route the app serves, in display order. The (site) and (lp) route
  * groups under app/ must match `pageType`: `lp` and `conversion` routes live
- * under app/(lp), everything else under app/(site).
+ * under app/(lp), everything else under app/(site). The get-started flow is
+ * the exception: its steps live under app/(flow) with their own chrome, and
+ * its booked page (`conversion`) is the one flow route in that group.
  */
 export const routes = {
   home: {
@@ -156,6 +161,72 @@ export const routes = {
     indexable: true,
     inSitemap: true,
     inNav: false,
+  },
+  // Get started flow (app/(flow)): the site CTA lands on step 1. Steps 1 to 4
+  // are noindex and off the sitemap; the booked page is the flow's conversion
+  // page (always noindex, rendered per request). Answers live in sessionStorage
+  // (lib/get_started.ts); nothing here is personal data.
+  getStarted: {
+    key: 'getStarted',
+    path: '/get-started',
+    title: 'Get started',
+    description: 'Tell us about you and your business, then pick a time for your 15-minute call.',
+    updated: '2026-10-21',
+    navLabel: 'Get started',
+    pageType: 'site',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+  },
+  getStartedBusiness: {
+    key: 'getStartedBusiness',
+    path: '/get-started/business',
+    title: 'Your business',
+    description: 'Tell us about the business: its name, its trade, its town and its team.',
+    updated: '2026-10-21',
+    navLabel: 'Your business',
+    pageType: 'site',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+  },
+  getStartedGoals: {
+    key: 'getStartedGoals',
+    path: '/get-started/goals',
+    title: 'Your goals',
+    description:
+      'Tell us what would help most, so the ideas we bring to the call fit your business.',
+    updated: '2026-10-21',
+    navLabel: 'Your goals',
+    pageType: 'site',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+  },
+  getStartedBook: {
+    key: 'getStartedBook',
+    path: '/get-started/book',
+    title: 'Book a time',
+    description: 'Pick a day and a time for your 15-minute call.',
+    updated: '2026-10-21',
+    navLabel: 'Book a time',
+    pageType: 'site',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+  },
+  getStartedBooked: {
+    key: 'getStartedBooked',
+    path: '/get-started/booked',
+    title: "You're booked",
+    description: 'Your call is booked. Your invite is on its way.',
+    updated: '2026-10-21',
+    navLabel: "You're booked",
+    pageType: 'conversion',
+    indexable: false,
+    inSitemap: false,
+    inNav: false,
+    funnelStep: 'conversion',
   },
   // TEMPLATE for every paid landing page (/lp/<slug>). Per-LP title,
   // description and indexing come from lib/landing_pages.ts; this entry only
@@ -301,8 +372,10 @@ export const siteConfig = {
   offer: {
     /** Stable id for analytics `item_id` / `content_ids`. Never rename. */
     id: 'testify-offer',
-    name: 'Placeholder offer name',
-    description: 'Placeholder description of the Testify offer.',
+    // Matches the LP offer (lib/landing_pages.ts, OFFER_99) so conversion values and JSON-LD name the same product.
+    name: 'The Ready-to-Post Plan, monthly',
+    // Same copy as the cold offer LP's description (done-for-you-99).
+    description: 'Placeholder description of the Testify ready-to-post content offer.',
     price: 99,
     currency: 'USD',
   },
@@ -310,6 +383,6 @@ export const siteConfig = {
   nav: routeList.filter((route) => route.inNav).map(toNavLink),
   /** Legal links for both footers, generated from the registry. */
   legal: routeList.filter((route) => route.pageType === 'legal').map(toNavLink),
-  /** Site header call to action: the default paid landing page (lib/landing_pages.ts). */
-  cta: { label: routes.lp.navLabel, href: lpPath(DEFAULT_LP_SLUG) } satisfies NavLink,
+  /** Site header call to action: starts the get-started flow (step 1). */
+  cta: { label: 'Get started', href: routes.getStarted.path } satisfies NavLink,
 }

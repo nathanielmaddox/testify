@@ -1,5 +1,7 @@
 'use client'
 
+// Paid-funnel footer: the shared bottom row only, with no site nav.
+
 import { FooterBand, FooterBottomRow } from './footer_parts'
 
 /**
@@ -10,7 +12,10 @@ import { FooterBand, FooterBottomRow } from './footer_parts'
 export function LpFooter() {
   return (
     <FooterBand>
-      <FooterBottomRow />
+      {/* Paper's legal-only footer has no band padding of its own; 40px top and bottom matches the site footer. */}
+      <div className="py-10">
+        <FooterBottomRow />
+      </div>
     </FooterBand>
   )
 }

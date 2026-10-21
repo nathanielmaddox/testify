@@ -21,6 +21,11 @@ export const CONVERSION_PARAMS = { stripe: 'session_id', lead: 'lead' } as const
 
 /** Stripe Checkout session ids: cs_test_ / cs_live_ then an opaque token. */
 const STRIPE_SESSION_RE = /^cs_(?:test|live)_[A-Za-z0-9]{10,250}$/
+
+/** True for a Stripe Checkout session id shape. Shape only: the server still verifies it. */
+export function isStripeSessionId(value: string): boolean {
+  return STRIPE_SESSION_RE.test(value)
+}
 /** Lead tokens: URL-safe opaque id (uuid, nanoid, ulid all fit). No '@', no spaces. */
 const LEAD_TOKEN_RE = /^[A-Za-z0-9_-]{16,128}$/
 
@@ -50,15 +55,12 @@ function single(value: string | string[] | undefined): string | undefined | null
 }
 
 /**
- * Decide whether this confirmation request is a real conversion.
- *
- * Today this validates SHAPE only (`verified: false`). When checkout exists,
- * this function also confirms the id against its source of truth: Stripe
- * `checkout.sessions.retrieve(id)` with `payment_status === 'paid'`, or the
- * lead store for a lead token. It is async now so that change touches no
- * caller.
+ * Shape check only: is this request naming a conversion at all? Always
+ * `verified: false`. The server adds the source-of-truth check in
+ * `verifyConversion` (lib/conversion_server.ts), which is server-only because
+ * the Stripe lookup needs the secret key. This module stays client-safe.
  */
-export async function verifyConversion(params: ParamsLike): Promise<ConversionResult> {
+export function checkConversionShape(params: ParamsLike): ConversionResult {
   const sessionId = single(params[CONVERSION_PARAMS.stripe])
   const lead = single(params[CONVERSION_PARAMS.lead])
 

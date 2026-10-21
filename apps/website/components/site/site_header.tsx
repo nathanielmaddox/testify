@@ -1,5 +1,7 @@
 'use client'
 
+// Site header: skip link, sticky banner with the primary navbar, and the mobile menu.
+
 import NextLink from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -20,24 +22,27 @@ import { usePrefersReducedMotion, useScrolled } from './chrome_hooks'
 
 /**
  * Site header: DS SkipLink, then a sticky banner landmark (<header>) holding
- * the DS Navbar (its own "Primary" nav landmark). Flat at rest; it takes the
- * elevation-2 shadow (shadow-lifted) only once the page has scrolled.
+ * the DS Navbar (its own "Primary" nav landmark). At rest the bar sits on the
+ * canvas and the nav is flat. Once the page has scrolled, the bar turns
+ * transparent and the nav becomes a floating white pill with the lifted shadow
+ * (the Paper "scrolled" state). The bar keeps the same height either way, so
+ * nothing below it jumps.
  *
  * Below md the Navbar's in-flow panel (which pushes the page down) is never
  * opened: the toggle opens the DS MobileMenu instead, an overlay sheet from the
  * right with a dimmed backdrop, focus trap, Esc / backdrop close, body scroll
  * lock and focus returned to the toggle on close.
  *
- * Nav items (Home, About, Contact) and the CTA (the paid landing page) come
- * from the routes registry in lib/site.config.ts. The wordmark is plain text
- * until the brand logo exists.
+ * Nav items (Home, About, Contact) come from the routes registry in
+ * lib/site.config.ts, and the CTA comes from siteConfig.cta (/get-started).
+ * The wordmark is plain text until the brand logo exists.
  */
 export function SiteHeader() {
   const pathname = usePathname()
   const scrolled = useScrolled()
   const reducedMotion = usePrefersReducedMotion()
   const [menuOpen, setMenuOpen] = useState(false)
-  // The CTA goes to /lp: carry the visitor's stored UTM / click ids (after mount).
+  // The CTA goes to /get-started via siteConfig.cta: carry the visitor's stored UTM / click ids (after mount).
   const ctaHref = useAttributedHref(siteConfig.cta.href)
 
   const items: NavbarItem[] = siteConfig.nav.map((link) => ({
@@ -76,27 +81,33 @@ export function SiteHeader() {
     <>
       <SkipLink targetId="main-content" />
       <header
-        className={`sticky top-0 z-sticky bg-brand-canvas transition-shadow duration-brand-base ease-brand-standard ${
-          scrolled ? 'shadow-lifted' : 'shadow-none'
+        className={`sticky top-0 z-sticky py-3 transition-colors duration-brand-base ease-brand-standard ${
+          scrolled ? 'bg-transparent' : 'bg-brand-canvas'
         }`}
       >
         <div className={CHROME_CONTAINER}>
-          <Navbar
-            variant="transparent"
-            maxWidth="full"
-            containerPadding="none"
-            ariaLabel="Primary"
-            items={items}
-            currentPath={pathname}
-            logo={
-              <Link href="/" linkComponent={NextLink} underline="never" color="inherit">
-                <Wordmark />
-              </Link>
-            }
-            actions={cta}
-            mobileMenuOpen={false}
-            mobileToggle={menuToggle}
-          />
+          <div
+            className={`rounded-pill transition-[box-shadow,background-color,padding] duration-brand-base ease-brand-standard ${
+              scrolled ? 'bg-brand-surface px-6 shadow-lifted' : 'bg-transparent px-0 shadow-none'
+            }`}
+          >
+            <Navbar
+              variant="transparent"
+              maxWidth="full"
+              containerPadding="none"
+              ariaLabel="Primary"
+              items={items}
+              currentPath={pathname}
+              logo={
+                <Link href="/" linkComponent={NextLink} underline="never" color="inherit">
+                  <Wordmark />
+                </Link>
+              }
+              actions={cta}
+              mobileMenuOpen={false}
+              mobileToggle={menuToggle}
+            />
+          </div>
         </div>
         <MobileMenu
           open={menuOpen}

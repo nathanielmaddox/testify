@@ -1,5 +1,7 @@
 'use client'
 
+// Paid-funnel header: the wordmark only, with no nav or CTA.
+
 import { SkipLink } from '@otesse/design-system'
 import { CHROME_BAR, CHROME_CONTAINER, Wordmark } from './chrome'
 
