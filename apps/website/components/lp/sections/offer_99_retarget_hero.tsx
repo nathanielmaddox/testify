@@ -18,18 +18,19 @@ export function Offer99RetargetHero({ lp }: LpSectionProps) {
   const headingId = `lp-${lp.slug}-hero-heading`
   return (
     <PageSection flush {...slotProps(lp, 'hero')} aria-labelledby={headingId} width="grid">
-      <div className="flex flex-col items-start gap-6">
+      <div className="flex w-full flex-col items-center gap-6 text-center">
         <p className="font-text text-brand-body-strong text-brand-ink">
           Still thinking it over? Here&apos;s the deal.
         </p>
         <DisplayHeading
           level={1}
           id={headingId}
+          align="center"
           lead="Take a whole month for a spin: a post and a story for every day, made from your own jobs, captions in your words, each one telling you which day it goes out. Less time a week than one customer call. You press post. If it doesn't feel worth it, tell us within [7] days after the month ends and you get your money back. No contract. No passwords."
         >
           Try a Month. Love It or It&apos;s Free.
         </DisplayHeading>
-        <ul className="flex flex-wrap gap-3">
+        <ul className="flex flex-wrap justify-center gap-3">
           {CHIPS.map((chip) => (
             <li
               key={chip}

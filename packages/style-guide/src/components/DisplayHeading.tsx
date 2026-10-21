@@ -17,8 +17,10 @@ export interface DisplayHeadingProps {
   kicker?: ReactNode
   /** The ONE sub-line under the headline (lead style, ink-muted, 48ch). */
   lead?: ReactNode
-  id?: string
-  className?: string
+  /** Text alignment of the block. 'left' (default) is the rule; 'center' centers the kicker, headline and lead. */
+  align?: 'left' | 'center' | undefined
+  id?: string | undefined
+  className?: string | undefined
   children: ReactNode
 }
 
@@ -41,32 +43,45 @@ const DEFAULT_SIZE: Record<DisplayHeadingLevel, DisplayHeadingSize> = {
 /**
  * Headline block: optional Kicker, the headline in the display face with tight
  * tracking (display sizes only) and a ~22ch measure, then one lead line.
- * Left-aligned by rule.
+ * Left-aligned by rule; `align="center"` is for centered heroes and closing blocks.
  */
 export function DisplayHeading({
   level,
   size,
   kicker,
   lead,
+  align = 'left',
   id,
   className,
   children,
 }: DisplayHeadingProps) {
   const Tag = `h${level}` as const
+  const center = align === 'center'
   return (
-    <div className={cx('flex flex-col items-start gap-6', className)}>
+    <div
+      className={cx(
+        center ? 'flex flex-col items-center gap-6 text-center' : 'flex flex-col items-start gap-6',
+        className
+      )}
+    >
       {kicker ? <Kicker>{kicker}</Kicker> : null}
       <Tag
         id={id}
         className={cx(
           'max-w-measure-heading text-balance font-display text-brand-ink',
-          SIZE[size ?? DEFAULT_SIZE[level]]
+          SIZE[size ?? DEFAULT_SIZE[level]],
+          center && 'text-center'
         )}
       >
         {children}
       </Tag>
       {lead ? (
-        <p className="max-w-measure-narrow font-text text-brand-lead text-brand-ink-muted">
+        <p
+          className={cx(
+            'max-w-measure-narrow font-text text-brand-lead text-brand-ink-muted',
+            center && 'mx-auto text-center'
+          )}
+        >
           {lead}
         </p>
       ) : null}

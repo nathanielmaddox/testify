@@ -39,7 +39,13 @@ export function BuyCta({
         href={target}
         label={label}
         tone={tone}
-        caption={caption ? <PricingLine>{caption}</PricingLine> : undefined}
+        caption={
+          caption ? (
+            <div className="mx-auto text-center">
+              <PricingLine>{caption}</PricingLine>
+            </div>
+          ) : undefined
+        }
       />
     </div>
   )
