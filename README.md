@@ -1,32 +1,72 @@
 # testify
 
-A pnpm monorepo for the testify web properties. Today it holds two Next.js apps (`apps/website` and `apps/admin`) and one
-shared config package (`packages/config`). Every UI component comes from the Otesse design system.
+The Testify public website and its internal admin app, in one pnpm monorepo. Every UI
+component comes from `@otesse/design-system`. The Testify look lives in `packages/style-guide`.
 
-Agent and contributor rules: [`CLAUDE.md`](./CLAUDE.md) (mirrored byte-for-byte in `AGENTS.md`).
+## Fork and run
+
+1. Clone the repo and open the root folder.
+2. Use Node 22 (see `.nvmrc`) and enable pnpm 10.11.0 (pinned in `packageManager`):
+
+   ```sh
+   corepack enable
+   ```
+
+3. Install dependencies from the root. This needs design system access (see below):
+
+   ```sh
+   pnpm install --config.confirmModulesPurge=false
+   ```
+
+4. Copy the environment template. Every variable is documented in it, and every outside
+   service stays off until its key is set:
+
+   ```sh
+   cp apps/website/.env.example apps/website/.env.local
+   ```
+
+5. Start the website and the admin app:
+
+   ```sh
+   pnpm dev          # website on http://localhost:3200
+   pnpm dev:admin    # admin on http://localhost:3201
+   ```
+
+The page map is [`apps/website/PAGES.md`](./apps/website/PAGES.md): routes, sections,
+placeholder copy, and tracking events. The providers are in
+[`apps/website/INTEGRATIONS.md`](./apps/website/INTEGRATIONS.md).
+
+> **Design system access.** `@otesse/design-system` is a private GitHub dependency. This repo
+> is public, but its design system repo, `nathanielmaddox/storybook`, is not. You need one of:
+>
+> - Read access to `nathanielmaddox/storybook`, so the git pin resolves.
+> - The vendored tarball. Put `vendor/otesse-design-system-0.1.0-e7d37602.tgz` in `vendor/`,
+>   then run `node ../../scripts/vercel/install.mjs` from `apps/website` in place of step 3.
+>   That script writes a `pnpm.overrides` entry into the root `package.json` and may change
+>   `pnpm-lock.yaml`. Do not commit either change.
+>
+> Without one of these, the install fails. The tarball is not in `vendor/` and is not in this
+> repo. Making it available to forks is an open item.
 
 ## Layout
 
 ```
 testify/
 ├── apps/
-│   ├── admin/              @testify/admin    Next.js internal admin, dev port 3201
-│   └── website/            @testify/website  Next.js site, dev port 3200
+│   ├── admin/                @testify/admin        internal admin, port 3201, noindex
+│   └── website/              @testify/website      marketing site, port 3200
 ├── packages/
-│   └── config/             @testify/config   tsconfig, eslint, tailwind preset, prettier
-├── scripts/
-│   ├── check-workspace.mjs workspace invariants (names, ports, single DS pin)
-│   ├── check-agents-md.mjs AGENTS.md must equal CLAUDE.md
-│   └── vercel/             per-app Vercel install + deploy notes
-├── vendor/                 prebuilt design-system tarball (Vercel builds only)
-├── .husky/                 pre-commit (lint-staged), commit-msg (commitlint), pre-push (no main, checks)
-├── CLAUDE.md / AGENTS.md   agent rules
-└── DO-NOT-DEPLOY-FROM-HERE.md
+│   ├── config/               @testify/config       tsconfig, eslint, tailwind, prettier
+│   └── style-guide/          @testify/style-guide  Testify brand tokens and compositions
+├── scripts/                  workspace checks and per-app Vercel install
+├── vendor/                   design system tarball for Vercel builds (empty in a clone)
+└── CLAUDE.md / AGENTS.md     agent rules, identical copies
 ```
 
 ## Requirements
 
-Node 22 (`.nvmrc`), pnpm 10.11.0 (`packageManager`; `corepack enable`).
+- Node 22 (`.nvmrc`) and pnpm 10.11.0 through corepack (`corepack enable`).
+- Design system access (see **Design system access** above).
 
 ## Commands
 
@@ -46,27 +86,45 @@ Single app: `pnpm --filter @testify/website <script>`.
 
 ## Design system
 
-All UI comes from `@otesse/design-system`, developed at `vs_code/otesse_ds` and consumed as a pinned
-GitHub ref:
+All UI comes from `@otesse/design-system`, developed in `vs_code/otesse_ds` and consumed as a
+pinned GitHub ref:
 
 ```
 "@otesse/design-system": "github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f"
 ```
 
-No hand-rolled primitives. If a component is missing, add it to `otesse_ds` first.
+The pin appears in `apps/website`, `apps/admin`, `packages/config`, and `packages/style-guide`.
 
-The DS builds its `dist/` in a `prepare` script on install, which is why it is listed under
-`onlyBuiltDependencies` in `pnpm-workspace.yaml` and `.npmrc` enables pre/post scripts.
+- **Pin rule.** Every manifest uses the same full 40-character sha. `pnpm check:workspace`
+  fails on a mismatch or a short pin.
+- **Never edit the design system from this repo.** Changes to it belong in its own repo. This
+  is an owner rule, set 2026-10-09.
+- **Testify styling goes in `packages/style-guide`.** Add brand tokens, new brand-named Tailwind
+  keys, and brand compositions there. Never redefine a design system Tailwind key. Run
+  `pnpm --filter @testify/style-guide check:keys` to catch overlaps. Do not hand-roll buttons,
+  inputs, cards, dialogs, navigation, or icons.
 
 ### Bumping the pin
 
-1. Land the change in `otesse_ds` and push it to `nathanielmaddox/storybook`; note the full commit sha.
-2. Replace the sha in **every** manifest that depends on `@otesse/design-system` (`pnpm check:workspace`
-   fails if two pins differ or a pin is not a full 40-char sha).
-3. `pnpm install --config.confirmModulesPurge=false`, then `pnpm preflight` and check the site in the
-   browser.
-4. Re-pack the Vercel tarball into `vendor/otesse-design-system-0.1.0-<first 8 of sha>.tgz` and delete
-   the old one (steps in `scripts/vercel/README.md`). Without it, Vercel installs fail.
+1. Land the change in `otesse_ds`, push it to `nathanielmaddox/storybook`, and note the full sha.
+2. Replace the sha in all four manifests, run `pnpm check:workspace`, then install and run
+   `pnpm preflight`.
+3. Re-pack the vendored tarball as `vendor/otesse-design-system-0.1.0-<first 8 of sha>.tgz` and
+   delete the old one. The steps are in `scripts/vercel/README.md`. Without it, Vercel installs
+   fail.
+
+## Working on it
+
+- **Lanes.** Each app has an `<app>_migrate` branch. `testify_migrate` holds root tooling and
+  `packages/`. Lanes merge into `staging` by pull request. `main` moves only from `staging`,
+  and only to deploy. After `staging` moves, merge it into every lane.
+- **Commits and worktrees.** Use conventional messages (`feat:`, `fix:`, `chore:`). Isolate work
+  in a git worktree, and never commit into a checkout someone else is editing.
+- **Before a PR.** Run `pnpm preflight`. The pre-push hook runs `check:workspace` and
+  `type-check` from the root and needs `node_modules` in the checkout you push from, so run the
+  install in every new checkout or worktree.
+
+Agent and contributor rules are in [`CLAUDE.md`](./CLAUDE.md).
 
 ## Deploying
 
