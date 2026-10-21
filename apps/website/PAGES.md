@@ -22,33 +22,33 @@ from `next.config.js` applies.
 All 25 rows. Seventeen render a page (the 404 included). Two redirect, four are API routes, and two
 are generated files.
 
-| Path                      | Type                          | Chrome             | Indexable                                      | In nav          | In sitemap    | Cache                         | Status                                                | Paper frame                                                | Page file                                  |
-| ------------------------- | ----------------------------- | ------------------ | ---------------------------------------------- | --------------- | ------------- | ----------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------ |
-| `/`                       | site                          | site               | launch flag                                    | yes             | yes           | static                        | placeholder copy                                      | Testify Web - Home                                         | `app/(site)/page.tsx`                      |
-| `/work`                   | site                          | site               | launch flag                                    | yes             | yes           | static                        | built, sample stories are drafts                      | Testify Web - Our work                                     | `app/(site)/work/page.tsx`                 |
-| `/work/[slug]`            | site template                 | site               | launch flag, and story published and approved  | no              | stories only  | static, viewable stories only | template, drafts show in previews                     | Testify Web - Our work / Case study                        | `app/(site)/work/[slug]/page.tsx`          |
-| `/about`                  | site                          | site               | launch flag                                    | yes             | yes           | static                        | placeholder copy                                      | not named in code                                          | `app/(site)/about/page.tsx`                |
-| `/contact`                | site                          | site               | launch flag                                    | yes             | yes           | static                        | placeholder copy                                      | not named in code                                          | `app/(site)/contact/page.tsx`              |
-| `/privacy`                | legal                         | site               | launch flag                                    | no (footer row) | yes           | static                        | draft outline, all [CONFIRM]                          | not named in code                                          | `app/(site)/privacy/page.tsx`              |
-| `/terms`                  | legal                         | site               | launch flag                                    | no (footer row) | yes           | static                        | draft outline, all [CONFIRM]                          | not named in code                                          | `app/(site)/terms/page.tsx`                |
-| `/get-started`            | site, step 1                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                 | Testify Web - Get started                                  | `app/(flow)/get-started/page.tsx`          |
-| `/get-started/business`   | site, step 2                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                 | Testify Web - Get started                                  | `app/(flow)/get-started/business/page.tsx` |
-| `/get-started/goals`      | site, step 3                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                 | Testify Web - Get started                                  | `app/(flow)/get-started/goals/page.tsx`    |
-| `/get-started/book`       | site, step 4                  | flow               | noindex, nofollow                              | no              | no            | static                        | built, mocked slots until a booking provider connects | Testify Web - Get started                                  | `app/(flow)/get-started/book/page.tsx`     |
-| `/get-started/booked`     | conversion, step 5            | flow               | noindex, nofollow, always                      | no              | no            | per request, no-store         | built, warning unless the booking provider created it | not named in code                                          | `app/(flow)/get-started/booked/page.tsx`   |
-| `/lp`                     | redirect (307)                | none               | n/a                                            | no              | no            | per request                   | built                                                 | n/a                                                        | `app/(lp)/lp/route.ts`                     |
-| `/lp/[slug]`              | LP template                   | LP                 | noindex, follow, unless LP is live and flag on | no              | live LPs only | static                        | draft, all three LPs                                  | lp/sample-ad, lp/done-for-you-99                           | `app/(lp)/lp/[slug]/page.tsx`              |
-| `/lp/[slug]/checkout`     | checkout                      | LP                 | noindex, nofollow, always                      | no              | no            | per request, no-store         | draft, one host LP                                    | lp/done-for-you-99/checkout                                | `app/(lp)/lp/[slug]/checkout/page.tsx`     |
-| `/lp/[slug]/confirmation` | conversion                    | LP                 | noindex, nofollow, always                      | no              | no            | per request, private no-store | draft, placeholder copy                               | lp/done-for-you-99/confirmation, lp/sample-ad/confirmation | `app/(lp)/lp/[slug]/confirmation/page.tsx` |
-| `/lp/confirmation`        | redirect (307)                | none               | n/a                                            | no              | no            | per request                   | built                                                 | n/a                                                        | `app/(lp)/lp/confirmation/route.ts`        |
-| `/design`                 | utility                       | none, own `<main>` | noindex, nofollow, 404 when launch flag on     | no              | no            | static                        | internal specimen                                     | none                                                       | `app/design/page.tsx`                      |
-| `/api/checkout`           | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a payments provider is connected            | n/a                                                        | `app/api/checkout/route.ts`                |
-| `/api/bookings`           | API (GET slots, POST booking) | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | mocked slots until a booking provider connects        | n/a                                                        | `app/api/bookings/route.ts`                |
-| `/api/onboarding`         | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a data store is connected                   | n/a                                                        | `app/api/onboarding/route.ts`              |
-| `/api/feedback`           | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a data store is connected                   | n/a                                                        | `app/api/feedback/route.ts`                |
-| any unknown path          | 404                           | site               | Next adds noindex, canonical null              | no              | no            | static                        | placeholder copy                                      | none                                                       | `app/not-found.tsx`                        |
-| `/robots.txt`             | utility                       | n/a                | n/a                                            | no              | no            | static                        | disallow all until launch                             | n/a                                                        | `app/robots.ts`                            |
-| `/sitemap.xml`            | utility                       | n/a                | n/a                                            | no              | no            | static                        | empty until launch                                    | n/a                                                        | `app/sitemap.ts`                           |
+| Path                      | Type                          | Chrome             | Indexable                                      | In nav          | In sitemap    | Cache                         | Status                                                 | Paper frame                                                | Page file                                  |
+| ------------------------- | ----------------------------- | ------------------ | ---------------------------------------------- | --------------- | ------------- | ----------------------------- | ------------------------------------------------------ | ---------------------------------------------------------- | ------------------------------------------ |
+| `/`                       | site                          | site               | launch flag                                    | yes             | yes           | static                        | placeholder copy                                       | Testify Web - Home                                         | `app/(site)/page.tsx`                      |
+| `/work`                   | site                          | site               | launch flag                                    | yes             | yes           | static                        | built, sample stories are drafts                       | Testify Web - Our work                                     | `app/(site)/work/page.tsx`                 |
+| `/work/[slug]`            | site template                 | site               | launch flag, and story published and approved  | no              | stories only  | static, viewable stories only | template, drafts show in previews                      | Testify Web - Our work / Case study                        | `app/(site)/work/[slug]/page.tsx`          |
+| `/about`                  | site                          | site               | launch flag                                    | yes             | yes           | static                        | placeholder copy                                       | not named in code                                          | `app/(site)/about/page.tsx`                |
+| `/contact`                | site                          | site               | launch flag                                    | yes             | yes           | static                        | built, placeholder calendar until the embed URL is set | not named in code                                          | `app/(site)/contact/page.tsx`              |
+| `/privacy`                | legal                         | site               | launch flag                                    | no (footer row) | yes           | static                        | draft outline, all [CONFIRM]                           | not named in code                                          | `app/(site)/privacy/page.tsx`              |
+| `/terms`                  | legal                         | site               | launch flag                                    | no (footer row) | yes           | static                        | draft outline, all [CONFIRM]                           | not named in code                                          | `app/(site)/terms/page.tsx`                |
+| `/get-started`            | site, step 1                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                  | Testify Web - Get started                                  | `app/(flow)/get-started/page.tsx`          |
+| `/get-started/business`   | site, step 2                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                  | Testify Web - Get started                                  | `app/(flow)/get-started/business/page.tsx` |
+| `/get-started/goals`      | site, step 3                  | flow               | noindex, nofollow                              | no              | no            | static                        | built                                                  | Testify Web - Get started                                  | `app/(flow)/get-started/goals/page.tsx`    |
+| `/get-started/book`       | site, step 4                  | flow               | noindex, nofollow                              | no              | no            | static                        | built, mocked slots until a booking provider connects  | Testify Web - Get started                                  | `app/(flow)/get-started/book/page.tsx`     |
+| `/get-started/booked`     | conversion, step 5            | flow               | noindex, nofollow, always                      | no              | no            | per request, no-store         | built, warning unless the booking provider created it  | not named in code                                          | `app/(flow)/get-started/booked/page.tsx`   |
+| `/lp`                     | redirect (307)                | none               | n/a                                            | no              | no            | per request                   | built                                                  | n/a                                                        | `app/(lp)/lp/route.ts`                     |
+| `/lp/[slug]`              | LP template                   | LP                 | noindex, follow, unless LP is live and flag on | no              | live LPs only | static                        | draft, all three LPs                                   | lp/sample-ad, lp/done-for-you-99                           | `app/(lp)/lp/[slug]/page.tsx`              |
+| `/lp/[slug]/checkout`     | checkout                      | LP                 | noindex, nofollow, always                      | no              | no            | per request, no-store         | draft, one host LP                                     | lp/done-for-you-99/checkout                                | `app/(lp)/lp/[slug]/checkout/page.tsx`     |
+| `/lp/[slug]/confirmation` | conversion                    | LP                 | noindex, nofollow, always                      | no              | no            | per request, private no-store | draft, placeholder copy                                | lp/done-for-you-99/confirmation, lp/sample-ad/confirmation | `app/(lp)/lp/[slug]/confirmation/page.tsx` |
+| `/lp/confirmation`        | redirect (307)                | none               | n/a                                            | no              | no            | per request                   | built                                                  | n/a                                                        | `app/(lp)/lp/confirmation/route.ts`        |
+| `/design`                 | utility                       | none, own `<main>` | noindex, nofollow, 404 when launch flag on     | no              | no            | static                        | internal specimen                                      | none                                                       | `app/design/page.tsx`                      |
+| `/api/checkout`           | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a payments provider is connected             | n/a                                                        | `app/api/checkout/route.ts`                |
+| `/api/bookings`           | API (GET slots, POST booking) | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | mocked slots until a booking provider connects         | n/a                                                        | `app/api/bookings/route.ts`                |
+| `/api/onboarding`         | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a data store is connected                    | n/a                                                        | `app/api/onboarding/route.ts`              |
+| `/api/feedback`           | API (POST)                    | n/a                | `X-Robots-Tag: noindex, nofollow`              | no              | no            | no-store                      | 503 until a data store is connected                    | n/a                                                        | `app/api/feedback/route.ts`                |
+| any unknown path          | 404                           | site               | Next adds noindex, canonical null              | no              | no            | static                        | placeholder copy                                       | none                                                       | `app/not-found.tsx`                        |
+| `/robots.txt`             | utility                       | n/a                | n/a                                            | no              | no            | static                        | disallow all until launch                              | n/a                                                        | `app/robots.ts`                            |
+| `/sitemap.xml`            | utility                       | n/a                | n/a                                            | no              | no            | static                        | empty until launch                                     | n/a                                                        | `app/sitemap.ts`                           |
 
 Notes on the table:
 
@@ -78,7 +78,8 @@ Chrome: `SiteHeader` and `SiteFooter` from `app/(site)/layout.tsx`. Metadata:
 
 Sections in order (all in `components/home/`):
 
-1. Hero: `HomeHero` in `home_hero.tsx`, with `HeroPhones` in `hero_phones.tsx`.
+1. Hero: `HomeHero` in `home_hero.tsx`, with `HeroPhones` in `hero_phones.tsx`. Two-line H1 with no
+   eyebrow (owner ruling).
 2. Pain: `HomePain` in `home_pain.tsx`.
 3. Reel: `HomeReel` in `home_reel.tsx`. A 16:9 placeholder tile, no video.
 4. Engine: `HomeEngine` in `home_engine.tsx`.
@@ -203,25 +204,36 @@ Events: `page_view` only.
 
 ### Contact (`/contact`)
 
-Purpose: route visitors to sales or support. There is no form. Chrome: site. Metadata:
+Purpose: book a 15-minute call with the owner. There is no form. Chrome: site. Metadata:
 `pageMetadata('contact')`.
 
 Sections in order (`app/(site)/contact/page.tsx`):
 
-1. Intro: `ContactIntro` (`components/contact/contact_intro.tsx`).
-2. Router: `ContactRouter` (`components/contact/contact_router.tsx`). Two cards:
-   - Sales: "Get started" button to `/get-started`, with attribution after mount.
-   - Support: a mailto link and a Copy button for the support address.
-3. Footnotes: `ContactFootnotes` (`components/contact/contact_footnotes.tsx`). Returning-client
-   line, then press, partner and jobs addresses.
+1. Intro: `ContactIntro` (`components/contact/contact_intro.tsx`). Centered H1 "Book a time to
+   talk." and the sub line "Pick a slot that suits you. 15 minutes, no prep." Both marked
+   `[CONFIRM]` in the file.
+2. Booking card: `BookingEmbed` (`components/contact/booking_embed.tsx`), one white card. With
+   `NEXT_PUBLIC_BOOKING_EMBED_URL` set to an https address, it is an iframe of the owner's
+   scheduling page, with an "Open it in a new tab" link. When unset, it is a calendar-style
+   placeholder: a month grid and four sample times, all inert, with the line "Your booking calendar
+   goes here." The placeholder note about the env var shows outside production only.
+3. Support line: `ContactSupportLine` (`components/contact/contact_support_line.tsx`). "Already a
+   client? Email" and the support address, a mailto link.
 
-Open placeholders: `SUPPORT_EMAIL` is `'support@[DOMAIN]'` in `contact_router.tsx:13`. The visible
-line, the mailto link and the Copy button all use it. `contact_footnotes.tsx` has `[EMAIL]`,
-`hello@[DOMAIN]`, `press@[DOMAIN]`, `partners@[DOMAIN]` and `careers@[DOMAIN]`.
+Not rendered: `ContactRouter` (Sales and Support cards), `ContactFootnotes` (press, partner and jobs
+lines). The files stay in `components/contact/`. Do not wire them back without an owner ruling.
 
-Interactive: mailto link, Copy button (`navigator.clipboard`), Get started link.
+Env: `NEXT_PUBLIC_BOOKING_EMBED_URL` (`.env.example`, `lib/env.d.ts`). The frame host must be listed
+in the "Booking embed" entry of `next.config.js` (`frame-src`). Cal.com and Calendly are listed. Any
+other host is blocked until added there.
 
-Events: `page_view` only.
+Open placeholders: `SUPPORT_EMAIL` is `'support@[DOMAIN]'` in `components/contact/support_email.ts`.
+The support line uses it. The headline and sub line are `[CONFIRM]` (decision 22).
+
+Interactive: the iframe embed (when set), the "open in a new tab" link, the support mailto link. The
+placeholder calendar is inert and hidden from assistive tech.
+
+Events: `page_view` only. Bookings made inside the embed are the provider's and fire nothing here.
 
 ### Privacy (`/privacy`)
 
@@ -389,8 +401,8 @@ Purpose: the template LP. It is a draft and has no lead form yet. Chrome: LP (`L
 
 Sections in order (registry `sections`):
 
-1. Hero: `TemplateHero` (`components/lp/sections/template_hero.tsx`). Buy button links to
-   `#lp-sample-ad-form`.
+1. Hero: `TemplateHero` (`components/lp/sections/template_hero.tsx`). Centered headline, still the
+   placeholder `[HEADLINE]`. Buy button links to `#lp-sample-ad-form`.
 2. Proof: `TemplateProof` (`template_proof.tsx`).
 3. Process: `TemplateProcess` (`template_process.tsx`). Three numbered placeholder steps.
 4. Honesty: `TemplateHonesty` (`template_honesty.tsx`). All lines placeholder.
@@ -418,7 +430,8 @@ to `/lp/done-for-you-99/checkout`. Chrome: LP. Page: `app/(lp)/lp/[slug]/page.ts
 
 Sections in order (registry `sections`; files are in `components/lp/sections/`):
 
-1. `hero`: `Offer99Hero` (`offer_99_hero.tsx`), with `ExampleWeek` and `BuyCta` (`buy_cta.tsx`).
+1. `hero`: `Offer99Hero` (`offer_99_hero.tsx`), centered headline (`DisplayHeading align="center"`),
+   with `ExampleWeek` and `BuyCta` (`buy_cta.tsx`).
 2. `proof`: `Offer99Trust` (`offer_99_trust.tsx`).
 3. `letter`: `Offer99Letter` (`offer_99_letter.tsx`).
 4. `story`: `Offer99Story` (`offer_99_story.tsx`).
@@ -469,7 +482,8 @@ sections cite frames such as "Hero", "Section - Letter" and "Section - Deal".
 
 Sections in order (registry `sections`):
 
-1. `hero`: `Offer99RetargetHero` (`offer_99_retarget_hero.tsx`), with `ExampleWeek` and `BuyCta`.
+1. `hero`: `Offer99RetargetHero` (`offer_99_retarget_hero.tsx`), centered headline, with
+   `ExampleWeek` and `BuyCta`.
 2. `letter`: `Offer99RetargetLetter` (`offer_99_retarget_letter.tsx`).
 3. `objections`: `Offer99RetargetObjections` (`offer_99_retarget_objections.tsx`). Six questions.
 4. `first-month`: `Offer99RetargetFirstMonth` (`offer_99_retarget_first_month.tsx`).
@@ -499,37 +513,37 @@ Page: `app/(lp)/lp/[slug]/checkout/page.tsx`, `dynamic = 'force-dynamic'`. Metad
 `lpCheckoutMetadata`, always noindex, nofollow. Served only for an LP with an `offer`
 (`lib/landing_pages.ts`).
 
-Sections in order:
+Sections in order (`components/lp/checkout/checkout_body.tsx`, two columns under the intro):
 
-1. Intro: `CheckoutIntro` (`components/lp/checkout/checkout_intro.tsx`).
-2. Story column (`CheckoutBody`, `checkout_body.tsx`):
-   - `OrderSummary` (`order_summary.tsx`).
-   - `CheckoutPromises` (`checkout_promises.tsx`).
-   - `AfterPaySteps` (exported from `order_summary.tsx`).
-   - `CheckoutFaq` (`checkout_faq.tsx`).
-3. Pay card: `CheckoutForm` (`checkout_form.tsx`). It is sticky on large screens. It holds the
-   email, name and business name fields, `PaymentElementSlot` (`payment_element_slot.tsx`), the
-   charge notice, the submit button, the guarantee and a support line.
-4. Trust row: `CheckoutTrustRow` (`checkout_trust_row.tsx`).
-5. `CheckoutTracker` (`components/lp/checkout_tracker.tsx`). Renders nothing.
+1. Intro: `CheckoutIntro` (`checkout_intro.tsx`). Headline "Turn on your Open Sign.", lead "Two
+   minutes. No contract. Cancel in 2 clicks."
+2. Left column: `CheckoutPlanCard` (`checkout_plan_card.tsx`). The offer name, "$99/month, billed
+   monthly", and four included items (`CheckList`, `checkout_check_list.tsx`).
+3. Right column: `CheckoutForm` (`checkout_form.tsx`), sticky at large sizes. It holds the email
+   field, first and last name, the business name, `PaymentElementSlot` (`payment_element_slot.tsx`),
+   the payment error alert, the submit button "Start my plan for $99/month", the reassurance line
+   `REASSURANCE_LINE` and the auto-renewal line.
+4. `CheckoutTracker` (`components/lp/checkout_tracker.tsx`). Renders nothing.
 
-Copy: the component files. Prices come from the registry `offer`. Charge and guarantee copy are in
-`checkout_form.tsx` and `checkout_body.tsx`. Payment error copy is in `payment_errors.ts`.
+Not rendered on this page (components kept in the folder): `CheckoutPromises`, `CheckoutFaq`,
+`CheckoutTrustRow`, `AfterPaySteps` and `OrderSummary`. The footer carries the legal links on the LP
+chrome. The confirmation page explains the next steps. The guarantee and the support line are folded
+into `REASSURANCE_LINE`. There is no person card and no sticky buy bar on this page.
+
+Copy: the component files. Prices come from the registry `offer`. Payment error copy is in
+`payment_errors.ts`.
 
 Open placeholders:
 
-- `[7] days` refund window and "Love It or It's Free." (`checkout_body.tsx:57-58`).
-- `[DAY OF MONTH]` (`checkout_form.tsx:196`).
-- `[NAME] replies within [N] hours: hello@[DOMAIN]` (`checkout_form.tsx:231`).
-- `[ANSWER: owner to supply]` in both FAQ answers (`checkout_faq.tsx:8`).
-- `By [DATE]` (`order_summary.tsx:19`), `[DATE + 1 month]` (`order_summary.tsx:94`).
-- `[CONFIRM: Stripe Tax]` (`order_summary.tsx:86`).
-- `[SETUP FEE]` (`checkout_trust_row.tsx:28`).
+- `[7]-day refund` in `REASSURANCE_LINE` (`checkout_form.tsx:31`).
 - `hello@[DOMAIN]` in two payment errors (`payment_errors.ts:36,39`).
+- The reassurance and auto-renewal lines state refund and charge terms the owner has not signed off
+  (decision 3).
 
 Interactive:
 
 - Field errors appear under each field. Submit with errors moves focus to the first invalid field.
+  The fields are email, first name, last name and business name.
 - Submit calls `startCheckout` (`lib/checkout.ts`), which POSTs to `/api/checkout`.
 - A failed call shows a payment banner. Unknown codes use the network line.
   `checkout_not_configured` (503, no payments provider connected) falls into this fallback.
@@ -712,16 +726,17 @@ Copy: `app/design/page.tsx` and `ds_specimen.tsx`.
 
 These are gathered from placeholders and code comments. Each one blocks real copy or a real feature.
 
-1. **Refund and guarantee terms.** "Love It or It's Free" with a `[7]`-day window and a full refund
-   (`checkout_body.tsx:57-58`). The late-week-is-free promise and the redo window `[N] business
-days` (`offer_99_guarantee.tsx`, `offer_99_retarget_guarantee.tsx`, `home_offer.tsx`,
+1. **Refund and guarantee terms.** The `[7]`-day refund in the checkout reassurance line
+   (`checkout_form.tsx:31`). The late-week-is-free promise and the redo window `[N] business days`
+   (`offer_99_guarantee.tsx`, `offer_99_retarget_guarantee.tsx`, `home_offer.tsx`,
    `about_promises.tsx`).
-2. **Time figures.** Posts a month `[N]`, first posts by day `[N]`, reply time `[N] hours`
-   (`checkout_form.tsx:231`), and the post count in `[N] post ideas` (`booking_step.tsx:107`).
-3. **Billing terms.** Billing day `[DAY OF MONTH]` (`checkout_form.tsx:196`). Setup fee `[SETUP
-FEE]` (`checkout_trust_row.tsx:28`, `offer_99_offer_stack.tsx:114`,
-   `offer_99_retarget_deal.tsx:64`). Tax treatment `[CONFIRM: Stripe Tax]` (`order_summary.tsx:86`).
-   The "Cancel in 2 clicks" claim.
+2. **Time figures.** Posts a month `[N]`, first posts by day `[N]`, and the post count in `[N] post
+ideas` (`booking_step.tsx:107`). Reply time `[N] hours` appears in the LP team and close
+   sections.
+3. **Billing terms.** Setup fee `[SETUP FEE]` (`offer_99_offer_stack.tsx:114`,
+   `offer_99_retarget_deal.tsx:64`). Tax treatment and the next charge date are not rendered on the
+   checkout page now. The "Cancel in 2 clicks" claim stays on the checkout intro
+   (`checkout_intro.tsx`).
 4. **FAQ answers.** Eight of nine on home (`home_faq.tsx`). Two on checkout (`checkout_faq.tsx`).
    Sixteen on the cold offer (`offer_99_faq.tsx`). Two on the template LP (`template_faq.tsx`).
 5. **Legal copy.** Every paragraph in `lib/legal.ts`. The effective date (`LEGAL_EFFECTIVE_DATE`).
@@ -735,10 +750,10 @@ FEE]` (`checkout_trust_row.tsx:28`, `offer_99_offer_stack.tsx:114`,
    `lib/integrations`). Who sends the confirmation email, so the visitor gets one email, not two.
    Whether to keep the fixed `SLOT_TIMES` fallback (`lib/get_started.ts:355`) for the mocked slots.
    The time zone list.
-8. **Support email and domain.** `[DOMAIN]` everywhere (`contact_router.tsx:13`,
-   `contact_footnotes.tsx`, `payment_errors.ts`, `checkout_form.tsx:231`). The site URL,
-   `NEXT_PUBLIC_SITE_URL`. Footer `[PHONE]`, `[EMAIL]`, `[AREA SERVED]` (`site_footer.tsx:105-107`).
-   Press, partner and careers addresses. The receipt sender.
+8. **Support email and domain.** `[DOMAIN]` in `support_email.ts`, `payment_errors.ts` and the LP
+   team and close sections. The site URL, `NEXT_PUBLIC_SITE_URL`. Footer `[PHONE]`, `[EMAIL]`,
+   `[AREA SERVED]` (`site_footer.tsx:105-107`). Press, partner and careers addresses. The receipt
+   sender.
 9. **Case-study consent.** All three samples are `consent: 'pending'`. No client has approved. The
    client names, services and quotes are placeholders (`lib/work.ts`).
 10. **Offer name and price.** Both `siteConfig.offer.name` (`lib/site.config.ts:376`) and the LP
@@ -763,6 +778,15 @@ FEE]` (`checkout_trust_row.tsx:28`, `offer_99_offer_stack.tsx:114`,
 20. **Hero variants.** `closed` and `busiest` exist in code but no LP uses them. Decide whether to
     use them, or remove them.
 21. **The `/design` route.** Delete it once real pages exist (`app/design/page.tsx:37`).
+22. **Contact booking embed.** The owner's scheduling URL for `NEXT_PUBLIC_BOOKING_EMBED_URL`, and
+    the host to allow in `next.config.js` if it is not Cal.com or Calendly. Until it is set, the
+    page shows a placeholder calendar. Also confirm the headline "Book a time to talk." and its sub
+    line "Pick a slot that suits you. 15 minutes, no prep."
+    (`components/contact/contact_intro.tsx`). Support address: `components/contact/support_email.ts`
+    still has `support@[DOMAIN]`.
+23. **Contact router and footnotes.** The Sales and Support cards and the press, partner and jobs
+    lines are no longer rendered (`app/(site)/contact/page.tsx`). Decide whether they return, or the
+    files are deleted.
 
 ## Known gaps
 
