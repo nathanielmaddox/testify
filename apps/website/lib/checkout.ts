@@ -24,7 +24,8 @@ export const CHECKOUT_UI_MODE: CheckoutUiMode = 'embedded_page'
 /** Contact fields the checkout form collects. */
 export interface CheckoutContact {
   email: string
-  name: string
+  firstName: string
+  lastName: string
   businessName: string
 }
 
@@ -55,7 +56,12 @@ export type CheckoutResponse =
   | { ok: false; error: CheckoutErrorCode; message: string }
 
 /** Field limits, shared by the form and the API. */
-export const CHECKOUT_LIMITS = { email: 254, name: 120, businessName: 160 } as const
+export const CHECKOUT_LIMITS = {
+  email: 254,
+  firstName: 60,
+  lastName: 80,
+  businessName: 160,
+} as const
 
 /**
  * Browser: start the purchase for checkout host `slug`. Attaches the stored

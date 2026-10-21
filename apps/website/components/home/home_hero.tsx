@@ -1,13 +1,12 @@
 'use client'
 
-// Home hero (Paper "01 Hero"): kicker, two-line H1, sub, violet "Get started" and outline "See our work",
+// Home hero (Paper "01 Hero"): two-line H1 (no eyebrow, owner ruling), sub, violet "Get started" and outline "See our work",
 // reassurance line, the three fanned phones, four stat cards and the trust line. Nav is the chrome's job.
 import { Link } from '@otesse/design-system'
 import NextLink from 'next/link'
 import { useAttributedHref } from '@/components/lp/use_attributed_href'
 import { getRoute, siteConfig } from '@/lib/site.config'
 import { DisplayHeading } from '@testify/style-guide/components/DisplayHeading'
-import { Kicker } from '@testify/style-guide/components/Kicker'
 import { PageSection } from '@testify/style-guide/components/PageSection'
 import { HeroPhones } from './hero_phones'
 
@@ -31,14 +30,11 @@ export function HomeHero() {
       className="flex flex-col items-center gap-24"
     >
       <div className="flex flex-col items-center gap-10">
-        <div className="flex flex-col items-center gap-6">
-          <Kicker>For trades, clinics, salons and local pros</Kicker>
-          <div className="flex justify-center text-center">
-            <DisplayHeading level={1} size="display-xl" id="home-hero-heading">
-              <span className="block font-semibold">Social Media That</span>
-              <span className="block font-medium italic">Grows Your Business</span>
-            </DisplayHeading>
-          </div>
+        <div className="flex justify-center text-center">
+          <DisplayHeading level={1} size="display-xl" id="home-hero-heading">
+            <span className="block font-semibold">Social Media That</span>
+            <span className="block font-medium italic">Grows Your Business</span>
+          </DisplayHeading>
         </div>
         <p className="max-w-measure text-center font-text text-brand-lead text-brand-ink-muted">
           While you&apos;re under a sink or behind the chair, your page keeps moving. We plan the

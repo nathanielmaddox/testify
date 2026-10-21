@@ -13,6 +13,7 @@
 import { CHECKOUT_UI_MODE, type CheckoutRequest, type CheckoutResponse } from '../../checkout'
 import {
   checkoutSessionParams,
+  createCheckoutCustomer,
   isPaidCheckoutSession,
   missingCheckoutEnv,
   parseCheckoutAttribution,
@@ -43,15 +44,17 @@ export function createStripePayments(): PaymentsAdapter {
         }
       }
 
-      const params = checkoutSessionParams({
-        lp,
-        priceId,
-        contact: request.contact,
-        attribution: parseCheckoutAttribution(request.attribution),
-      })
-
       try {
         const stripe = await stripeClient(secretKey)
+        // Named "First Last" with the email, so the Stripe customer is identifiable.
+        const customerId = await createCheckoutCustomer(stripe, request.contact)
+        const params = checkoutSessionParams({
+          lp,
+          priceId,
+          contact: request.contact,
+          attribution: parseCheckoutAttribution(request.attribution),
+          customerId,
+        })
         const session = await stripe.checkout.sessions.create(params)
         if (CHECKOUT_UI_MODE === 'embedded_page') {
           if (!session.client_secret) {

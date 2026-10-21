@@ -6,7 +6,7 @@
  * and the focus move on a failed submit. Copy comes from the Paper frames.
  */
 
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { SubmitButton } from '@testify/style-guide/components/ActionButton'
 import { DisplayHeading } from '@testify/style-guide/components/DisplayHeading'
@@ -158,11 +158,45 @@ export function QualifierStep({ step }: { step: 1 | 2 | 3 }) {
           onBlur={() => markTouched(field.key)}
           {...(field.placeholder ? { placeholder: field.placeholder } : {})}
           {...(field.autoComplete ? { autoComplete: field.autoComplete } : {})}
-          {...(field.helper ? { helperText: field.helper } : {})}
+          {...(field.helper && !field.group ? { helperText: field.helper } : {})}
           {...(error ? { error } : {})}
         />
       </div>
     )
+  }
+
+  /**
+   * Renders the fields in order. Consecutive fields with one `group` share a row
+   * from md up (stacked below), and the group's helper is shown once under the row.
+   */
+  function renderFields(fields: readonly FieldSpec[]): ReactNode[] {
+    const nodes: ReactNode[] = []
+    let index = 0
+    while (index < fields.length) {
+      const field = fields[index]
+      if (!field) break
+      if (!field.group) {
+        nodes.push(renderField(field))
+        index += 1
+        continue
+      }
+      const members: FieldSpec[] = []
+      while (index < fields.length && fields[index]?.group === field.group) {
+        const member = fields[index]
+        if (member) members.push(member)
+        index += 1
+      }
+      const rowHelper = members.find((member) => member.helper)?.helper
+      nodes.push(
+        <div key={`group-${field.group}`} className="flex flex-col gap-2">
+          <div className="grid gap-4 md:grid-cols-2">{members.map(renderField)}</div>
+          {rowHelper ? (
+            <p className="font-text text-brand-small text-brand-ink-muted">{rowHelper}</p>
+          ) : null}
+        </div>
+      )
+    }
+    return nodes
   }
 
   const previousPath = spec.prevPath
@@ -180,7 +214,7 @@ export function QualifierStep({ step }: { step: 1 | 2 | 3 }) {
           {spec.title}
         </DisplayHeading>
 
-        <div className="flex flex-col gap-6">{spec.fields.map(renderField)}</div>
+        <div className="flex flex-col gap-6">{renderFields(spec.fields)}</div>
 
         <div className="flex flex-col gap-4">
           <p className="font-text text-brand-small text-brand-ink-muted">{spec.confirm}</p>
