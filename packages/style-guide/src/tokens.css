@@ -405,15 +405,18 @@ body {
 }
 
 /* Visible focus on anything the brand renders. :where() keeps specificity at 0,
-   so a DS component's own ring utilities still win on DS components. Brand DS
-   Buttons (ActionButton, ChoiceChip, TimePill, BookingDayCell) carry
-   data-brand-ring and draw their one ring through the DS focus-ring overrides,
-   so the global outline skips them. */
-:where(a, button, input, select, textarea, summary, [tabindex]):where(
-    :not([data-brand-ring])
-  ):focus-visible {
+   so a DS component's own ring utilities still win on DS components. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
+}
+
+/* Brand DS Buttons (ActionButton, ChoiceChip, TimePill, BookingDayCell) carry
+   data-brand-ring and draw their one ring as the DS box-shadow through
+   focusRingWidth / focusRingOffset. This rule beats the global outline above
+   (0,2,0 against 0,1,0) so the two never stack. */
+[data-brand-ring]:focus-visible {
+  outline: none;
 }
 
 /* Skip link. The DS SkipLink (rendered by the site and LP headers) takes no

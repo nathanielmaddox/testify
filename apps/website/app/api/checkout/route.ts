@@ -43,10 +43,11 @@ function parseContact(raw: unknown): CheckoutContact | null {
   if (!raw || typeof raw !== 'object') return null
   const input = raw as Record<string, unknown>
   const email = text(input['email'], CHECKOUT_LIMITS.email)
-  const name = text(input['name'], CHECKOUT_LIMITS.name)
+  const firstName = text(input['firstName'], CHECKOUT_LIMITS.firstName)
+  const lastName = text(input['lastName'], CHECKOUT_LIMITS.lastName)
   const businessName = text(input['businessName'], CHECKOUT_LIMITS.businessName)
-  if (!email || !EMAIL_RE.test(email) || !name || !businessName) return null
-  return { email, name, businessName }
+  if (!email || !EMAIL_RE.test(email) || !firstName || !lastName || !businessName) return null
+  return { email, firstName, lastName, businessName }
 }
 
 /** HTTP status for an error code the adapter returns. */
@@ -77,7 +78,12 @@ export async function POST(request: Request) {
   if (!body) return fail(400, 'invalid_request', 'Body must be a JSON object.')
 
   const contact = parseContact(body['contact'])
-  if (!contact) return fail(400, 'invalid_request', 'Email, name and business name are required.')
+  if (!contact)
+    return fail(
+      400,
+      'invalid_request',
+      'Email, first name, last name and business name are required.'
+    )
 
   const slug = typeof body['slug'] === 'string' ? body['slug'] : ''
   const attribution = typeof body['attribution'] === 'string' ? body['attribution'] : undefined

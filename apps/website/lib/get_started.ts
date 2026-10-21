@@ -90,6 +90,11 @@ export interface FieldSpec {
   maxLength?: number
   requiredError?: string
   invalidError?: string
+  /**
+   * Fields with the same `group` share one row from md up (stacked below md).
+   * The group's helper is the first member's helper, shown once under the row.
+   */
+  group?: string
 }
 
 export interface QualifierStepSpec {
@@ -175,14 +180,25 @@ const ABOUT_YOU: QualifierStepSpec = {
   submitLabel: 'Next: your business',
   fields: [
     {
-      key: 'fullName',
+      key: 'firstName',
       kind: 'text',
-      label: 'Your name',
+      label: 'First name',
       required: true,
-      placeholder: 'e.g. Maria Lopez',
+      placeholder: 'e.g. Maria',
       helper: "What we'll call you on the invite.",
-      autoComplete: 'name',
-      requiredError: "Add your name so we know who we're talking to.",
+      autoComplete: 'given-name',
+      requiredError: 'Enter your first name.',
+      group: 'name',
+    },
+    {
+      key: 'lastName',
+      kind: 'text',
+      label: 'Last name',
+      required: true,
+      placeholder: 'e.g. Lopez',
+      autoComplete: 'family-name',
+      requiredError: 'Enter your last name.',
+      group: 'name',
     },
     {
       key: 'email',
@@ -617,6 +633,36 @@ export function formatDayLabel(dateKey: string): string {
 
 /* ---------- sessionStorage contract ---------- */
 
+/**
+ * The visitor's full name, derived from the two name fields. Never stored: the
+ * answers keep `firstName` and `lastName` only.
+ */
+export function fullNameOf(aboutYou: StepValues | undefined): string {
+  const first = asText(aboutYou?.['firstName']).trim()
+  const last = asText(aboutYou?.['lastName']).trim()
+  return [first, last].filter(Boolean).join(' ')
+}
+
+/**
+ * Sessions saved before the name split hold one `fullName`. Split it into
+ * `firstName` (first word) and `lastName` (the rest), then drop `fullName`.
+ */
+function migrateLegacyName(state: GetStartedState): GetStartedState {
+  const about = state.aboutYou
+  if (!about || !('fullName' in about)) return state
+  const { fullName, ...rest } = about
+  const legacy = asText(fullName).trim()
+  const [first = '', ...others] = legacy.split(/\s+/)
+  return {
+    ...state,
+    aboutYou: {
+      ...rest,
+      firstName: asText(rest['firstName']) || first,
+      lastName: asText(rest['lastName']) || others.join(' '),
+    },
+  }
+}
+
 /** A stored booking is usable only when every part is well formed. */
 function isBooking(value: unknown): value is Booking {
   if (typeof value !== 'object' || value === null) return false
@@ -648,7 +694,7 @@ export function readGetStartedState(): GetStartedState {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) return {}
     const { booking, ...rest } = parsed as GetStartedState
-    return isBooking(booking) ? { ...rest, booking } : rest
+    return migrateLegacyName(isBooking(booking) ? { ...rest, booking } : rest)
   } catch {
     return {}
   }
