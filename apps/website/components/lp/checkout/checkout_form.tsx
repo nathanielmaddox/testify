@@ -1,16 +1,16 @@
 'use client'
 
-// Checkout pay form: email, first and last name, business name, the Stripe Payment Element slot, the charge notice,
-// the submit button, the risk reversal and the support line (Paper "Checkout two columns", form column).
-// Inline errors follow Paper "checkout, inline errors": field messages under the field, one payment
-// banner above the button, values kept. A submit with field errors moves focus to the first invalid
-// field. The payment banner sits in an always-mounted role="alert" region so screen readers announce it.
+// Checkout pay card (the right column of the checkout page): email, first and last name, business
+// name, the Stripe Payment Element slot, the submit button, then ONE reassurance line and the legal
+// authorization sentence in small muted text. Owner ruling: nothing else on this card.
+// Inline errors: field messages under the field, one payment banner above the button, values kept.
+// A submit with field errors moves focus to the first invalid field. The payment banner sits in an
+// always-mounted role="alert" region so screen readers announce it.
 // add_payment_info is NOT fired on submit: it fires from the Payment Element hook once details exist.
 import { useState, type FormEvent } from 'react'
 import { startCheckout, CHECKOUT_LIMITS, type CheckoutContact } from '@/lib/checkout'
 import { trackAddPaymentInfo } from '@/components/lp/checkout_tracker'
 import { SubmitButton } from '@testify/style-guide/components/ActionButton'
-import { BrandIcon } from '@testify/style-guide/components/BrandIcon'
 import { Notice } from '@testify/style-guide/components/Notice'
 import { TextField } from '@testify/style-guide/components/TextField'
 import { PaymentElementSlot } from './payment_element_slot'
@@ -26,6 +26,9 @@ const COPY = {
   lastNameEmpty: 'Enter your last name.',
   businessEmpty: 'Enter your business name so we can start your posts.',
 } as const
+
+/** The one reassurance line under the button. Bracketed terms stay until the owner sets them. */
+export const REASSURANCE_LINE = '[7]-day refund. Cancel any month. Your files stay yours.'
 
 type Field = 'email' | 'firstName' | 'lastName' | 'businessName'
 type Errors = Partial<Record<Field, string>>
@@ -56,22 +59,15 @@ export function CheckoutForm({
   idPrefix,
   slug,
   successPath,
-  amountLabel,
   priceLabel,
-  guaranteeTitle,
-  guaranteeBody,
   value,
   currency,
 }: {
   idPrefix: string
   slug: string
   successPath: string
-  /** Charge amount in words, for example "$99". */
-  amountLabel: string
-  /** Button label price, for example "$99/month". */
+  /** Button and legal line price, for example "$99/month". */
   priceLabel: string
-  guaranteeTitle: string
-  guaranteeBody: string
   /** Offer price in whole units, for the add_payment_info event (fired from the Payment Element hook). */
   value: number
   currency: string
@@ -206,15 +202,6 @@ export function CheckoutForm({
           onPaymentDetailsEntered={onPaymentDetailsEntered}
         />
 
-        <p className="font-text text-brand-body text-brand-ink">
-          You post it yourself. We make your posts and stories and put them in your portal, ready to
-          post. We never need your passwords.
-        </p>
-
-        <p className="font-text text-brand-small text-brand-ink-muted">
-          {`You'll be charged ${amountLabel} today, then ${amountLabel} every month on the [DAY OF MONTH] until you cancel. Cancel any time in your portal in 2 clicks. By clicking "Start my plan for ${priceLabel}", you agree to the Terms and authorize these charges.`}
-        </p>
-
         {/* Always mounted so screen readers announce the message when it appears. */}
         <div role="alert">
           {paymentError ? (
@@ -238,17 +225,12 @@ export function CheckoutForm({
         </SubmitButton>
       </form>
 
-      <div className="flex flex-col gap-2 border-t border-brand-border pt-6">
-        <div className="flex items-center gap-2 text-brand-ink">
-          <BrandIcon name="Check" size="sm" />
-          <h3 className="font-display text-brand-h4 text-brand-ink">{guaranteeTitle}</h3>
-        </div>
-        <p className="font-text text-brand-body text-brand-ink-muted">{guaranteeBody}</p>
+      <div className="flex flex-col gap-2">
+        <p className="font-text text-brand-body text-brand-ink">{REASSURANCE_LINE}</p>
+        <p className="font-text text-brand-small text-brand-ink-subtle">
+          {`By clicking "Start my plan for ${priceLabel}", you agree to the Terms and authorize these charges.`}
+        </p>
       </div>
-
-      <p className="font-text text-brand-small text-brand-ink-subtle">
-        Questions? [NAME] replies within [N] hours: hello@[DOMAIN]
-      </p>
     </section>
   )
 }
