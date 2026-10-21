@@ -7,10 +7,8 @@ import { Kicker } from '@testify/style-guide/components/Kicker'
 import { PageSection } from '@testify/style-guide/components/PageSection'
 import { PricingLine } from '@testify/style-guide/components/PricingLine'
 import { useAttributedHref } from '@/components/lp/use_attributed_href'
+import { SUPPORT_EMAIL } from '@/components/contact/support_email'
 import { routes } from '@/lib/site.config'
-
-// Paper text for the support address. The visible line, the mailto link and the Copy button all use it.
-const SUPPORT_EMAIL = 'support@[DOMAIN]'
 
 const SALES_STEPS = [
   'Three quick questions. About two minutes.',

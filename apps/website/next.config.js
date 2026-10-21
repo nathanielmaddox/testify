@@ -55,6 +55,18 @@ const thirdParties = [
       'https://checkout.stripe.com',
     ],
   },
+  // Contact page booking embed (NEXT_PUBLIC_BOOKING_EMBED_URL). The frame host must match the URL's
+  // host or the iframe is blocked. Listed: Cal.com and Calendly. For any other provider, add its host
+  // here, not inline. See INTEGRATIONS.md.
+  {
+    name: 'Booking embed',
+    frame: [
+      'https://cal.com',
+      'https://app.cal.com',
+      'https://calendly.com',
+      'https://*.calendly.com',
+    ],
+  },
 ]
 
 /** Unique, space-joined host list for one key of `thirdParties`. */

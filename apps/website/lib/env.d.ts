@@ -21,6 +21,8 @@ declare namespace NodeJS {
     readonly NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL?: string
     /** Meta Pixel id. Unset = Meta browser pixel off. */
     readonly NEXT_PUBLIC_META_PIXEL_ID?: string
+    /** Contact page booking embed: full https booking page URL. Unset = calendar placeholder. */
+    readonly NEXT_PUBLIC_BOOKING_EMBED_URL?: string
     /** Stripe publishable key (pk_test_ / pk_live_) for the embedded checkout. Public. */
     readonly NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?: string
     /** SERVER ONLY. Stripe secret key (sk_ / rk_). Unset = /api/checkout answers 503. */
