@@ -42,7 +42,7 @@ importers:
         specifier: ^8.49.0
         version: 8.71.1(eslint@9.39.5(jiti@2.6.1))(typescript@5.9.3)
 
-  apps/website:
+  apps/admin:
     dependencies:
       '@otesse/design-system':
         specifier: github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f
@@ -81,6 +81,52 @@ importers:
       eslint:
         specifier: ^9.39.1
         version: 9.39.5(jiti@1.21.7)
+      postcss:
+        specifier: ^8.4.33
+        version: 8.5.29
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.19(yaml@2.9.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  apps/website:
+    dependencies:
+      '@otesse/design-system':
+        specifier: github:nathanielmaddox/storybook#e7d37602c89615c3403f8a68a27b56675bb6902f
+        version: git+https://github.com/nathanielmaddox/storybook.git#e7d37602c89615c3403f8a68a27b56675bb6902f(@babel/core@7.29.7)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(antd@5.29.3(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(next@16.4.0(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react-is@18.3.1)(react@19.3.0)(redux@5.0.1)
+      '@testify/style-guide':
+        specifier: workspace:*
+        version: link:../../packages/style-guide
+      next:
+        specifier: ^16.2.4
+        version: 16.4.0(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@testify/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@types/node':
+        specifier: ^22.15.0
+        version: 22.20.5
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.3.0(@types/react@19.3.0)
+      autoprefixer:
+        specifier: ^10.4.17
+        version: 10.6.1(postcss@8.5.29)
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.5(jiti@2.6.1)
       postcss:
         specifier: ^8.4.33
         version: 8.5.29

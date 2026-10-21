@@ -5,6 +5,7 @@
   "description": "testify monorepo. Apps live in apps/, shared config in packages/. All UI components come from @otesse/design-system (vs_code/otesse_ds).",
   "scripts": {
     "dev": "pnpm --filter @testify/website dev",
+    "dev:admin": "pnpm --filter @testify/admin dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r --no-bail lint",
     "type-check": "pnpm -r --no-bail type-check",
